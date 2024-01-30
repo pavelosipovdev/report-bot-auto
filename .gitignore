@@ -163,7 +163,7 @@ cython_debug/
 testing.json
 test.jpg
 test2.jpg
-body_japan.json
-body_vin.json
+body_japan2.json
+body_vin2.json
 .env
 /tmp
