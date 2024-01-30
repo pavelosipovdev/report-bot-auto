@@ -5,6 +5,7 @@ from aiogram.types import Message
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 import utils.connectors
+import utils.inliner
 from utils import convert, api
 from texts import texts
 
@@ -495,39 +496,7 @@ async def sell_choosing_comissiya_creditcomission101(callback: types.CallbackQue
 @router.message(SetReport.choosing_comissiya_credit9)
 @router.inline_query(lambda query: query.query.startswith("find_colleges_comissiya_credit "))
 async def find_colleges(inline_query: types.InlineQuery, state: FSMContext):
-    #     builder.add(types.InlineKeyboardButton(
-    #         text=texts.BT_CONSTRUCTOR_4_COLLEGE_COLLEGE,
-    #         callback_data=texts.BT_CONSTRUCTOR_4_COLLEGE_COLLEGE)
-    #     )
-    # Здесь ты можешь реализовать логику поиска колледжа и создать список результатов
-    results = []
-
-    # Получение дополнительных символов из запроса
-    query = inline_query.query
-    query = query.replace("find_colleges_comissiya_credit ", "").strip()
-
-    # Поиск колледжей, название или адрес которых содержит дополнительные символы
-    # Здесь ты можешь использовать свою базу данных или API для получения данных о колледжах
-    # Для примера я буду использовать список колледжей в Москве
-    # colleges = [
-    #     {"id": "1", "name": "Осипов Павел", "tag": "rogerthatdev"},
-    #     {"id": "2", "name": "Чудин Павел", "tag": "p_chudin"}
-    # ]
-
-    # Фильтрация колледжей по дополнительным символам
-    for college in utils.connectors.dict_colleges:
-        if query.lower() in college["name"].lower() or query.lower() in college["tag"].lower():
-            # Добавление результата в список
-            result = types.InlineQueryResultArticle(
-                id=college["id"],
-                title=college["name"],
-                input_message_content=types.InputTextMessageContent(message_text="@" + college['tag']),
-                description=college["tag"]
-            )
-            results.append(result)
-
-    # Отправка результатов пользователю
-    await inline_query.answer(results, cache_time=0)
+    await utils.inliner.find_colleges(inline_query, state, "find_colleges_comissiya_credit ")
     await state.set_state(SetReport.choosing_comissiya_credit10)
 
 
@@ -557,22 +526,7 @@ async def sell_choosing_our_credit5(message: Message, state: FSMContext):
 @router.message(SetReport.choosing_comissiya_credit11)
 @router.inline_query(lambda query: query.query.startswith("find_colleges_comissiya_credit_credit "))
 async def find_colleges(inline_query: types.InlineQuery, state: FSMContext):
-    results = []
-
-    query = inline_query.query
-    query = query.replace("find_colleges_comissiya_credit_credit ", "").strip()
-
-    for college in utils.connectors.dict_colleges:
-        if query.lower() in college["name"].lower() or query.lower() in college["tag"].lower():
-            result = types.InlineQueryResultArticle(
-                id=college["id"],
-                title=college["name"],
-                input_message_content=types.InputTextMessageContent(message_text="@" + college['tag']),
-                description=college["tag"]
-            )
-            results.append(result)
-
-    await inline_query.answer(results, cache_time=0)
+    await utils.inliner.find_colleges(inline_query, state, "find_colleges_comissiya_credit_credit ")
     await state.set_state(SetReport.choosing_comissiya_credit12)
 
 
@@ -852,39 +806,7 @@ async def sell_choosing_comissiya_cash_comission101(callback: types.CallbackQuer
 @router.message(SetReport.choosing_comissiya_cash9)
 @router.inline_query(lambda query: query.query.startswith("find_colleges_comissiya_credit "))
 async def find_colleges(inline_query: types.InlineQuery, state: FSMContext):
-    #     builder.add(types.InlineKeyboardButton(
-    #         text=texts.BT_CONSTRUCTOR_4_COLLEGE_COLLEGE,
-    #         callback_data=texts.BT_CONSTRUCTOR_4_COLLEGE_COLLEGE)
-    #     )
-    # Здесь ты можешь реализовать логику поиска колледжа и создать список результатов
-    results = []
-
-    # Получение дополнительных символов из запроса
-    query = inline_query.query
-    query = query.replace("find_colleges_comissiya_credit ", "").strip()
-
-    # Поиск колледжей, название или адрес которых содержит дополнительные символы
-    # Здесь ты можешь использовать свою базу данных или API для получения данных о колледжах
-    # Для примера я буду использовать список колледжей в Москве
-    # colleges = [
-    #     {"id": "1", "name": "Осипов Павел", "tag": "rogerthatdev"},
-    #     {"id": "2", "name": "Чудин Павел", "tag": "p_chudin"}
-    # ]
-
-    # Фильтрация колледжей по дополнительным символам
-    for college in utils.connectors.dict_colleges:
-        if query.lower() in college["name"].lower() or query.lower() in college["tag"].lower():
-            # Добавление результата в список
-            result = types.InlineQueryResultArticle(
-                id=college["id"],
-                title=college["name"],
-                input_message_content=types.InputTextMessageContent(message_text="@" + college['tag']),
-                description=college["tag"]
-            )
-            results.append(result)
-
-    # Отправка результатов пользователю
-    await inline_query.answer(results, cache_time=0)
+    await utils.inliner.find_colleges(inline_query, state, "find_colleges_comissiya_credit ")
     await state.set_state(SetReport.choosing_comissiya_cash10)
 
 
@@ -914,22 +836,7 @@ async def sell_choosing_comissiya_cash_comission10(message: Message, state: FSMC
 @router.message(SetReport.choosing_comissiya_cash11)
 @router.inline_query(lambda query: query.query.startswith("find_colleges_comissiya_credit_credit "))
 async def find_colleges(inline_query: types.InlineQuery, state: FSMContext):
-    results = []
-
-    query = inline_query.query
-    query = query.replace("find_colleges_comissiya_credit_credit ", "").strip()
-
-    for college in utils.connectors.dict_colleges:
-        if query.lower() in college["name"].lower() or query.lower() in college["tag"].lower():
-            result = types.InlineQueryResultArticle(
-                id=college["id"],
-                title=college["name"],
-                input_message_content=types.InputTextMessageContent(message_text="@" + college['tag']),
-                description=college["tag"]
-            )
-            results.append(result)
-
-    await inline_query.answer(results, cache_time=0)
+    await utils.inliner.find_colleges(inline_query, state, "find_colleges_comissiya_credit_credit ")
     await state.set_state(SetReport.choosing_comissiya_cash12)
 
 
@@ -1115,39 +1022,7 @@ async def sell_choosing_our_credit3(message: Message, state: FSMContext):
 @router.message(SetReport.choosing_our_credit45)
 @router.inline_query(lambda query: query.query.startswith("find_colleges "))
 async def find_colleges(inline_query: types.InlineQuery, state: FSMContext):
-    #     builder.add(types.InlineKeyboardButton(
-    #         text=texts.BT_CONSTRUCTOR_4_COLLEGE_COLLEGE,
-    #         callback_data=texts.BT_CONSTRUCTOR_4_COLLEGE_COLLEGE)
-    #     )
-    # Здесь ты можешь реализовать логику поиска колледжа и создать список результатов
-    results = []
-
-    # Получение дополнительных символов из запроса
-    query = inline_query.query
-    query = query.replace("find_colleges ", "").strip()
-
-    # Поиск колледжей, название или адрес которых содержит дополнительные символы
-    # Здесь ты можешь использовать свою базу данных или API для получения данных о колледжах
-    # Для примера я буду использовать список колледжей в Москве
-    # colleges = [
-    #     {"id": "1", "name": "Осипов Павел", "tag": "rogerthatdev"},
-    #     {"id": "2", "name": "Чудин Павел", "tag": "p_chudin"}
-    # ]
-
-    # Фильтрация колледжей по дополнительным символам
-    for college in utils.connectors.dict_colleges:
-        if query.lower() in college["name"].lower() or query.lower() in college["tag"].lower():
-            # Добавление результата в список
-            result = types.InlineQueryResultArticle(
-                id=college["id"],
-                title=college["name"],
-                input_message_content=types.InputTextMessageContent(message_text="@" + college['tag']),
-                description=college["tag"]
-            )
-            results.append(result)
-
-    # Отправка результатов пользователю
-    await inline_query.answer(results, cache_time=0)
+    await utils.inliner.find_colleges(inline_query, state, "find_colleges ")
     await state.set_state(SetReport.choosing_our_credit5)
 
 
@@ -1173,22 +1048,7 @@ async def sell_choosing_our_credit5(message: Message, state: FSMContext):
 @router.message(SetReport.choosing_our_credit6)
 @router.inline_query(lambda query: query.query.startswith("find_colleges_dkp "))
 async def find_colleges(inline_query: types.InlineQuery, state: FSMContext):
-    results = []
-
-    query = inline_query.query
-    query = query.replace("find_colleges_dkp ", "").strip()
-
-    for college in utils.connectors.dict_colleges:
-        if query.lower() in college["name"].lower() or query.lower() in college["tag"].lower():
-            result = types.InlineQueryResultArticle(
-                id=college["id"],
-                title=college["name"],
-                input_message_content=types.InputTextMessageContent(message_text="@" + college['tag']),
-                description=college["tag"]
-            )
-            results.append(result)
-
-    await inline_query.answer(results, cache_time=0)
+    await utils.inliner.find_colleges(inline_query, state, "find_colleges_dkp ")
     await state.set_state(SetReport.choosing_our_credit8)
 
 
@@ -1255,22 +1115,7 @@ async def sell_choosing_our_credit4(message: Message, state: FSMContext):
 @router.message(SetReport.choosing_our_cash45)
 @router.inline_query(lambda query: query.query.startswith("find_colleges "))
 async def find_colleges(inline_query: types.InlineQuery, state: FSMContext):
-    results = []
-
-    query = inline_query.query
-    query = query.replace("find_colleges ", "").strip()
-
-    for college in utils.connectors.dict_colleges:
-        if query.lower() in college["name"].lower() or query.lower() in college["tag"].lower():
-            result = types.InlineQueryResultArticle(
-                id=college["id"],
-                title=college["name"],
-                input_message_content=types.InputTextMessageContent(message_text="@" + college['tag']),
-                description=college["tag"]
-            )
-            results.append(result)
-
-    await inline_query.answer(results, cache_time=0)
+    await utils.inliner.find_colleges(inline_query, state, "find_colleges ")
     await state.set_state(SetReport.choosing_our_cash5)
 
 
@@ -1296,22 +1141,7 @@ async def sell_choosing_our_credit5(message: Message, state: FSMContext):
 @router.message(SetReport.choosing_our_cash6)
 @router.inline_query(lambda query: query.query.startswith("find_colleges_dkp "))
 async def find_colleges(inline_query: types.InlineQuery, state: FSMContext):
-    results = []
-
-    query = inline_query.query
-    query = query.replace("find_colleges_dkp ", "").strip()
-
-    for college in utils.connectors.dict_colleges:
-        if query.lower() in college["name"].lower() or query.lower() in college["tag"].lower():
-            result = types.InlineQueryResultArticle(
-                id=college["id"],
-                title=college["name"],
-                input_message_content=types.InputTextMessageContent(message_text="@" + college['tag']),
-                description=college["tag"]
-            )
-            results.append(result)
-
-    await inline_query.answer(results, cache_time=0)
+    await utils.inliner.find_colleges(inline_query, state, "find_colleges_dkp ")
     await state.set_state(SetReport.choosing_our_cash7)
 
 

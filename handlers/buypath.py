@@ -10,6 +10,7 @@ from aiogram.types import Message, InlineQueryResultArticle, InputTextMessageCon
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 import utils.connectors
+import utils.inliner
 from utils import convert, api
 from texts import texts
 import re
@@ -289,42 +290,8 @@ async def constructor_choosing_cost(callback: types.CallbackQuery, state: FSMCon
 @router.message(SetReport.choosing_who_write_dkp0)
 @router.inline_query(lambda query: query.query.startswith("find_colleges "))
 async def find_colleges(inline_query: types.InlineQuery, state: FSMContext):
-    #     builder.add(types.InlineKeyboardButton(
-    #         text=texts.BT_CONSTRUCTOR_4_COLLEGE_COLLEGE,
-    #         callback_data=texts.BT_CONSTRUCTOR_4_COLLEGE_COLLEGE)
-    #     )
-    # Здесь ты можешь реализовать логику поиска колледжа и создать список результатов
-    results = []
-
-    # Получение дополнительных символов из запроса
-    query = inline_query.query
-    query = query.replace("find_colleges ", "").strip()
-
-    # Поиск колледжей, название или адрес которых содержит дополнительные символы
-    # Здесь ты можешь использовать свою базу данных или API для получения данных о колледжах
-    # Для примера я буду использовать список колледжей в Москве
-    # colleges = [
-    #     {"id": "1", "name": "Осипов Павел", "tag": "rogerthatdev"},
-    #     {"id": "2", "name": "Чудин Павел", "tag": "p_chudin"}
-    # ]
-
-
-    # Фильтрация колледжей по дополнительным символам
-    for college in utils.connectors.dict_colleges:
-        if query.lower() in college["name"].lower() or query.lower() in college["tag"].lower():
-            # Добавление результата в список
-            result = types.InlineQueryResultArticle(
-                id=college["id"],
-                title=college["name"],
-                input_message_content=types.InputTextMessageContent(message_text="@" + college['tag']),
-                description=college["tag"]
-            )
-            results.append(result)
-
-    # Отправка результатов пользователю
-    await inline_query.answer(results, cache_time=0)
+    await utils.inliner.find_colleges(inline_query, state, "find_colleges ")
     await state.set_state(SetReport.choosing_who_write_dkp_inline)
-
 
 
 @router.message(SetReport.choosing_who_write_dkp_inline)
@@ -369,54 +336,8 @@ async def constructor_choosing_cost(callback: types.CallbackQuery, state: FSMCon
 @router.message(SetReport.choosing_who_write_dkp_inline)
 @router.inline_query(lambda query: query.query.startswith("find_colleges_dkp "))
 async def find_colleges(inline_query: types.InlineQuery, state: FSMContext):
-    #     builder.add(types.InlineKeyboardButton(
-    #         text=texts.BT_CONSTRUCTOR_4_COLLEGE_COLLEGE,
-    #         callback_data=texts.BT_CONSTRUCTOR_4_COLLEGE_COLLEGE)
-    #     )
-    # Здесь ты можешь реализовать логику поиска колледжа и создать список результатов
-    results = []
-
-    # Получение дополнительных символов из запроса
-    query = inline_query.query
-    query = query.replace("find_colleges_dkp ", "").strip()
-
-    # Поиск колледжей, название или адрес которых содержит дополнительные символы
-    # Здесь ты можешь использовать свою базу данных или API для получения данных о колледжах
-    # Для примера я буду использовать список колледжей в Москве
-
-    # Фильтрация колледжей по дополнительным символам
-    for college in utils.connectors.dict_colleges:
-        if query.lower() in college["name"].lower() or query.lower() in college["tag"].lower():
-            # Добавление результата в список
-            result = types.InlineQueryResultArticle(
-                id=college["id"],
-                title=college["name"],
-                input_message_content=types.InputTextMessageContent(message_text="@" + college['tag']),
-                description=college["tag"]
-            )
-            results.append(result)
-
-    # Отправка результатов пользователю
-    await inline_query.answer(results, cache_time=0)
+    await utils.inliner.find_colleges(inline_query, state, "find_colleges_dkp ")
     await state.set_state(SetReport.choosing_wire_cost)
-
-
-# @router.message(SetReport.choosing_who_write_dkp)
-# async def constructor_choosing_cost(message: Message, state: FSMContext):
-#     await state.update_data(chosen_college_fio=db_sql_buy_with_college(message.text.lower()))
-#     if db_sql_buy_with_college(message.text.lower()) == "Некорректный USERNAME":
-#         await message.answer("Некорректный USERNAME, укажите корректный в режиме редактирования")
-#     builder = InlineKeyboardBuilder()
-#     builder.add(types.InlineKeyboardButton(
-#         text=texts.BT_CONSTRUCTOR_4_COLLEGE_SELF,
-#         callback_data=texts.BT_CONSTRUCTOR_4_COLLEGE_SELF)
-#     )
-#     builder.add(types.InlineKeyboardButton(
-#         text=texts.BT_CONSTRUCTOR_4_COLLEGE_COLLEGE,
-#         callback_data=texts.BT_CONSTRUCTOR_4_COLLEGE_COLLEGE)
-#     )
-#     await message.answer(text="КТО ПИСАЛ ДКП?", reply_markup=builder.as_markup())
-#     await state.set_state(SetReport.choosing_cost)
 
 
 @router.callback_query(SetReport.choosing_self_college_dkp, F.data == texts.BT_CONSTRUCTOR_4_COLLEGE_SELF)
@@ -435,30 +356,6 @@ async def constructor_choosing_cost(callback: types.CallbackQuery, state: FSMCon
     # )
     await callback.message.edit_text(text="КТО ПИСАЛ ДКП?", reply_markup=builder.as_markup())
     await state.set_state(SetReport.choosing_cost)
-
-
-# @router.message(SetReport.choosing_cost)
-# async def constructor_choosing_wire(message: Message, state: FSMContext):
-#     builder = InlineKeyboardBuilder()
-#     builder.add(types.InlineKeyboardButton(
-#         text="Следующий шаг",
-#         callback_data="bt_constructor_55_college_self")
-#     )
-#     await message.answer(text=texts.MESSAGE_BT_CONSTRUCTOR_5_COST, reply_markup=builder.as_markup())
-#     await state.update_data(chosen_wire=message.text.upper())
-#     await state.set_state(SetReport.choosing_wire)
-
-# @router.callback_query(SetReport.choosing_cost, F.data == texts.BT_CONSTRUCTOR_4_COLLEGE_COLLEGE)
-# async def constructor_choosing_wire(callback: types.CallbackQuery, state: FSMContext):
-#     await state.update_data(chosen_college_dkp=callback.data)
-#     await callback.message.edit_text(text=texts.MESSAGE_BT_CONSTRUCTOR_5_COST)
-#     await state.set_state(SetReport.choosing_wire)
-# @router.callback_query(SetReport.choosing_cost, F.data == texts.BT_CONSTRUCTOR_4_COLLEGE_COLLEGE)
-# async def constructor_choosing_wire(callback: types.CallbackQuery, state: FSMContext):
-#     await state.update_data(chosen_college_fio=callback.message.text)
-#     await state.update_data(chosen_college_dkp=callback.data)
-#     await callback.message.edit_text(text="Введите тег коллеги")
-#     await state.set_state(SetReport.choosing_cost1)
 
 
 @router.message(SetReport.choosing_cost1)
@@ -818,5 +715,3 @@ async def constructor_choosing_awa_our_credit44(callback: types.CallbackQuery, s
         text="Отчет отправлен, спасибо, что воспользовались ботом. Нажмите на /start для составления нового отчета.")
     await callback.message.answer(text="/start")
     await state.clear()
-
-

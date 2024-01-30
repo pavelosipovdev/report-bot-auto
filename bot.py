@@ -13,7 +13,7 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from handlers import questions, reports, template_use, sellpath, buypath, comissionpath
 from texts import texts
-from utils import api, convert
+from utils import api, convert, inliner
 
 # Для записей с типом Secret* необходимо
 # вызывать метод get_secret_value(),
@@ -79,6 +79,7 @@ async def cmd_start(message: types.Message):
 dp.include_routers(sellpath.router)
 dp.include_routers(buypath.router)
 dp.include_routers(comissionpath.router)
+dp.include_routers(inliner.router)
 
 if __name__ == "__main__":
     asyncio.run(main())
