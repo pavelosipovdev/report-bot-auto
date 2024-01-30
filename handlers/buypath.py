@@ -9,6 +9,7 @@ from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import Message, InlineQueryResultArticle, InputTextMessageContent, InlineQuery
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
+import utils.connectors
 from utils import convert, api
 from texts import texts
 import re
@@ -51,42 +52,6 @@ class SetReport(StatesGroup):
     choosing_editor_first_vin_number = State()
     choosing_editor_first_comment = State()
     choosing_editor_finish = State()
-
-
-def db_sql_buy_with_college(username):
-    conn = psycopg2.connect(user=os.getenv('SQL_USER'),
-                            password=os.getenv('SQL_PASSWORD'),
-                            host=os.getenv('SQL_HOST'),
-                            port=os.getenv('SQL_PORT'),
-                            database=os.getenv('SQL_DATABASE')
-                            )
-    cur = conn.cursor()
-    print(username)
-    if conn.closed == 0:
-        print(f'Успешное подключение к бд, статус {conn.closed}')
-        sql_count_tg_user_info = "select count(*) from bot_planeta_avto.tg_info_user where teg_name_tg='{value_teg_name_tg}';"
-        cur.execute(sql_count_tg_user_info.format(value_teg_name_tg=username))
-        count_tg_user_info = cur.fetchall()
-        print(count_tg_user_info[0][0])
-        if count_tg_user_info[0][0] != 0:
-            sql_select_tg_user_info = "select user_name_tg from bot_planeta_avto.tg_info_user where teg_name_tg='{value_teg_name_tg}';"
-            cur.execute(sql_select_tg_user_info.format(value_teg_name_tg=username))
-            select_tg_user_info = cur.fetchall()
-            return select_tg_user_info[0][0]
-        else:
-            print(count_tg_user_info[0][0])
-            return "Некорректный USERNAME"
-    else:
-        print(f'База недоступна, статус {conn.closed}')
-
-    conn.commit()
-    conn.close()
-
-
-dict_colleges = [
-    {"id": "1", "name": "Осипов Павел", "tag": "rogerthatdev"},
-    {"id": "2", "name": "Чудин Павел", "tag": "p_chudin"}
-]
 
 
 @router.callback_query(F.data == texts.BT_CONSTRUCTOR_1_BUY)
@@ -135,7 +100,7 @@ async def constructor_choosing_download(callback: types.CallbackQuery, state: FS
         text=texts.MESSAGE_BT_CONSTRUCTOR_3_MANUAL,
         callback_data=texts.MESSAGE_BT_CONSTRUCTOR_3_MANUAL)
     )
-    await callback.message.edit_text(text="Скачать или руками", reply_markup=builder.as_markup())
+    await callback.message.edit_text(text=texts.MESSAGE_PHOTO_VIN_DOWNLOAD, reply_markup=builder.as_markup())
     await state.set_state(SetReport.choosing_data_car)
 
 
@@ -265,7 +230,7 @@ async def constructor_choosing_electro(message: Message, state: FSMContext, bot:
         destination=f"tmp/{message.photo[-1].file_id}.jpg"
 
     )
-    await message.answer(text="Подождите пожалуйста", reply_markup=builder.as_markup())
+    await message.answer(text="Подождите пожалуйста")
     convert.convert_json_japan(f"tmp/{message.photo[-1].file_id}.jpg")
     msg = api.get_strings_japan()
     # print(msg)
@@ -279,9 +244,9 @@ async def constructor_choosing_electro(message: Message, state: FSMContext, bot:
         if len(k) == 14 and str(k[13]).isdigit():
             electro_vin = str(k).upper()
             print(electro_vin)
-    print(doka[6], doka[8], doka[10], doka[25])
+    print(doka[6], doka[8], doka[10], doka[26], "test")
     msg2 = f'''В базу внесено:
-    Год {str(doka[25]).upper()}
+    Год {str(doka[26]).upper()}
     VIN {str(doka[6]).upper()}
     Марка {str(doka[8]).upper()}
     Модель {str(doka[10]).upper()}
@@ -345,7 +310,7 @@ async def find_colleges(inline_query: types.InlineQuery, state: FSMContext):
 
 
     # Фильтрация колледжей по дополнительным символам
-    for college in dict_colleges:
+    for college in utils.connectors.dict_colleges:
         if query.lower() in college["name"].lower() or query.lower() in college["tag"].lower():
             # Добавление результата в список
             result = types.InlineQueryResultArticle(
@@ -359,14 +324,13 @@ async def find_colleges(inline_query: types.InlineQuery, state: FSMContext):
     # Отправка результатов пользователю
     await inline_query.answer(results, cache_time=0)
     await state.set_state(SetReport.choosing_who_write_dkp_inline)
-    # await state.set_state(SetReport.choosing_cost1)
-    # await state.set_state(SetReport.choosing_wire)
+
 
 
 @router.message(SetReport.choosing_who_write_dkp_inline)
 async def constructor_choosing_cost(message: Message, state: FSMContext):
     await message.answer(text="Пожалуйста подождите, идет проверка имени в базе данных")
-    college_name = db_sql_buy_with_college(message.text.lower())
+    college_name = utils.connectors.db_sql_buy_with_college(message.text.lower())
     await state.update_data(chosen_college_fio=college_name)
     if college_name == "Некорректный USERNAME":
         await message.answer("Некорректный USERNAME, укажите корректный в режиме редактирования")
@@ -421,7 +385,7 @@ async def find_colleges(inline_query: types.InlineQuery, state: FSMContext):
     # Для примера я буду использовать список колледжей в Москве
 
     # Фильтрация колледжей по дополнительным символам
-    for college in dict_colleges:
+    for college in utils.connectors.dict_colleges:
         if query.lower() in college["name"].lower() or query.lower() in college["tag"].lower():
             # Добавление результата в список
             result = types.InlineQueryResultArticle(
@@ -500,7 +464,7 @@ async def constructor_choosing_cost(callback: types.CallbackQuery, state: FSMCon
 @router.message(SetReport.choosing_cost1)
 async def constructor_choosing_cost222(message: Message, state: FSMContext):
     await message.answer(text="Пожалуйста подождите, идет проверка имени в базе данных")
-    college_name = db_sql_buy_with_college(message.text.lower())
+    college_name = utils.connectors.db_sql_buy_with_college(message.text.lower())
     await state.update_data(chosen_college_fio=college_name)
     await state.update_data(chosen_college_dkps=college_name)
     if college_name == "Некорректный USERNAME":
@@ -537,7 +501,7 @@ async def constructor_choosing_wire2(message: Message, state: FSMContext):
 @router.message(SetReport.choosing_wire_cost)
 async def constructor_choosing_wire2(message: Message, state: FSMContext):
     await message.answer(text="Пожалуйста подождите, идет проверка имени в базе данных")
-    college_name = db_sql_buy_with_college(message.text.lower())
+    college_name = utils.connectors.db_sql_buy_with_college(message.text.lower())
     await state.update_data(chosen_college_dkps=college_name)
     if college_name == "Некорректный USERNAME":
         await message.answer("Некорректный USERNAME, укажите корректный в режиме редактирования")
@@ -855,139 +819,4 @@ async def constructor_choosing_awa_our_credit44(callback: types.CallbackQuery, s
     await callback.message.answer(text="/start")
     await state.clear()
 
-#
-# @router.message(SetReport.choosing_electro, F.photo)
-# async def constructor_choosing_electro(message: Message, state: FSMContext, bot: Bot):
-#     builder = InlineKeyboardBuilder()
-#     builder.add(types.InlineKeyboardButton(
-#         text=texts.MESSAGE_IN_MAIN_MENU,
-#         callback_data="main_menu")
-#     )
-#     await bot.download(
-#         message.photo[-1],
-#         destination=f"tmp/{message.photo[-1].file_id}.jpg"
-#
-#     )
-#     await message.answer(text="Подождите пожалуйста", reply_markup=builder.as_markup())
-#     convert.convert_json_japan(f"tmp/{message.photo[-1].file_id}.jpg")
-#     msg = api.get_strings_japan()
-#     # print(msg)
-#     doka = []
-#     electro_vin = 'UNKNOWN'
-#     for i in msg:
-#         if i["lines"][0]["words"][0]["text"]:
-#             doka.append(i["lines"][0]["words"][0]["text"])
-#     print(doka)
-#     for k in doka:
-#         if len(k) == 14 and str(k[13]).isdigit():
-#             electro_vin = str(k).upper()
-#             print(electro_vin)
-#     msg2 = f'''В базу внесено:
-#     VIN {electro_vin}
-#     '''
-#     # await message.answer(text=texts.MESSAGE_MAIN_MENU_VIN, reply_markup=builder.as_markup())
-#     await message.answer(text=msg2, reply_markup=builder.as_markup())
-#     await state.clear()
-#
-#
-# @router.message(SetReport.choosing_report)
-# async def cb_place_ad(message: Message, state: FSMContext):
-#     global sender_marka, sender_model, sender_year, sender_our, sender_fio, sender_cost, sender_drom, sender_own, sender_torg, sender_fio2, sender_dkpfio, sender_commi, sender_agent
-#     sample_data = message.text
-#     print(sample_data)
-#     builder = InlineKeyboardBuilder()
-#     builder.add(types.InlineKeyboardButton(
-#         text=texts.MESSAGE_IN_MAIN_MENU,
-#         callback_data="main_menu")
-#     )
-#     try:
-#         sender_fio = re.findall(template_fio, sample_data)
-#         sender_marka = re.findall(template_marka, sample_data)
-#         sender_model = re.findall(template_model, sample_data)
-#         sender_year = re.findall(template_year, sample_data)
-#         sender_our = re.findall(template_our, sample_data)
-#         sender_cost = re.findall(template_cost, sample_data)
-#         sender_drom = re.findall(template_drom, sample_data)
-#         sender_own = re.findall(template_own, sample_data)
-#         sender_torg = re.findall(template_torg, sample_data)
-#         sender_fio2 = re.findall(template_fio2, sample_data)
-#         sender_dkpfio = re.findall(template_dkpfio, sample_data)
-#         sender_commi = re.findall(template_commi, sample_data)
-#         sender_agent = re.findall(template_agent, sample_data)
-#         print(sender_fio[0])
-#         print(sender_marka[0])
-#         print(sender_model[0])
-#         print(sender_year[0])
-#         print(sender_our[0])
-#         print(sender_cost[0])
-#         print(sender_drom[0])
-#         print(sender_own[0])
-#         print(sender_torg[0])
-#         print(sender_fio2[0])
-#         print(sender_dkpfio[0])
-#         print(sender_commi[0])
-#         print(sender_agent[0])
-#         text = f'''ФИО: {sender_fio[0]}\nМарка: {sender_marka[0]}\nМодель: {sender_model[0]}\nГод: {sender_year[0]}\nНаша/комиссия: {sender_our[0]}\nЦена продажи: {sender_cost[0]}\nСколько накинул на цену дрома: {sender_drom[0]}\nСколько собственнику: {sender_own[0]}\nДо скольки сторговали собственника: {sender_torg[0]}\nС кем продал ФИО: {sender_fio2[0]}\nДКП ФИО: {sender_dkpfio[0]}\nКто ставил на комиссию: {sender_commi[0]}\nКто писал агентский договор:{sender_agent[0]}
-#         '''
-#         builder = InlineKeyboardBuilder()
-#         builder.add(types.InlineKeyboardButton(
-#             text=texts.MESSAGE_IN_MAIN_MENU,
-#             callback_data="main_menu")
-#         )
-#         await message.answer(text=texts.MESSAGE_MAIN_MENU_BUY_EXIT)
-#         await message.answer(text=text)
-#     except IndexError as error:
-#         print(error)
-#         await message.answer(text=texts.MESSAGE_MAIN_MENU_BUY_CANCEL)
-#         builder = InlineKeyboardBuilder()
-#         builder.add(types.InlineKeyboardButton(
-#             text=texts.MESSAGE_IN_MAIN_MENU,
-#             callback_data="main_menu")
-#         )
 
-# try:
-# conn = psycopg2.connect(user=os.environ['SQL_USER'],
-#                         password=os.environ['SQL_PASSWORD'],
-#                         host=os.environ['SQL_HOST'],
-#                         port=os.environ['SQL_PORT'],
-#                         database=os.environ['SQL_DATABASE']
-#                         )
-#     cur = conn.cursor()
-#     print(f'Статус подключение к бд {conn.closed}')
-#     sql_insert_data_otchet = 'INSERT INTO bot_vitek.wb_otchet_data(city, full_name, route_number, date_otchet, start_otchet, finish_otchet, waybill_number, amount_shk, loader, amount_flight) VALUES (%s,%s, %s,%s,%s, %s, %s, %s,%s,%s)'
-#     cur.execute(sql_insert_data_otchet, (
-#         city[0], full_name[0], route_number[0], date_otchet[0], start_otchet[0], finish_otchet[0],
-#         waybill_number[0],
-#         amount_shk[0], loader[0], amount_flight[0],))
-#     conn.commit()
-#     count = cur.rowcount
-#     print(count, "Record inserted successfully into mobile table")
-#     update.message.reply_text('Отчет отправлен!', reply_markup=main_keyboard())
-#     conn.close()
-#     await state.set_state(SetReport.choosing_exit)
-# except (Exception, psycopg2.Error) as error:
-#     print("Failed to insert record into mobile table", error)
-#     await state.clear()
-# await state.clear()
-
-# def get_report_excel(update, context):
-#     update.message.reply_text('Ваш отчет:')
-#     try:
-# conn = psycopg2.connect(user=os.environ['SQL_USER'],
-#                         password=os.environ['SQL_PASSWORD'],
-#                         host=os.environ['SQL_HOST'],
-#                         port=os.environ['SQL_PORT'],
-#                         database=os.environ['SQL_DATABASE']
-#                         )
-#         cur1 = conn1.cursor()
-#         print(f'Статус подключение к бд {conn1.closed}')
-#         cur1.execute(
-#             'SELECT city, full_name, route_number, date_otchet, waybill_number, amount_shk, loader, amount_flight from bot_vitek.wb_otchet_data_2 where date_otchet >= %s and  date_otchet <=%s ',
-#             ('2022-11-12', '2022-11-14',))
-#         # sql = '''select * from bot_vitek.wb_otchet_data;'''
-#         # cur.execute(sql)
-#         results = cur1.fetchall()
-#         print(results)
-#         conn1.close()
-#     except (Exception, psycopg2.Error) as error:
-#         print("Failed to insert record into mobile table", error)
