@@ -1,0 +1,20 @@
+{
+  "folderId": "b1g71mbn1ogpcq2kqqkh",
+  "analyze_specs": [
+    {
+      "content": "content",
+      "features": [
+        {
+          "type": "TEXT_DETECTION",
+          "text_detection_config": {
+            "language_codes": [
+              "ru",
+              "en"
+            ],
+            "model": "vehicle-registration-front"
+          }
+        }
+      ]
+    }
+  ]
+}
