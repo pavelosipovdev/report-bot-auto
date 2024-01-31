@@ -8,10 +8,8 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import Message, InlineQueryResultArticle, InputTextMessageContent, InlineQuery
 from aiogram.utils.keyboard import InlineKeyboardBuilder
-
-import utils.connectors
-import utils.inliner
-from utils import convert, api
+import utils
+from utils import downloader, connectors, convert, api, inliner
 from texts import texts
 import re
 
@@ -173,89 +171,13 @@ async def main_menu_button2(message: Message, state: FSMContext):
 
 @router.message(SetReport.choosing_vin, F.photo)
 async def constructor_choosing_vin(message: Message, state: FSMContext, bot: Bot):
-    builder = InlineKeyboardBuilder()
-    builder.add(types.InlineKeyboardButton(
-        text=texts.BT_NEXT,
-        callback_data=texts.BT_NEXT)
-    )
-    await bot.download(
-        message.photo[-1],
-        destination=f"tmp/{message.photo[-1].file_id}.jpg"
-
-    )
-    await message.answer(text="Подождите пожалуйста")
-    convert.convert_json_vin(f"tmp/{message.photo[-1].file_id}.jpg")
-    msg = api.get_strings_vin()
-    print(msg)
-    doka = []
-    for i in msg:
-        if i["name"] == "stsfront_car_year":
-            doka.append(i["text"])
-        elif i["name"] == "stsfront_car_number":
-            doka.append(i["text"])
-        elif i["name"] == "stsfront_vin_number":
-            doka.append(i["text"])
-        elif i["name"] == "stsfront_car_brand":
-            doka.append(i["text"])
-        elif i["name"] == "stsfront_car_model":
-            doka.append(i["text"])
-        elif i["name"] == "stsfront_car_color":
-            doka.append(i["text"])
-
-    print(doka)
-    # data_new = f"{msg[]}"
-    msg2 = f'''В базу внесено:
-    Год {str(doka[0]).upper()}
-    Гос номер {str(doka[1]).upper()}
-    VIN {str(doka[2]).upper()}
-    Марка {str(doka[3]).upper()}
-    Модель {str(doka[4]).upper()}
-    '''
-    await state.update_data(chosen_vin_gos_number=str(doka[1]).upper(), chosen_vin_number=str(doka[2]).upper(),
-                            chosen_vin_marka=str(doka[3]).upper(), chosen_vin_model=str(doka[4]).upper(),
-                            chosen_vin_year=str(doka[
-                                                    0]).upper())  # await message.answer(text=texts.MESSAGE_MAIN_MENU_VIN, reply_markup=builder.as_markup())
-    await message.answer(text=msg2, reply_markup=builder.as_markup())
+    await utils.downloader.constructor_choosing_vin(message, state, bot)
     await state.set_state(SetReport.choosing_self_college)
 
 
 @router.message(SetReport.choosing_pts, F.photo)
 async def constructor_choosing_electro(message: Message, state: FSMContext, bot: Bot):
-    builder = InlineKeyboardBuilder()
-    builder.add(types.InlineKeyboardButton(
-        text=texts.BT_NEXT,
-        callback_data=texts.BT_NEXT)
-    )
-    await bot.download(
-        message.photo[-1],
-        destination=f"tmp/{message.photo[-1].file_id}.jpg"
-
-    )
-    await message.answer(text="Подождите пожалуйста")
-    convert.convert_json_japan(f"tmp/{message.photo[-1].file_id}.jpg")
-    msg = api.get_strings_japan()
-    # print(msg)
-    doka = []
-    electro_vin = 'UNKNOWN'
-    for i in msg:
-        if i["lines"][0]["words"][0]["text"]:
-            doka.append(i["lines"][0]["words"][0]["text"])
-    print(doka)
-    for k in doka:
-        if len(k) == 14 and str(k[13]).isdigit():
-            electro_vin = str(k).upper()
-            print(electro_vin)
-    print(doka[6], doka[8], doka[10], doka[26], "test")
-    msg2 = f'''В базу внесено:
-    Год {str(doka[26]).upper()}
-    VIN {str(doka[6]).upper()}
-    Марка {str(doka[8]).upper()}
-    Модель {str(doka[10]).upper()}
-    '''
-    await message.answer(text=msg2, reply_markup=builder.as_markup())
-    await state.update_data(chosen_vin_gos_number="NONE", chosen_vin_number=str(doka[6]).upper(),
-                            chosen_vin_marka=str(doka[8]).upper(), chosen_vin_model=str(doka[10]).upper(),
-                            chosen_vin_year=str(doka[25]).upper())
+    await utils.downloader.constructor_choosing_electro(message, state, bot)
     await state.set_state(SetReport.choosing_self_college)
 
 
@@ -280,7 +202,7 @@ async def constructor_choosing_cost(callback: types.CallbackQuery, state: FSMCon
     builder = InlineKeyboardBuilder()
     builder.add(types.InlineKeyboardButton(
         text="Ввести фамилию",
-        switch_inline_query_current_chat='find_colleges ')
+        switch_inline_query_current_chat='find_a ')
     )
     await callback.message.edit_text(text="Введите первые символы фамилии коллеги", reply_markup=builder.as_markup())
     await state.update_data(chosen_college=callback.data)
@@ -288,9 +210,9 @@ async def constructor_choosing_cost(callback: types.CallbackQuery, state: FSMCon
 
 
 @router.message(SetReport.choosing_who_write_dkp0)
-@router.inline_query(lambda query: query.query.startswith("find_colleges "))
+@router.inline_query(lambda query: query.query.startswith("find_a "))
 async def find_colleges(inline_query: types.InlineQuery, state: FSMContext):
-    await utils.inliner.find_colleges(inline_query, state, "find_colleges ")
+    await utils.inliner.find_colleges(inline_query, state, "find_a ")
     await state.set_state(SetReport.choosing_who_write_dkp_inline)
 
 
@@ -326,7 +248,7 @@ async def constructor_choosing_cost(callback: types.CallbackQuery, state: FSMCon
     builder = InlineKeyboardBuilder()
     builder.add(types.InlineKeyboardButton(
         text="Ввести фамилию",
-        switch_inline_query_current_chat='find_colleges_dkp ')
+        switch_inline_query_current_chat='find_aa ')
     )
     await callback.message.edit_text(text="Введите первые символы фамилии коллеги", reply_markup=builder.as_markup())
     # await state.update_data(chosen_college=callback.data)
@@ -334,9 +256,9 @@ async def constructor_choosing_cost(callback: types.CallbackQuery, state: FSMCon
 
 
 @router.message(SetReport.choosing_who_write_dkp_inline)
-@router.inline_query(lambda query: query.query.startswith("find_colleges_dkp "))
+@router.inline_query(lambda query: query.query.startswith("find_aa "))
 async def find_colleges(inline_query: types.InlineQuery, state: FSMContext):
-    await utils.inliner.find_colleges(inline_query, state, "find_colleges_dkp ")
+    await utils.inliner.find_colleges(inline_query, state, "find_aa ")
     await state.set_state(SetReport.choosing_wire_cost)
 
 
@@ -420,18 +342,6 @@ async def constructor_choosing_wire(callback: types.CallbackQuery, state: FSMCon
     )
     await callback.message.answer(text="Комментарии", reply_markup=keyboard)
     await state.set_state(SetReport.choosing_editor)
-
-
-# @router.message(SetReport.choosing_wire123)
-# async def constructor_choosing_wire12(message: Message, state: FSMContext):
-#     await state.update_data(chosen_wire23456=message.text)
-#     builder = InlineKeyboardBuilder()
-#     builder.add(types.InlineKeyboardButton(
-#         text="Да",
-#         callback_data="bt_constructor_6_wire_yes")
-#     )
-#     await message.answer(text="Все?", reply_markup=builder.as_markup())
-#     await state.set_state(SetReport.choosing_wire123232323)
 
 
 @router.message(SetReport.choosing_editor)

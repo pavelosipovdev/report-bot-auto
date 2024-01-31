@@ -66,10 +66,10 @@ async def cmd_start(message: types.Message):
         callback_data=texts.BT_CONSTRUCTOR_1_BUY)
     )
 
-    # builder.row(types.InlineKeyboardButton(
-    #     text=texts.BT_CONSTRUCTOR_2_COMISSION,
-    #     callback_data="bt_constructor_2_comission")
-    # )
+    builder.row(types.InlineKeyboardButton(
+        text=texts.BT_CONSTRUCTOR_2_COMISSION,
+        callback_data="bt_constructor_2_comission")
+    )
     keyboard_to_delete = types.ReplyKeyboardRemove()
     await message.answer(text="Пожалуйста подождите, идет проверка баз данных", reply_markup=markup)
     await utils.connectors.db_sql_start(message.chat.username, message.chat.first_name, message.chat.last_name)

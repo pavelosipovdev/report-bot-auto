@@ -4,9 +4,8 @@ from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import Message
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
-import utils.connectors
-import utils.inliner
-from utils import convert, api
+import utils
+from utils import downloader, connectors, convert, api, inliner
 from texts import texts
 
 router = Router()
@@ -221,89 +220,13 @@ async def main_menu_button2(message: Message, state: FSMContext):
 
 @router.message(SetReport.choosing_sell_vin, F.photo)
 async def constructor_choosing_vin(message: Message, state: FSMContext, bot: Bot):
-    builder = InlineKeyboardBuilder()
-    builder.add(types.InlineKeyboardButton(
-        text=texts.BT_NEXT,
-        callback_data=texts.BT_NEXT)
-    )
-    await bot.download(
-        message.photo[-1],
-        destination=f"tmp/{message.photo[-1].file_id}.jpg"
-
-    )
-    await message.answer(text="Подождите пожалуйста")
-    convert.convert_json_vin(f"tmp/{message.photo[-1].file_id}.jpg")
-    msg = api.get_strings_vin()
-    print(msg)
-    doka = []
-    for i in msg:
-        if i["name"] == "stsfront_car_year":
-            doka.append(i["text"])
-        elif i["name"] == "stsfront_car_number":
-            doka.append(i["text"])
-        elif i["name"] == "stsfront_vin_number":
-            doka.append(i["text"])
-        elif i["name"] == "stsfront_car_brand":
-            doka.append(i["text"])
-        elif i["name"] == "stsfront_car_model":
-            doka.append(i["text"])
-        elif i["name"] == "stsfront_car_color":
-            doka.append(i["text"])
-
-    print(doka)
-    # data_new = f"{msg[]}"
-    msg2 = f'''В базу внесено:
-    Год {str(doka[0]).upper()}
-    Гос номер {str(doka[1]).upper()}
-    VIN {str(doka[2]).upper()}
-    Марка {str(doka[3]).upper()}
-    Модель {str(doka[4]).upper()}
-    '''
-    await state.update_data(chosen_vin_gos_number=str(doka[1]).upper(), chosen_vin_number=str(doka[2]).upper(),
-                            chosen_vin_marka=str(doka[3]).upper(), chosen_vin_model=str(doka[4]).upper(),
-                            chosen_vin_year=str(doka[
-                                                    0]).upper())  # await message.answer(text=texts.MESSAGE_MAIN_MENU_VIN, reply_markup=builder.as_markup())
-    await message.answer(text=msg2, reply_markup=builder.as_markup())
+    await utils.downloader.constructor_choosing_vin(message, state, bot)
     await state.set_state(SetReport.choosing_comissiya_our)
 
 
 @router.message(SetReport.choosing_sell_pts, F.photo)
 async def constructor_choosing_electro(message: Message, state: FSMContext, bot: Bot):
-    builder = InlineKeyboardBuilder()
-    builder.add(types.InlineKeyboardButton(
-        text=texts.BT_NEXT,
-        callback_data=texts.BT_NEXT)
-    )
-    await bot.download(
-        message.photo[-1],
-        destination=f"tmp/{message.photo[-1].file_id}.jpg"
-
-    )
-    await message.answer(text="Подождите пожалуйста", reply_markup=builder.as_markup())
-    convert.convert_json_japan(f"tmp/{message.photo[-1].file_id}.jpg")
-    msg = api.get_strings_japan()
-    # print(msg)
-    doka = []
-    electro_vin = 'UNKNOWN'
-    for i in msg:
-        if i["lines"][0]["words"][0]["text"]:
-            doka.append(i["lines"][0]["words"][0]["text"])
-    print(doka)
-    for k in doka:
-        if len(k) == 14 and str(k[13]).isdigit():
-            electro_vin = str(k).upper()
-            print(electro_vin)
-    print(doka[6], doka[8], doka[10], doka[25])
-    msg2 = f'''В базу внесено:
-    Год {str(doka[25]).upper()}
-    VIN {str(doka[6]).upper()}
-    Марка {str(doka[8]).upper()}
-    Модель {str(doka[10]).upper()}
-    '''
-    await message.answer(text=msg2, reply_markup=builder.as_markup())
-    await state.update_data(chosen_vin_gos_number="NONE", chosen_vin_number=str(doka[6]).upper(),
-                            chosen_vin_marka=str(doka[8]).upper(), chosen_vin_model=str(doka[10]).upper(),
-                            chosen_vin_year=str(doka[25]).upper())
+    await utils.downloader.constructor_choosing_electro(message, state, bot)
     await state.set_state(SetReport.choosing_comissiya_our)
 
 
@@ -448,7 +371,7 @@ async def sell_choosing_comissiya_creditcomission8(message: Message, state: FSMC
     )
     builder.add(types.InlineKeyboardButton(
         text="Нажмите, чтобы ввести фамилию",
-        switch_inline_query_current_chat='find_colleges_comissiya_credit ')
+        switch_inline_query_current_chat='find_b ')
     )
     await message.answer(
         text=texts.MESSAGE_SELL_WITH + "\nВведите первые символы фамилии коллеги", reply_markup=builder.as_markup()
@@ -466,7 +389,7 @@ async def sell_choosing_comissiya_creditcomission9(callback: types.CallbackQuery
     )
     builder.add(types.InlineKeyboardButton(
         text="Нажмите, чтобы ввести фамилию",
-        switch_inline_query_current_chat='find_colleges_comissiya_credit_credit ')
+        switch_inline_query_current_chat='find_bb ')
     )
     await callback.message.answer(
         text=texts.MESSAGE_SELL_WITH_CREDIT + "\nВведите первые символы фамилии коллеги",
@@ -494,9 +417,9 @@ async def sell_choosing_comissiya_creditcomission101(callback: types.CallbackQue
 
 
 @router.message(SetReport.choosing_comissiya_credit9)
-@router.inline_query(lambda query: query.query.startswith("find_colleges_comissiya_credit "))
+@router.inline_query(lambda query: query.query.startswith("find_b "))
 async def find_colleges(inline_query: types.InlineQuery, state: FSMContext):
-    await utils.inliner.find_colleges(inline_query, state, "find_colleges_comissiya_credit ")
+    await utils.inliner.find_colleges(inline_query, state, "find_b ")
     await state.set_state(SetReport.choosing_comissiya_credit10)
 
 
@@ -514,7 +437,7 @@ async def sell_choosing_our_credit5(message: Message, state: FSMContext):
     )
     builder.add(types.InlineKeyboardButton(
         text="Ввести фамилию",
-        switch_inline_query_current_chat='find_colleges_comissiya_credit_credit ')
+        switch_inline_query_current_chat='find_bb ')
     )
     await message.answer(
         text=texts.MESSAGE_SELL_WITH_CREDIT + "\nВведите первые символы фамилии коллеги",
@@ -524,9 +447,9 @@ async def sell_choosing_our_credit5(message: Message, state: FSMContext):
 
 
 @router.message(SetReport.choosing_comissiya_credit11)
-@router.inline_query(lambda query: query.query.startswith("find_colleges_comissiya_credit_credit "))
+@router.inline_query(lambda query: query.query.startswith("find_bb "))
 async def find_colleges(inline_query: types.InlineQuery, state: FSMContext):
-    await utils.inliner.find_colleges(inline_query, state, "find_colleges_comissiya_credit_credit ")
+    await utils.inliner.find_colleges(inline_query, state, "find_bb ")
     await state.set_state(SetReport.choosing_comissiya_credit12)
 
 
@@ -758,7 +681,7 @@ async def sell_choosing_comissiya_cash_comission8(message: Message, state: FSMCo
     )
     builder.add(types.InlineKeyboardButton(
         text="Нажмите, чтобы ввести фамилию",
-        switch_inline_query_current_chat='find_colleges_comissiya_credit ')
+        switch_inline_query_current_chat='find_b ')
     )
     await message.answer(
         text=texts.MESSAGE_SELL_WITH + "\nВведите первые символы фамилии коллеги", reply_markup=builder.as_markup()
@@ -776,7 +699,7 @@ async def sell_choosing_comissiya_cash_comission9(callback: types.CallbackQuery,
     )
     builder.add(types.InlineKeyboardButton(
         text="Нажмите, чтобы ввести фамилию",
-        switch_inline_query_current_chat='find_colleges_comissiya_credit_credit ')
+        switch_inline_query_current_chat='find_bb ')
     )
     await callback.message.answer(
         text=texts.MESSAGE_SELL_WITH_CREDIT + "\nВведите первые символы фамилии коллеги",
@@ -804,9 +727,9 @@ async def sell_choosing_comissiya_cash_comission101(callback: types.CallbackQuer
 
 
 @router.message(SetReport.choosing_comissiya_cash9)
-@router.inline_query(lambda query: query.query.startswith("find_colleges_comissiya_credit "))
+@router.inline_query(lambda query: query.query.startswith("find_b "))
 async def find_colleges(inline_query: types.InlineQuery, state: FSMContext):
-    await utils.inliner.find_colleges(inline_query, state, "find_colleges_comissiya_credit ")
+    await utils.inliner.find_colleges(inline_query, state, "find_b ")
     await state.set_state(SetReport.choosing_comissiya_cash10)
 
 
@@ -824,7 +747,7 @@ async def sell_choosing_comissiya_cash_comission10(message: Message, state: FSMC
     )
     builder.add(types.InlineKeyboardButton(
         text="Нажмите, чтобы ввести фамилию",
-        switch_inline_query_current_chat='find_colleges_comissiya_credit_credit ')
+        switch_inline_query_current_chat='find_bb ')
     )
     await message.answer(
         text=texts.MESSAGE_SELL_WITH_CREDIT + "\nВведите первые символы фамилии коллеги",
@@ -834,9 +757,9 @@ async def sell_choosing_comissiya_cash_comission10(message: Message, state: FSMC
 
 
 @router.message(SetReport.choosing_comissiya_cash11)
-@router.inline_query(lambda query: query.query.startswith("find_colleges_comissiya_credit_credit "))
+@router.inline_query(lambda query: query.query.startswith("find_bb "))
 async def find_colleges(inline_query: types.InlineQuery, state: FSMContext):
-    await utils.inliner.find_colleges(inline_query, state, "find_colleges_comissiya_credit_credit ")
+    await utils.inliner.find_colleges(inline_query, state, "find_bb ")
     await state.set_state(SetReport.choosing_comissiya_cash12)
 
 
