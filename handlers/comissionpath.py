@@ -4,6 +4,10 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import Message
 from aiogram.utils.keyboard import InlineKeyboardBuilder
+from aiogram import Bot, Dispatcher
+# from utils.editor_comission import router
+from utils import editor_comission
+
 import psycopg2
 import os
 
@@ -260,7 +264,8 @@ async def constructor_choosing_cost(message: Message, state: FSMContext):
 @router.callback_query(SetReport.choosing_comission_cost_inline, F.data == texts.BT_CONSTRUCTOR_4_COLLEGE_SELF)
 async def constructor_choosing_cost222(callback: types.CallbackQuery, state: FSMContext):
     await state.update_data(chosen_college_fio=callback.message.chat.first_name + " " + callback.message.chat.last_name)
-    await state.update_data(chosen_college_dkps=callback.message.chat.first_name + " " + callback.message.chat.last_name)
+    await state.update_data(
+        chosen_college_dkps=callback.message.chat.first_name + " " + callback.message.chat.last_name)
     await callback.message.edit_text(text=texts.MESSAGE_BT_CONSTRUCTOR_5_COST)
     await state.set_state(SetReport.choosing_dkp04)
 
@@ -326,7 +331,8 @@ async def constructor_choosing_cost222(message: Message, state: FSMContext):
 
 @router.callback_query(SetReport.choosing_comission_cost, F.data == texts.BT_CONSTRUCTOR_4_COLLEGE_SELF)
 async def constructor_choosing_wire(callback: types.CallbackQuery, state: FSMContext):
-    await state.update_data(chosen_college_fio_dkp=callback.message.chat.first_name + " " + callback.message.chat.last_name)
+    await state.update_data(
+        chosen_college_fio_dkp=callback.message.chat.first_name + " " + callback.message.chat.last_name)
     await state.update_data(chosen_college_dkps=callback.data)
     await callback.message.edit_text(text=texts.MESSAGE_HOW_MUCH_SOBS)
     await state.set_state(SetReport.choosing_dkp04)
@@ -372,83 +378,6 @@ async def constructor_choosing_dkp5(message: Message, state: FSMContext):
     await state.set_state(SetReport.choosing_comission_editor)
 
 
-# @router.callback_query(SetReport.choosing_wire02)
-# async def constructor_choosing_awa_our_credit22(callback: types.CallbackQuery, state: FSMContext):
-#     await state.update_data(typeraschet=callback.data)
-#     builder = InlineKeyboardBuilder()
-#     builder.add(types.InlineKeyboardButton(
-#         text=texts.BT_SAVE,
-#         callback_data=texts.BT_SAVE)
-#     )
-#     builder.add(types.InlineKeyboardButton(
-#         text=texts.BT_EDIT,
-#         callback_data=texts.BT_EDIT)
-#     )
-#     data = await state.get_data()
-#     print(data)
-#     text = f'''Предварительный отчет:\nТип отчета: {data['chosen_type']}\nГде продал: {data['chosen_place']}\nКто купил: {data['chosen_college_fio']}\nКто писал АГ: {data['chosen_college_dkps']}\nСколько собственнику: {data['howmuchsobs']}\nРазмер комиссии?: {data['howmuchcomissiob']}\n\nВид расчета?: {data['typeraschet']}\n\n{callback.message.chat.first_name + " " + callback.message.chat.last_name}
-#         '''
-#     await callback.message.answer(
-#         text=text
-#     )
-#     await callback.message.answer(
-#         text="Сохранить?",
-#         reply_markup=builder.as_markup()
-#     )
-#     await state.set_state(SetReport.choosing_wire03)
-
-
-# @router.callback_query(SetReport.choosing_wire03, F.data == texts.BT_SAVE)
-# async def constructor_choosing_awa_our_credit44(callback: types.CallbackQuery, state: FSMContext):
-#     data = await state.get_data()
-#     await utils.connectors.db_sql_comission_insert(callback, data)
-#     await callback.message.answer(
-#         text="Отчет отправлен, спасибо, что воспользовались ботом. Нажмите на /start для составления нового отчета.")
-#     await callback.message.answer(text="/start")
-#     await state.clear()
-#
-#
-# @router.callback_query(SetReport.choosing_wire03, F.data == texts.BT_EDIT)
-# async def constructor_choosing_awa_our_credit44(callback: types.CallbackQuery, state: FSMContext):
-#     data = await state.get_data()
-#     await utils.connectors.db_sql_comission_insert(callback, data)
-#     await callback.message.answer(
-#         text="Отчет отправлен, спасибо, что воспользовались ботом. Нажмите на /start для составления нового отчета.")
-#     await callback.message.answer(text="/start")
-#     await state.clear()
-#
-# @router.callback_query(SetReport.choosing_wire03, F.data == texts.BT_EDIT)
-# async def constructor_choosing_awa_our_credit44(callback: types.CallbackQuery, state: FSMContext):
-#     data = await state.get_data()
-#     conn = psycopg2.connect(user=os.getenv('SQL_USER'),
-#                             password=os.getenv('SQL_PASSWORD'),
-#                             host=os.getenv('SQL_HOST'),
-#                             port=os.getenv('SQL_PORT'),
-#                             database=os.getenv('SQL_DATABASE')
-#                             )
-#     cur = conn.cursor()
-#     if conn.closed == 0:
-#         print(f'Успешное подключение к бд, статус {conn.closed}')
-#         sql_insert_comission_report = 'INSERT INTO bot_planeta_avto.commission_report(type_purchase_report, platform, username_commission_сolleagues, write_ag,price_owner, size_commission, vin, gos_number, brand, model, years, comment_report, username_commission_report) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)'
-#         cur.execute(sql_insert_comission_report, (
-#             data['chosen_type'], data['chosen_place'], data['chosen_college_fio'], data['chosen_college_dkps'],
-#             data['howmuchsobs'], data['howmuchcomissiob'],
-#             data['chosen_vin_number'],
-#             data['chosen_vin_gos_number'], data['chosen_vin_marka'], data['chosen_vin_model'], data['chosen_vin_year'],
-#             data['chosen_comment'], callback.message.chat.last_name + " " + callback.message.chat.first_name,))
-#     else:
-#         print(f'База недоступна, статус {conn.closed}')
-#         await callback.message.answer(
-#             text="База недоступна, свяжитесь с администратором>")
-#
-#     conn.commit()
-#     conn.close()
-#     await callback.message.answer(
-#         text="Отчет отправлен, спасибо, что воспользовались ботом. Нажмите на /start для составления нового отчета.")
-#     await callback.message.answer(text="/start")
-#     await state.clear()
-
-
 @router.message(SetReport.choosing_comission_vin, F.photo)
 async def constructor_choosing_vin(message: Message, state: FSMContext, bot: Bot):
     await utils.downloader.constructor_choosing_vin(message, state, bot)
@@ -474,7 +403,7 @@ async def constructor_choosing_wire12(callback: types.CallbackQuery, state: FSMC
     builder = InlineKeyboardBuilder()
     builder.add(types.InlineKeyboardButton(
         text=texts.BT_SAVE,
-        callback_data=texts.BT_SAVE)
+        callback_data="edit_menu_finish")
     )
     builder.add(types.InlineKeyboardButton(
         text=texts.BT_EDIT,
@@ -489,7 +418,7 @@ async def constructor_choosing_wire12(callback: types.CallbackQuery, state: FSMC
     await state.set_state(SetReport.choosing_comission_editor_start)
 
 
-@router.callback_query(SetReport.choosing_comission_editor_start, F.data == texts.BT_SAVE)
+@router.callback_query(SetReport.choosing_comission_editor_start, F.data == "edit_menu_finish")
 async def constructor_choosing_awa_our_credit44(callback: types.CallbackQuery, state: FSMContext):
     await callback.message.answer("Подождите, идет выгрузка отчета")
     data = await state.get_data()
@@ -501,241 +430,374 @@ async def constructor_choosing_awa_our_credit44(callback: types.CallbackQuery, s
 
 
 @router.callback_query(SetReport.choosing_comission_editor_start)
-async def constructor_choosing_awa_our_credit424(callback: types.CallbackQuery, state: FSMContext):
-    builder = InlineKeyboardBuilder()
-    builder.add(types.InlineKeyboardButton(
-        text="Где продал",
-        callback_data="edit_menu_where"
-    ))
-    builder.add(types.InlineKeyboardButton(
-        text="Сколько собственнику",
-        callback_data="howmuchsobs"
-    ))
-    builder.add(types.InlineKeyboardButton(
-        text="Гос номер",
-        callback_data="edit_menu_gosnumber"
-    ))
-    builder.add(types.InlineKeyboardButton(
-        text="Марка",
-        callback_data="edit_menu_marka"
-    ))
-    builder.row(types.InlineKeyboardButton(
-        text="Модель",
-        callback_data="edit_menu_model"
-    ))
-    builder.add(types.InlineKeyboardButton(
-        text="Год",
-        callback_data="edit_menu_year"
-    ))
-    builder.add(types.InlineKeyboardButton(
-        text="VIN",
-        callback_data="edit_menu_vin"
-    ))
-    builder.add(types.InlineKeyboardButton(
-        text="Комментарий",
-        callback_data="edit_menu_comment"
-    ))
-    builder.row(types.InlineKeyboardButton(
-        text="Все ок",
-        callback_data=texts.BT_SAVE
-    ))
-    data = await state.get_data()
-    text = f'''Предварительный отчет:\nТип отчета: {data['chosen_type']}\nГде продал: {data['chosen_place']}\nКто купил: {data['chosen_college_fio']}\nКто писал АГ: {data['chosen_college_dkps']}\nСколько собственнику: {data['howmuchsobs']}\nРазмер комиссии?: {data['howmuchcomissiob']}\n\nВид расчета?: {data['typeraschet']}\n\n{callback.message.chat.first_name + " " + callback.message.chat.last_name}
-        '''
+async def constructor_editor_start(callback: types.CallbackQuery, state: FSMContext):
+    dict_editor = {'editor_start':
+                       {'text': ["Где продал", "Сколько собственнику", "Гос номер", "Марка", "Модель", "Год", "VIN",
+                                 "Комментарий", "Все ок"],
+                        'data': ["edit_menu_where", "howmuchsobs", "edit_menu_gosnumber", "edit_menu_marka",
+                                 "edit_menu_model", "edit_menu_year", "edit_menu_vin", "edit_menu_comment",
+                                 "edit_menu_finish"]}}
 
-    await callback.message.answer(
-        text=text,
-    )
-    await callback.message.answer(
-        text="Какое поле хотите изменить?",
-        reply_markup=builder.as_markup()
-    )
+    await utils.editor_comission.editor_start(callback, state, dict_editor)
     await state.set_state(SetReport.choosing_comission_editor_first)
 
 
 @router.callback_query(SetReport.choosing_comission_editor_first, F.data == "edit_menu_where")
-async def constructor_choosing_electro(callback: types.CallbackQuery, state: FSMContext):
-    builder = InlineKeyboardBuilder()
-    builder.add(types.InlineKeyboardButton(
-        text=texts.BT_CONSTRUCTOR_2_ATP,
-        callback_data=texts.BT_CONSTRUCTOR_2_ATP)
-    )
-    builder.add(types.InlineKeyboardButton(
-        text=texts.BT_CONSTRUCTOR_2_ABAKAN,
-        callback_data=texts.BT_CONSTRUCTOR_2_ABAKAN)
-    )
-    builder.row(types.InlineKeyboardButton(
-        text=texts.BT_CONSTRUCTOR_2_PLANETA,
-        callback_data=texts.BT_CONSTRUCTOR_2_PLANETA)
-    )
-    builder.row(types.InlineKeyboardButton(
-        text=texts.BT_CONSTRUCTOR_2_ALIEN,
-        callback_data=texts.BT_CONSTRUCTOR_2_ALIEN)
-    )
-    builder.add(types.InlineKeyboardButton(
-        text=texts.BT_CONSTRUCTOR_2_GETOUT,
-        callback_data=texts.BT_CONSTRUCTOR_2_GETOUT)
-    )
-    data = await state.get_data()
-    msg2 = "В данный момент используется " + data['chosen_place'] + ", на какое значение хотите изменить?"
-    await callback.message.answer(text=msg2, reply_markup=builder.as_markup())
+async def editor_first_where(callback: types.CallbackQuery, state: FSMContext):
+    await utils.editor_comission.editor_first(callback, state)
     await state.set_state(SetReport.choosing_comission_editor_first_place)
 
 
 @router.callback_query(SetReport.choosing_comission_editor_first_place)
-async def constructor_choosing_electro(callback: types.CallbackQuery, state: FSMContext):
-    await state.update_data(chosen_place=callback.data)
-    builder = InlineKeyboardBuilder()
-    builder.add(types.InlineKeyboardButton(
-        text="ОК",
-        callback_data=texts.BT_CONSTRUCTOR_2_ATP)
-    )
-    await callback.message.answer(text="Замена на " + callback.data, reply_markup=builder.as_markup())
+async def editor_first_place(callback: types.CallbackQuery, state: FSMContext):
+    await utils.editor_comission.editor_first_place(callback, state)
     await state.set_state(SetReport.choosing_comission_editor_start)
 
 
 @router.callback_query(SetReport.choosing_comission_editor_first, F.data == "edit_menu_howmuchsobs")
-async def constructor_choosing_electro(callback: types.CallbackQuery, state: FSMContext):
-    data = await state.get_data()
-    msg2 = "В данный момент используется " + data['howmuchsobs'] + ", на какое значение хотите изменить?"
-    await callback.message.answer(text=msg2)
+async def editor_first(callback: types.CallbackQuery, state: FSMContext):
+    await utils.editor_comission.editor_first_howmuchsobs(callback, state)
     await state.set_state(SetReport.choosing_comission_editor_first_cost)
 
 
 @router.message(SetReport.choosing_comission_editor_first_cost)
-async def constructor_choosing_electro(message: Message, state: FSMContext):
-    await state.update_data(howmuchsobs=message.text.upper())
-    builder = InlineKeyboardBuilder()
-    builder.add(types.InlineKeyboardButton(
-        text="ОК",
-        callback_data=texts.BT_CONSTRUCTOR_2_ATP)
-    )
-    data = await state.get_data()
-    await message.answer(text="Замена на " + data['howmuchsobs'], reply_markup=builder.as_markup())
+async def editor_first_cost(message: Message, state: FSMContext):
+    await utils.editor_comission.editor_first_cost(message, state)
     await state.set_state(SetReport.choosing_comission_editor_start)
 
 
+#
+#
 @router.callback_query(SetReport.choosing_comission_editor_first, F.data == "edit_menu_gosnumber")
-async def constructor_choosing_electro(callback: types.CallbackQuery, state: FSMContext):
-    data = await state.get_data()
-    msg2 = "В данный момент используется " + data['chosen_vin_gos_number'] + ", на какое значение хотите изменить?"
-    await callback.message.answer(text=msg2)
+async def editor_first_gosnumber(callback: types.CallbackQuery, state: FSMContext):
+    await utils.editor_comission.editor_first_gosnumber(callback, state)
     await state.set_state(SetReport.choosing_comission_editor_first_vin_gos_number)
 
 
 @router.message(SetReport.choosing_comission_editor_first_vin_gos_number)
-async def constructor_choosing_electro(message: Message, state: FSMContext):
-    await state.update_data(chosen_vin_gos_number=message.text.upper())
-    builder = InlineKeyboardBuilder()
-    builder.add(types.InlineKeyboardButton(
-        text="ОК",
-        callback_data=texts.BT_CONSTRUCTOR_2_ATP)
-    )
-    data = await state.get_data()
-    await message.answer(text="Замена на " + data['chosen_vin_gos_number'], reply_markup=builder.as_markup())
+async def editor_first_vin_gos_number(message: Message, state: FSMContext):
+    await utils.editor_comission.editor_first_vin_gos_number(message, state)
+
     await state.set_state(SetReport.choosing_comission_editor_start)
 
 
 @router.callback_query(SetReport.choosing_comission_editor_first, F.data == "edit_menu_marka")
-async def constructor_choosing_electro(callback: types.CallbackQuery, state: FSMContext):
-    data = await state.get_data()
-    msg2 = "В данный момент используется " + data['chosen_vin_marka'] + ", на какое значение хотите изменить?"
-    await callback.message.answer(text=msg2)
+async def editor_first_marka(callback: types.CallbackQuery, state: FSMContext):
+    await utils.editor_comission.editor_first_marka(callback, state)
+
     await state.set_state(SetReport.choosing_comission_editor_first_vin_marka)
 
 
 @router.message(SetReport.choosing_comission_editor_first_vin_marka)
-async def constructor_choosing_electro(message: Message, state: FSMContext):
-    await state.update_data(chosen_vin_marka=message.text.upper())
-    builder = InlineKeyboardBuilder()
-    builder.add(types.InlineKeyboardButton(
-        text="ОК",
-        callback_data=texts.BT_CONSTRUCTOR_2_ATP)
-    )
-    data = await state.get_data()
-    await message.answer(text="Замена на " + data['chosen_vin_marka'], reply_markup=builder.as_markup())
+async def editor_first_vin_marka(message: Message, state: FSMContext):
+    await utils.editor_comission.editor_first_vin_marka(message, state)
+
     await state.set_state(SetReport.choosing_comission_editor_start)
 
 
 @router.callback_query(SetReport.choosing_comission_editor_first, F.data == "edit_menu_model")
-async def constructor_choosing_electro(callback: types.CallbackQuery, state: FSMContext):
-    data = await state.get_data()
-    msg2 = "В данный момент используется " + data['chosen_vin_model'] + ", на какое значение хотите изменить?"
-    await callback.message.answer(text=msg2)
+async def editor_first_model(callback: types.CallbackQuery, state: FSMContext):
+    await utils.editor_comission.editor_first_model(callback, state)
+
     await state.set_state(SetReport.choosing_comission_editor_first_vin_model)
 
 
 @router.message(SetReport.choosing_comission_editor_first_vin_model)
-async def constructor_choosing_electro(message: Message, state: FSMContext):
-    await state.update_data(chosen_vin_model=message.text.upper())
-    builder = InlineKeyboardBuilder()
-    builder.add(types.InlineKeyboardButton(
-        text="ОК",
-        callback_data=texts.BT_CONSTRUCTOR_2_ATP)
-    )
-    data = await state.get_data()
-    await message.answer(text="Замена на " + data['chosen_vin_model'], reply_markup=builder.as_markup())
+async def editor_first_vin_model(message: Message, state: FSMContext):
+    await utils.editor_comission.editor_first_vin_model(message, state)
+
     await state.set_state(SetReport.choosing_comission_editor_start)
 
 
 @router.callback_query(SetReport.choosing_comission_editor_first, F.data == "edit_menu_year")
-async def constructor_choosing_electro(callback: types.CallbackQuery, state: FSMContext):
-    data = await state.get_data()
-    msg2 = "В данный момент используется " + data['chosen_vin_year'] + ", на какое значение хотите изменить?"
-    await callback.message.answer(text=msg2)
+async def editor_first_year(callback: types.CallbackQuery, state: FSMContext):
+    await utils.editor_comission.editor_first_year(callback, state)
+
     await state.set_state(SetReport.choosing_comission_editor_first_vin_year)
 
 
 @router.message(SetReport.choosing_comission_editor_first_vin_year)
-async def constructor_choosing_electro(message: Message, state: FSMContext):
-    await state.update_data(chosen_vin_year=message.text.upper())
-    builder = InlineKeyboardBuilder()
-    builder.add(types.InlineKeyboardButton(
-        text="ОК",
-        callback_data=texts.BT_CONSTRUCTOR_2_ATP)
-    )
-    data = await state.get_data()
-    await message.answer(text="Замена на " + data['chosen_vin_year'], reply_markup=builder.as_markup())
+async def editor_first_vin_year(message: Message, state: FSMContext):
+    await utils.editor_comission.editor_first_vin_year(message, state)
+
     await state.set_state(SetReport.choosing_comission_editor_start)
 
 
 @router.callback_query(SetReport.choosing_comission_editor_first, F.data == "edit_menu_vin")
-async def constructor_choosing_electro(callback: types.CallbackQuery, state: FSMContext):
-    data = await state.get_data()
-    msg2 = "В данный момент используется " + data['chosen_vin_number'] + ", на какое значение хотите изменить?"
-    await callback.message.answer(text=msg2)
+async def editor_first_menu_vin(callback: types.CallbackQuery, state: FSMContext):
+    await utils.editor_comission.editor_first_menu_vin(callback, state)
+
     await state.set_state(SetReport.choosing_comission_editor_first_vin_number)
 
 
 @router.message(SetReport.choosing_comission_editor_first_vin_number)
-async def constructor_choosing_electro(message: Message, state: FSMContext):
-    await state.update_data(chosen_vin_number=message.text.upper())
-    builder = InlineKeyboardBuilder()
-    builder.add(types.InlineKeyboardButton(
-        text="ОК",
-        callback_data=texts.BT_CONSTRUCTOR_2_ATP)
-    )
-    data = await state.get_data()
-    await message.answer(text="Замена на " + data['chosen_vin_number'], reply_markup=builder.as_markup())
+async def editor_first_vin_number(message: Message, state: FSMContext):
+    await utils.editor_comission.editor_first_vin_number(message, state)
+
     await state.set_state(SetReport.choosing_comission_editor_start)
 
 
 @router.callback_query(SetReport.choosing_comission_editor_first, F.data == "edit_menu_comment")
-async def constructor_choosing_electro(callback: types.CallbackQuery, state: FSMContext):
-    data = await state.get_data()
-    msg2 = "В данный момент используется " + data['chosen_comment'] + ", на какое значение хотите изменить?"
-    await callback.message.answer(text=msg2)
-    await state.set_state(SetReport.choosing_comission_editor_start)
+async def editor_first_menu_comment(callback: types.CallbackQuery, state: FSMContext):
+    await utils.editor_comission.editor_first_menu_comment(callback, state)
+
+    await state.set_state(SetReport.choosing_comission_editor_first_comment)
 
 
 @router.message(SetReport.choosing_comission_editor_first_comment)
-async def constructor_choosing_electro(message: Message, state: FSMContext):
-    await state.update_data(chosen_comment=message.text.upper())
-    builder = InlineKeyboardBuilder()
-    builder.add(types.InlineKeyboardButton(
-        text="ОК",
-        callback_data=texts.BT_CONSTRUCTOR_2_ATP)
-    )
-    data = await state.get_data()
-    await message.answer(text="Замена на " + data['chosen_comment'], reply_markup=builder.as_markup())
+async def editor_first_comment(message: Message, state: FSMContext):
+    await utils.editor_comission.editor_first_comment(message, state)
+
     await state.set_state(SetReport.choosing_comission_editor_start)
+
+
+@router.callback_query(SetReport.choosing_comission_editor_first, F.data == "edit_menu_finish")
+async def editor_first_menu_comment(callback: types.CallbackQuery, state: FSMContext):
+    await callback.message.answer("Подождите, идет выгрузка отчета")
+    data = await state.get_data()
+    await utils.connectors.db_sql_comission_insert(callback, data)
+    await callback.message.answer(
+        text="Отчет отправлен, спасибо, что воспользовались ботом. Нажмите на /start для составления нового отчета.")
+    await callback.message.answer(text="/start")
+    await state.clear()
+
+# ================================================================
+# @router.callback_query(SetReport.choosing_comission_editor_start)
+# async def constructor_choosing_awa_our_credit424(callback: types.CallbackQuery, state: FSMContext):
+#     builder = InlineKeyboardBuilder()
+#     builder.add(types.InlineKeyboardButton(
+#         text="Где продал",
+#         callback_data="edit_menu_where"
+#     ))
+#     builder.add(types.InlineKeyboardButton(
+#         text="Сколько собственнику",
+#         callback_data="howmuchsobs"
+#     ))
+#     builder.add(types.InlineKeyboardButton(
+#         text="Гос номер",
+#         callback_data="edit_menu_gosnumber"
+#     ))
+#     builder.add(types.InlineKeyboardButton(
+#         text="Марка",
+#         callback_data="edit_menu_marka"
+#     ))
+#     builder.row(types.InlineKeyboardButton(
+#         text="Модель",
+#         callback_data="edit_menu_model"
+#     ))
+#     builder.add(types.InlineKeyboardButton(
+#         text="Год",
+#         callback_data="edit_menu_year"
+#     ))
+#     builder.add(types.InlineKeyboardButton(
+#         text="VIN",
+#         callback_data="edit_menu_vin"
+#     ))
+#     builder.add(types.InlineKeyboardButton(
+#         text="Комментарий",
+#         callback_data="edit_menu_comment"
+#     ))
+#     builder.row(types.InlineKeyboardButton(
+#         text="Все ок",
+#         callback_data=texts.BT_SAVE
+#     ))
+#     data = await state.get_data()
+#     text = f'''Предварительный отчет:\nТип отчета: {data['chosen_type']}\nГде продал: {data['chosen_place']}\nКто купил: {data['chosen_college_fio']}\nКто писал АГ: {data['chosen_college_dkps']}\nСколько собственнику: {data['howmuchsobs']}\nРазмер комиссии?: {data['howmuchcomissiob']}\n\nВид расчета?: {data['typeraschet']}\n\n{callback.message.chat.first_name + " " + callback.message.chat.last_name}
+#         '''
+#
+#     await callback.message.answer(
+#         text=text,
+#     )
+#     await callback.message.answer(
+#         text="Какое поле хотите изменить?",
+#         reply_markup=builder.as_markup()
+#     )
+#     await state.set_state(SetReport.choosing_comission_editor_first)
+#
+#
+# @router.callback_query(SetReport.choosing_comission_editor_first, F.data == "edit_menu_where")
+# async def constructor_choosing_electro(callback: types.CallbackQuery, state: FSMContext):
+#     builder = InlineKeyboardBuilder()
+#     builder.add(types.InlineKeyboardButton(
+#         text=texts.BT_CONSTRUCTOR_2_ATP,
+#         callback_data=texts.BT_CONSTRUCTOR_2_ATP)
+#     )
+#     builder.add(types.InlineKeyboardButton(
+#         text=texts.BT_CONSTRUCTOR_2_ABAKAN,
+#         callback_data=texts.BT_CONSTRUCTOR_2_ABAKAN)
+#     )
+#     builder.row(types.InlineKeyboardButton(
+#         text=texts.BT_CONSTRUCTOR_2_PLANETA,
+#         callback_data=texts.BT_CONSTRUCTOR_2_PLANETA)
+#     )
+#     builder.row(types.InlineKeyboardButton(
+#         text=texts.BT_CONSTRUCTOR_2_ALIEN,
+#         callback_data=texts.BT_CONSTRUCTOR_2_ALIEN)
+#     )
+#     builder.add(types.InlineKeyboardButton(
+#         text=texts.BT_CONSTRUCTOR_2_GETOUT,
+#         callback_data=texts.BT_CONSTRUCTOR_2_GETOUT)
+#     )
+#     data = await state.get_data()
+#     msg2 = "В данный момент используется " + data['chosen_place'] + ", на какое значение хотите изменить?"
+#     await callback.message.answer(text=msg2, reply_markup=builder.as_markup())
+#     await state.set_state(SetReport.choosing_comission_editor_first_place)
+#
+#
+# @router.callback_query(SetReport.choosing_comission_editor_first_place)
+# async def constructor_choosing_electro(callback: types.CallbackQuery, state: FSMContext):
+#     await state.update_data(chosen_place=callback.data)
+#     builder = InlineKeyboardBuilder()
+#     builder.add(types.InlineKeyboardButton(
+#         text="ОК",
+#         callback_data=texts.BT_CONSTRUCTOR_2_ATP)
+#     )
+#     await callback.message.answer(text="Замена на " + callback.data, reply_markup=builder.as_markup())
+#     await state.set_state(SetReport.choosing_comission_editor_start)
+#
+#
+# @router.callback_query(SetReport.choosing_comission_editor_first, F.data == "edit_menu_howmuchsobs")
+# async def constructor_choosing_electro(callback: types.CallbackQuery, state: FSMContext):
+#     data = await state.get_data()
+#     msg2 = "В данный момент используется " + data['howmuchsobs'] + ", на какое значение хотите изменить?"
+#     await callback.message.answer(text=msg2)
+#     await state.set_state(SetReport.choosing_comission_editor_first_cost)
+#
+#
+# @router.message(SetReport.choosing_comission_editor_first_cost)
+# async def constructor_choosing_electro(message: Message, state: FSMContext):
+#     await state.update_data(howmuchsobs=message.text.upper())
+#     builder = InlineKeyboardBuilder()
+#     builder.add(types.InlineKeyboardButton(
+#         text="ОК",
+#         callback_data=texts.BT_CONSTRUCTOR_2_ATP)
+#     )
+#     data = await state.get_data()
+#     await message.answer(text="Замена на " + data['howmuchsobs'], reply_markup=builder.as_markup())
+#     await state.set_state(SetReport.choosing_comission_editor_start)
+#
+#
+# @router.callback_query(SetReport.choosing_comission_editor_first, F.data == "edit_menu_gosnumber")
+# async def constructor_choosing_electro(callback: types.CallbackQuery, state: FSMContext):
+#     data = await state.get_data()
+#     msg2 = "В данный момент используется " + data['chosen_vin_gos_number'] + ", на какое значение хотите изменить?"
+#     await callback.message.answer(text=msg2)
+#     await state.set_state(SetReport.choosing_comission_editor_first_vin_gos_number)
+#
+#
+# @router.message(SetReport.choosing_comission_editor_first_vin_gos_number)
+# async def constructor_choosing_electro(message: Message, state: FSMContext):
+#     await state.update_data(chosen_vin_gos_number=message.text.upper())
+#     builder = InlineKeyboardBuilder()
+#     builder.add(types.InlineKeyboardButton(
+#         text="ОК",
+#         callback_data=texts.BT_CONSTRUCTOR_2_ATP)
+#     )
+#     data = await state.get_data()
+#     await message.answer(text="Замена на " + data['chosen_vin_gos_number'], reply_markup=builder.as_markup())
+#     await state.set_state(SetReport.choosing_comission_editor_start)
+#
+#
+# @router.callback_query(SetReport.choosing_comission_editor_first, F.data == "edit_menu_marka")
+# async def constructor_choosing_electro(callback: types.CallbackQuery, state: FSMContext):
+#     data = await state.get_data()
+#     msg2 = "В данный момент используется " + data['chosen_vin_marka'] + ", на какое значение хотите изменить?"
+#     await callback.message.answer(text=msg2)
+#     await state.set_state(SetReport.choosing_comission_editor_first_vin_marka)
+#
+#
+# @router.message(SetReport.choosing_comission_editor_first_vin_marka)
+# async def constructor_choosing_electro(message: Message, state: FSMContext):
+#     await state.update_data(chosen_vin_marka=message.text.upper())
+#     builder = InlineKeyboardBuilder()
+#     builder.add(types.InlineKeyboardButton(
+#         text="ОК",
+#         callback_data=texts.BT_CONSTRUCTOR_2_ATP)
+#     )
+#     data = await state.get_data()
+#     await message.answer(text="Замена на " + data['chosen_vin_marka'], reply_markup=builder.as_markup())
+#     await state.set_state(SetReport.choosing_comission_editor_start)
+#
+#
+# @router.callback_query(SetReport.choosing_comission_editor_first, F.data == "edit_menu_model")
+# async def constructor_choosing_electro(callback: types.CallbackQuery, state: FSMContext):
+#     data = await state.get_data()
+#     msg2 = "В данный момент используется " + data['chosen_vin_model'] + ", на какое значение хотите изменить?"
+#     await callback.message.answer(text=msg2)
+#     await state.set_state(SetReport.choosing_comission_editor_first_vin_model)
+#
+#
+# @router.message(SetReport.choosing_comission_editor_first_vin_model)
+# async def constructor_choosing_electro(message: Message, state: FSMContext):
+#     await state.update_data(chosen_vin_model=message.text.upper())
+#     builder = InlineKeyboardBuilder()
+#     builder.add(types.InlineKeyboardButton(
+#         text="ОК",
+#         callback_data=texts.BT_CONSTRUCTOR_2_ATP)
+#     )
+#     data = await state.get_data()
+#     await message.answer(text="Замена на " + data['chosen_vin_model'], reply_markup=builder.as_markup())
+#     await state.set_state(SetReport.choosing_comission_editor_start)
+#
+#
+# @router.callback_query(SetReport.choosing_comission_editor_first, F.data == "edit_menu_year")
+# async def constructor_choosing_electro(callback: types.CallbackQuery, state: FSMContext):
+#     data = await state.get_data()
+#     msg2 = "В данный момент используется " + data['chosen_vin_year'] + ", на какое значение хотите изменить?"
+#     await callback.message.answer(text=msg2)
+#     await state.set_state(SetReport.choosing_comission_editor_first_vin_year)
+#
+#
+# @router.message(SetReport.choosing_comission_editor_first_vin_year)
+# async def constructor_choosing_electro(message: Message, state: FSMContext):
+#     await state.update_data(chosen_vin_year=message.text.upper())
+#     builder = InlineKeyboardBuilder()
+#     builder.add(types.InlineKeyboardButton(
+#         text="ОК",
+#         callback_data=texts.BT_CONSTRUCTOR_2_ATP)
+#     )
+#     data = await state.get_data()
+#     await message.answer(text="Замена на " + data['chosen_vin_year'], reply_markup=builder.as_markup())
+#     await state.set_state(SetReport.choosing_comission_editor_start)
+#
+#
+# @router.callback_query(SetReport.choosing_comission_editor_first, F.data == "edit_menu_vin")
+# async def constructor_choosing_electro(callback: types.CallbackQuery, state: FSMContext):
+#     data = await state.get_data()
+#     msg2 = "В данный момент используется " + data['chosen_vin_number'] + ", на какое значение хотите изменить?"
+#     await callback.message.answer(text=msg2)
+#     await state.set_state(SetReport.choosing_comission_editor_first_vin_number)
+#
+#
+# @router.message(SetReport.choosing_comission_editor_first_vin_number)
+# async def constructor_choosing_electro(message: Message, state: FSMContext):
+#     await state.update_data(chosen_vin_number=message.text.upper())
+#     builder = InlineKeyboardBuilder()
+#     builder.add(types.InlineKeyboardButton(
+#         text="ОК",
+#         callback_data=texts.BT_CONSTRUCTOR_2_ATP)
+#     )
+#     data = await state.get_data()
+#     await message.answer(text="Замена на " + data['chosen_vin_number'], reply_markup=builder.as_markup())
+#     await state.set_state(SetReport.choosing_comission_editor_start)
+#
+#
+# @router.callback_query(SetReport.choosing_comission_editor_first, F.data == "edit_menu_comment")
+# async def constructor_choosing_electro(callback: types.CallbackQuery, state: FSMContext):
+#     data = await state.get_data()
+#     msg2 = "В данный момент используется " + data['chosen_comment'] + ", на какое значение хотите изменить?"
+#     await callback.message.answer(text=msg2)
+#     await state.set_state(SetReport.choosing_comission_editor_start)
+#
+#
+# @router.message(SetReport.choosing_comission_editor_first_comment)
+# async def constructor_choosing_electro(message: Message, state: FSMContext):
+#     await state.update_data(chosen_comment=message.text.upper())
+#     builder = InlineKeyboardBuilder()
+#     builder.add(types.InlineKeyboardButton(
+#         text="ОК",
+#         callback_data=texts.BT_CONSTRUCTOR_2_ATP)
+#     )
+#     data = await state.get_data()
+#     await message.answer(text="Замена на " + data['chosen_comment'], reply_markup=builder.as_markup())
+#     await state.set_state(SetReport.choosing_comission_editor_start)
