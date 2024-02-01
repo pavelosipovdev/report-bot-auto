@@ -36,9 +36,9 @@ class SetReport(StatesGroup):
     choosing_wire_cost = State()
     choosing_comment = State()
     choosing_who_write_dkp_inline = State()
+    choosing_who_write_dkp_inline1 = State()
     choosing_cost_inline = State()
-    choosing_comment = State()
-    choosing_comment = State()
+    # choosing_comment = State()
     choosing_editor = State()
     choosing_editor_start = State()
     choosing_editor_first = State()
@@ -219,10 +219,11 @@ async def find_colleges(inline_query: types.InlineQuery, state: FSMContext):
 @router.message(SetReport.choosing_who_write_dkp_inline)
 async def constructor_choosing_cost(message: Message, state: FSMContext):
     await message.answer(text="Пожалуйста подождите, идет проверка имени в базе данных")
-    college_name = utils.connectors.db_sql_buy_with_college(message.text.lower())
+    college_name = utils.connectors.db_sql_buy_with_college(message.text)
     await state.update_data(chosen_college_fio=college_name)
-    if college_name == "Некорректный USERNAME":
-        await message.answer("Некорректный USERNAME, укажите корректный в режиме редактирования")
+    if str(college_name).startswith('<'):
+        await message.answer("Менеджера нет в базе, укажите корректные данные в режиме редактирования")
+        await state.update_data(chosen_college_fio=message.text)
     builder = InlineKeyboardBuilder()
     builder.add(types.InlineKeyboardButton(
         text=texts.BT_CONSTRUCTOR_4_COLLEGE_SELF,
@@ -238,7 +239,7 @@ async def constructor_choosing_cost(message: Message, state: FSMContext):
 
 @router.callback_query(SetReport.choosing_cost_inline, F.data == texts.BT_CONSTRUCTOR_4_COLLEGE_SELF)
 async def constructor_choosing_cost222(callback: types.CallbackQuery, state: FSMContext):
-    await state.update_data(chosen_college_dkps=callback.message.chat.first_name + " " + callback.message.chat.last_name)
+    await state.update_data(chosen_college_fio_dkp=callback.message.chat.first_name + " " + callback.message.chat.last_name)
     await callback.message.edit_text(text=texts.MESSAGE_BT_CONSTRUCTOR_5_COST)
     await state.set_state(SetReport.choosing_wire)
 
@@ -251,11 +252,10 @@ async def constructor_choosing_cost(callback: types.CallbackQuery, state: FSMCon
         switch_inline_query_current_chat='find_aa ')
     )
     await callback.message.edit_text(text="Введите первые символы фамилии коллеги", reply_markup=builder.as_markup())
-    # await state.update_data(chosen_college=callback.data)
-    await state.set_state(SetReport.choosing_who_write_dkp_inline)
+    await state.set_state(SetReport.choosing_who_write_dkp_inline1)
 
 
-@router.message(SetReport.choosing_who_write_dkp_inline)
+@router.message(SetReport.choosing_who_write_dkp_inline1)
 @router.inline_query(lambda query: query.query.startswith("find_aa "))
 async def find_colleges(inline_query: types.InlineQuery, state: FSMContext):
     await utils.inliner.find_colleges(inline_query, state, "find_aa ")
@@ -264,40 +264,38 @@ async def find_colleges(inline_query: types.InlineQuery, state: FSMContext):
 
 @router.callback_query(SetReport.choosing_self_college_dkp, F.data == texts.BT_CONSTRUCTOR_4_COLLEGE_SELF)
 async def constructor_choosing_cost(callback: types.CallbackQuery, state: FSMContext):
-    await state.update_data(chosen_college_fio="САМ")
-    just = callback.message.text.upper()
-    await state.update_data(chosen_college=callback.data, chosen_cost=re.sub("[^0-9]", "", just))
+    await state.update_data(chosen_college_fio=callback.message.chat.last_name + " " + callback.message.chat.first_name)
+    await state.update_data(chosen_college=callback.data)
     builder = InlineKeyboardBuilder()
     builder.add(types.InlineKeyboardButton(
         text=texts.BT_CONSTRUCTOR_4_COLLEGE_SELF,
         callback_data=texts.BT_CONSTRUCTOR_4_COLLEGE_SELF)
     )
-    # builder.add(types.InlineKeyboardButton(
-    #     text=texts.BT_CONSTRUCTOR_4_COLLEGE_COLLEGE,
-    #     callback_data=texts.BT_CONSTRUCTOR_4_COLLEGE_COLLEGE)
-    # )
+    builder.add(types.InlineKeyboardButton(
+        text=texts.BT_CONSTRUCTOR_4_COLLEGE_COLLEGE,
+        callback_data=texts.BT_CONSTRUCTOR_4_COLLEGE_COLLEGE)
+    )
     await callback.message.edit_text(text="КТО ПИСАЛ ДКП?", reply_markup=builder.as_markup())
     await state.set_state(SetReport.choosing_cost)
 
-
-@router.message(SetReport.choosing_cost1)
-async def constructor_choosing_cost222(message: Message, state: FSMContext):
-    await message.answer(text="Пожалуйста подождите, идет проверка имени в базе данных")
-    college_name = utils.connectors.db_sql_buy_with_college(message.text.lower())
-    await state.update_data(chosen_college_fio=college_name)
-    await state.update_data(chosen_college_dkps=college_name)
-    if college_name == "Некорректный USERNAME":
-        await message.answer("Некорректный USERNAME, укажите корректный в режиме редактирования")
-    await message.answer(text=texts.MESSAGE_BT_CONSTRUCTOR_5_COST)
-    await state.set_state(SetReport.choosing_wire)
 
 
 @router.callback_query(SetReport.choosing_cost, F.data == texts.BT_CONSTRUCTOR_4_COLLEGE_SELF)
 async def constructor_choosing_wire(callback: types.CallbackQuery, state: FSMContext):
     await state.update_data(chosen_college_fio_dkp=callback.message.chat.last_name + " " + callback.message.chat.first_name)
-    await state.update_data(chosen_college_dkps=callback.data)
     await callback.message.edit_text(text=texts.MESSAGE_BT_CONSTRUCTOR_5_COST)
     await state.set_state(SetReport.choosing_wire)
+
+
+@router.callback_query(SetReport.choosing_cost, F.data == texts.BT_CONSTRUCTOR_4_COLLEGE_COLLEGE)
+async def constructor_choosing_wire(callback: types.CallbackQuery, state: FSMContext):
+    builder = InlineKeyboardBuilder()
+    builder.add(types.InlineKeyboardButton(
+        text="Ввести фамилию",
+        switch_inline_query_current_chat='find_aa ')
+    )
+    await callback.message.edit_text(text="Введите первые символы фамилии коллеги", reply_markup=builder.as_markup())
+    await state.set_state(SetReport.choosing_who_write_dkp_inline1)
 
 
 @router.message(SetReport.choosing_wire)
@@ -320,10 +318,11 @@ async def constructor_choosing_wire2(message: Message, state: FSMContext):
 @router.message(SetReport.choosing_wire_cost)
 async def constructor_choosing_wire2(message: Message, state: FSMContext):
     await message.answer(text="Пожалуйста подождите, идет проверка имени в базе данных")
-    college_name = utils.connectors.db_sql_buy_with_college(message.text.lower())
-    await state.update_data(chosen_college_dkps=college_name)
-    if college_name == "Некорректный USERNAME":
-        await message.answer("Некорректный USERNAME, укажите корректный в режиме редактирования")
+    college_name = utils.connectors.db_sql_buy_with_college(message.text)
+    await state.update_data(chosen_college_fio_dkp=college_name)
+    if str(college_name).startswith('<'):
+        await message.answer("Менеджера нет в базе, укажите корректные данные в режиме редактирования")
+        await state.update_data(chosen_college_fio_dkp=message.text)
     await message.answer(text=texts.MESSAGE_BT_CONSTRUCTOR_5_COST)
     await state.set_state(SetReport.choosing_wire)
 
@@ -373,10 +372,9 @@ async def constructor_choosing_wire12(message: Message, state: FSMContext):
         callback_data="bt_constructor_7_save"
     ))
     data = await state.get_data()
-    text = f'''Предварительный отчет:\nТип отчета: {data['chosen_type']}\nГде продал: {data['chosen_place']}\nОдин или с коллегой: {data['chosen_college']}\nФИО Коллеги: {data['chosen_college_fio']}\nКто писал дкп: {data['chosen_college_dkps']}\nЦена: {data['chosen_cost']}\nРезина есть?: {data['chosen_wire']}\nVIN: {data['chosen_vin_number']}\nГос номер: {data['chosen_vin_gos_number']}\nМарка: {data['chosen_vin_marka']}\nМодель: {data['chosen_vin_model']}\nГод: {data['chosen_vin_year']}\nКомментарий: {data['chosen_comment']}\n\n{message.chat.first_name + " " + message.chat.last_name}
+    text = f'''Предварительный отчет:\nТип отчета: {data['chosen_type']}\nГде продал: {data['chosen_place']}\nОдин или с коллегой: {data['chosen_college']}\nФИО Коллеги: {data['chosen_college_fio']}\nКто писал дкп: {data['chosen_college_fio_dkp']}\nЦена: {data['chosen_cost']}\nРезина есть?: {data['chosen_wire']}\nVIN: {data['chosen_vin_number']}\nГос номер: {data['chosen_vin_gos_number']}\nМарка: {data['chosen_vin_marka']}\nМодель: {data['chosen_vin_model']}\nГод: {data['chosen_vin_year']}\nКомментарий: {data['chosen_comment']}\n\n{message.chat.first_name + " " + message.chat.last_name}
         '''
-    for i in data:
-        print(i, "----", data[i])
+
 
     await message.answer(
         text=text, reply_markup=builder.as_markup())
@@ -385,31 +383,9 @@ async def constructor_choosing_wire12(message: Message, state: FSMContext):
 
 @router.callback_query(SetReport.choosing_editor_start, F.data == "bt_constructor_7_save")
 async def constructor_choosing_awa_our_credit44(callback: types.CallbackQuery, state: FSMContext):
+    await callback.message.answer("Подождите, идет выгрузка отчета")
     data = await state.get_data()
-
-    conn = psycopg2.connect(user=os.getenv('SQL_USER'),
-                            password=os.getenv('SQL_PASSWORD'),
-                            host=os.getenv('SQL_HOST'),
-                            port=os.getenv('SQL_PORT'),
-                            database=os.getenv('SQL_DATABASE')
-                            )
-
-    cur = conn.cursor()
-
-    if conn.closed == 0:
-
-        print(f'Успешное подключение к бд, статус {conn.closed}')
-        sql_insert_tg_info_user = 'INSERT INTO bot_planeta_avto.purchase_report(type_purchase_report, platform,username_purchase_сolleagues,write_dkp,price,tires,vin,gos_number,brand,model,years,comment_report,username_purchase_report) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)'
-        cur.execute(sql_insert_tg_info_user, (
-            data['chosen_type'], data['chosen_place'], data['chosen_college_fio'], data['chosen_college_dkps'],
-            data['chosen_cost'], data['chosen_wire_boolean'], data['chosen_vin_number'],
-            data['chosen_vin_gos_number'], data['chosen_vin_marka'], data['chosen_vin_model'], data['chosen_vin_year'],
-            data['chosen_comment'], callback.message.chat.first_name + " " + callback.message.chat.last_name,))
-    else:
-        print(f'База недоступна, статус {conn.closed}')
-
-    conn.commit()
-    conn.close()
+    await utils.connectors.db_sql_buy_insert(callback, data)
     await callback.message.answer(
         text="Отчет отправлен, спасибо, что воспользовались ботом. Нажмите на /start для составления нового отчета.")
     await callback.message.answer(text="/start")
@@ -456,10 +432,9 @@ async def constructor_choosing_awa_our_credit424(callback: types.CallbackQuery, 
         callback_data="bt_constructor_7_save"
     ))
     data = await state.get_data()
-    text = f'''Предварительный отчет:\nТип отчета: {data['chosen_type']}\nГде продал: {data['chosen_place']}\nОдин или с коллегой: {data['chosen_college']}\nФИО Коллеги: {data['chosen_college_fio']}\nКто писал дкп: {data['chosen_college_dkps']}\nЦена: {data['chosen_cost']}\nРезина есть?: {data['chosen_wire']}\nVIN: {data['chosen_vin_number']}\nГос номер: {data['chosen_vin_gos_number']}\nМарка: {data['chosen_vin_marka']}\nМодель: {data['chosen_vin_model']}\nГод: {data['chosen_vin_year']}\nКомментарий: {data['chosen_comment']}\n\n{callback.message.chat.first_name + " " + callback.message.chat.last_name}
+    text = f'''Предварительный отчет:\nТип отчета: {data['chosen_type']}\nГде продал: {data['chosen_place']}\nОдин или с коллегой: {data['chosen_college']}\nФИО Коллеги: {data['chosen_college_fio']}\nКто писал дкп: {data['chosen_college_fio_dkp']}\nЦена: {data['chosen_cost']}\nРезина есть?: {data['chosen_wire']}\nVIN: {data['chosen_vin_number']}\nГос номер: {data['chosen_vin_gos_number']}\nМарка: {data['chosen_vin_marka']}\nМодель: {data['chosen_vin_model']}\nГод: {data['chosen_vin_year']}\nКомментарий: {data['chosen_comment']}\n\n{callback.message.chat.first_name + " " + callback.message.chat.last_name}
         '''
-    for i in data:
-        print(i)
+
     await callback.message.answer(
         text=text,
     )
@@ -659,28 +634,10 @@ async def constructor_choosing_electro(message: Message, state: FSMContext):
 
 
 @router.callback_query(SetReport.choosing_editor_first, F.data == "bt_constructor_7_save")
-async def constructor_choosing_awa_our_credit44(callback: types.CallbackQuery, state: FSMContext, dict_report):
+async def constructor_choosing_awa_our_credit44(callback: types.CallbackQuery, state: FSMContext):
+    await callback.message.answer("Подождите, идет выгрузка отчета")
     data = await state.get_data()
-    conn = psycopg2.connect(user=os.getenv('SQL_USER'),
-                            password=os.getenv('SQL_PASSWORD'),
-                            host=os.getenv('SQL_HOST'),
-                            port=os.getenv('SQL_PORT'),
-                            database=os.getenv('SQL_DATABASE')
-                            )
-    cur = conn.cursor()
-    if conn.closed == 0:
-        print(f'Успешное подключение к бд, статус {conn.closed}')
-        sql_insert_tg_info_user = 'INSERT INTO bot_planeta_avto.purchase_report(type_purchase_report, platform,username_purchase_сolleagues,write_dkp,price,tires,vin,gos_number,brand,model,years,comment_report,username_purchase_report) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)'
-        cur.execute(sql_insert_tg_info_user, (
-            data['chosen_type'], data['chosen_place'], data['chosen_college_fio'], data['chosen_college_dkps'],
-            data['chosen_cost'], data['chosen_wire_boolean'], data['chosen_vin_number'],
-            data['chosen_vin_gos_number'], data['chosen_vin_marka'], data['chosen_vin_model'], data['chosen_vin_year'],
-            data['chosen_comment'], callback.message.chat.last_name + " " + callback.message.chat.first_name,))
-    else:
-        print(f'База недоступна, статус {conn.closed}')
-
-    conn.commit()
-    conn.close()
+    await utils.connectors.db_sql_buy_insert(callback, data)
     await callback.message.answer(
         text="Отчет отправлен, спасибо, что воспользовались ботом. Нажмите на /start для составления нового отчета.")
     await callback.message.answer(text="/start")
