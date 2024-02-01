@@ -434,7 +434,7 @@ async def constructor_editor_start(callback: types.CallbackQuery, state: FSMCont
     dict_editor = {'editor_start':
                        {'text': ["Где продал", "Сколько собственнику", "Гос номер", "Марка", "Модель", "Год", "VIN",
                                  "Комментарий", "Все ок"],
-                        'data': ["edit_menu_where", "howmuchsobs", "edit_menu_gosnumber", "edit_menu_marka",
+                        'data': ["edit_menu_where", "edit_menu_howmuchsobs", "edit_menu_gosnumber", "edit_menu_marka",
                                  "edit_menu_model", "edit_menu_year", "edit_menu_vin", "edit_menu_comment",
                                  "edit_menu_finish"]}}
 

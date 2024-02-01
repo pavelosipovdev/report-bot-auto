@@ -418,7 +418,7 @@ async def editor_first_place(callback: types.CallbackQuery, state: FSMContext):
     await state.set_state(SetReport.choosing_buy_editor_start)
 
 
-@router.callback_query(SetReport.choosing_buy_editor_first, F.data == "edit_menu_howmuchsobs")
+@router.callback_query(SetReport.choosing_buy_editor_first, F.data == "edit_menu_cost")
 async def editor_first_cost_first(callback: types.CallbackQuery, state: FSMContext):
     await utils.editor_buy.editor_first_cost_first(callback, state)
     await state.set_state(SetReport.choosing_buy_editor_first_cost)
