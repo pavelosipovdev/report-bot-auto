@@ -3,6 +3,8 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import Message
 from aiogram.utils.keyboard import InlineKeyboardBuilder
+import os
+import psycopg2
 
 import utils
 from utils import downloader, connectors, convert, api, inliner
@@ -1242,6 +1244,27 @@ async def constructor_choosing_awa_our_credit22(message: Message, state: FSMCont
 
 @router.callback_query(SetReport.choosing_buyer14, F.data == texts.BT_SAVE)
 async def constructor_choosing_awa_our_credit44(callback: types.CallbackQuery, state: FSMContext):
+    data = await state.get_data()
+    conn = psycopg2.connect(user=os.getenv('SQL_USER'),
+                            password=os.getenv('SQL_PASSWORD'),
+                            host=os.getenv('SQL_HOST'),
+                            port=os.getenv('SQL_PORT'),
+                            database=os.getenv('SQL_DATABASE')
+                            )
+    cur = conn.cursor()
+    if conn.closed == 0:
+        print(f'Успешное подключение к бд, статус {conn.closed}')
+        sql_insert_comission_report = 'INSERT INTO bot_planeta_avto.commission_report(type_purchase_report, platform, username_commission_сolleagues, write_ag,price_owner, size_commission, vin, gos_number, brand, model, years, comment_report, username_commission_report) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)'
+        cur.execute(sql_insert_comission_report, (
+            data['chosen_type'], data['chosen_place'], data['chosen_college_fio'], data['chosen_college_dkps'], data['howmuchsobs'], data['howmuchcomissiob'],
+            data['chosen_vin_number'],
+            data['chosen_vin_gos_number'], data['chosen_vin_marka'], data['chosen_vin_model'], data['chosen_vin_year'],
+            data['chosen_comment'], callback.message.chat.last_name + " " + callback.message.chat.first_name,))
+    else:
+        print(f'База недоступна, статус {conn.closed}')
+
+    conn.commit()
+    conn.close()
     await callback.message.answer(
         text="Отчет отправлен, спасибо, что воспользовались ботом. Нажмите на /start для составления нового отчета.")
     await callback.message.answer(text="/start")
@@ -1250,6 +1273,27 @@ async def constructor_choosing_awa_our_credit44(callback: types.CallbackQuery, s
 
 @router.callback_query(SetReport.choosing_buyer14, F.data == texts.BT_EDIT)
 async def constructor_choosing_awa_our_credit44(callback: types.CallbackQuery, state: FSMContext):
+    data = await state.get_data()
+    conn = psycopg2.connect(user=os.getenv('SQL_USER'),
+                            password=os.getenv('SQL_PASSWORD'),
+                            host=os.getenv('SQL_HOST'),
+                            port=os.getenv('SQL_PORT'),
+                            database=os.getenv('SQL_DATABASE')
+                            )
+    cur = conn.cursor()
+    if conn.closed == 0:
+        print(f'Успешное подключение к бд, статус {conn.closed}')
+        sql_insert_comission_report = 'INSERT INTO bot_planeta_avto.commission_report(type_purchase_report, platform, username_commission_сolleagues, write_ag,price_owner, size_commission, vin, gos_number, brand, model, years, comment_report, username_commission_report) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)'
+        cur.execute(sql_insert_comission_report, (
+            data['chosen_type'], data['chosen_place'], data['chosen_college_fio'], data['chosen_college_dkps'], data['howmuchsobs'], data['howmuchcomissiob'],
+            data['chosen_vin_number'],
+            data['chosen_vin_gos_number'], data['chosen_vin_marka'], data['chosen_vin_model'], data['chosen_vin_year'],
+            data['chosen_comment'], callback.message.chat.last_name + " " + callback.message.chat.first_name,))
+    else:
+        print(f'База недоступна, статус {conn.closed}')
+
+    conn.commit()
+    conn.close()
     await callback.message.answer(
         text="Отчет отправлен, спасибо, что воспользовались ботом. Нажмите на /start для составления нового отчета.")
     await callback.message.answer(text="/start")

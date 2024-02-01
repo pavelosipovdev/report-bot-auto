@@ -4,6 +4,8 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import Message
 from aiogram.utils.keyboard import InlineKeyboardBuilder
+import psycopg2
+import os
 
 import utils
 from utils import downloader, connectors, convert, api, inliner
@@ -41,6 +43,7 @@ class SetReport(StatesGroup):
     choosing_dkp06 = State()
     choosing_wire02 = State()
     choosing_wire03 = State()
+    choosing_comment = State()
 
     choosing_comission_editor = State()
     choosing_comission_editor_start = State()
@@ -314,13 +317,29 @@ async def constructor_choosing_wire(callback: types.CallbackQuery, state: FSMCon
 async def constructor_choosing_dkp4(message: Message, state: FSMContext):
     await state.update_data(howmuchsobs=message.text.upper())
     await message.answer(text=texts.MESSAGE_HOW_MUCH_COMISSION)
+    await state.set_state(SetReport.choosing_comment)
+
+
+@router.message(SetReport.choosing_comment)
+async def constructor_choosing_wire(message: Message, state: FSMContext):
+    await state.update_data(howmuchcomissiob=message.text.upper())
+    kb = [
+        [types.KeyboardButton(text="Без комментариев")]
+    ]
+    keyboard = types.ReplyKeyboardMarkup(
+        keyboard=kb,
+        resize_keyboard=True,
+        one_time_keyboard=True,
+
+    )
+    await message.answer(text="Комментарии", reply_markup=keyboard)
     await state.set_state(SetReport.choosing_dkp06)
 
 
 #
 @router.message(SetReport.choosing_dkp06)
 async def constructor_choosing_dkp5(message: Message, state: FSMContext):
-    await state.update_data(howmuchcomissiob=message.text.upper())
+    await state.update_data(chosen_comment=message.text.upper())
     builder = InlineKeyboardBuilder()
     builder.add(types.InlineKeyboardButton(
         text=texts.BT_CASH,
@@ -348,7 +367,7 @@ async def constructor_choosing_awa_our_credit22(callback: types.CallbackQuery, s
     )
     data = await state.get_data()
     print(data)
-    text = f'''Спасибо, данные ниже ушли в базу:\nТип отчета: {data['chosen_type']}\nГде продал: {data['chosen_place']}\nКто купил: {data['chosen_college_fio']}\nКто писал АГ: {data['chosen_college_dkps']}\nСколько собственнику: {data['howmuchsobs']}\nРазмер комиссии?: {data['howmuchcomissiob']}\n\nВид расчета?: {data['typeraschet']}\n\n{callback.message.chat.first_name + " " + callback.message.chat.last_name}
+    text = f'''Предварительный отчет:\nТип отчета: {data['chosen_type']}\nГде продал: {data['chosen_place']}\nКто купил: {data['chosen_college_fio']}\nКто писал АГ: {data['chosen_college_dkps']}\nСколько собственнику: {data['howmuchsobs']}\nРазмер комиссии?: {data['howmuchcomissiob']}\n\nВид расчета?: {data['typeraschet']}\n\n{callback.message.chat.first_name + " " + callback.message.chat.last_name}
         '''
     await callback.message.answer(
         text=text
@@ -363,6 +382,27 @@ async def constructor_choosing_awa_our_credit22(callback: types.CallbackQuery, s
 
 @router.callback_query(SetReport.choosing_wire03, F.data == texts.BT_SAVE)
 async def constructor_choosing_awa_our_credit44(callback: types.CallbackQuery, state: FSMContext):
+    data = await state.get_data()
+    conn = psycopg2.connect(user=os.getenv('SQL_USER'),
+                            password=os.getenv('SQL_PASSWORD'),
+                            host=os.getenv('SQL_HOST'),
+                            port=os.getenv('SQL_PORT'),
+                            database=os.getenv('SQL_DATABASE')
+                            )
+    cur = conn.cursor()
+    if conn.closed == 0:
+        print(f'Успешное подключение к бд, статус {conn.closed}')
+        sql_insert_comission_report = 'INSERT INTO bot_planeta_avto.commission_report(type_purchase_report, platform, username_commission_сolleagues, write_ag,price_owner, size_commission, vin, gos_number, brand, model, years, comment_report, username_commission_report) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)'
+        cur.execute(sql_insert_comission_report, (
+            data['chosen_type'], data['chosen_place'], data['chosen_college_fio'], data['chosen_college_dkps'], data['howmuchsobs'], data['howmuchcomissiob'],
+            data['chosen_vin_number'],
+            data['chosen_vin_gos_number'], data['chosen_vin_marka'], data['chosen_vin_model'], data['chosen_vin_year'],
+            data['chosen_comment'], callback.message.chat.last_name + " " + callback.message.chat.first_name,))
+    else:
+        print(f'База недоступна, статус {conn.closed}')
+
+    conn.commit()
+    conn.close()
     await callback.message.answer(
         text="Отчет отправлен, спасибо, что воспользовались ботом. Нажмите на /start для составления нового отчета.")
     await callback.message.answer(text="/start")
@@ -371,6 +411,27 @@ async def constructor_choosing_awa_our_credit44(callback: types.CallbackQuery, s
 
 @router.callback_query(SetReport.choosing_wire03, F.data == texts.BT_EDIT)
 async def constructor_choosing_awa_our_credit44(callback: types.CallbackQuery, state: FSMContext):
+    data = await state.get_data()
+    conn = psycopg2.connect(user=os.getenv('SQL_USER'),
+                            password=os.getenv('SQL_PASSWORD'),
+                            host=os.getenv('SQL_HOST'),
+                            port=os.getenv('SQL_PORT'),
+                            database=os.getenv('SQL_DATABASE')
+                            )
+    cur = conn.cursor()
+    if conn.closed == 0:
+        print(f'Успешное подключение к бд, статус {conn.closed}')
+        sql_insert_comission_report = 'INSERT INTO bot_planeta_avto.commission_report(type_purchase_report, platform, username_commission_сolleagues, write_ag,price_owner, size_commission, vin, gos_number, brand, model, years, comment_report, username_commission_report) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)'
+        cur.execute(sql_insert_comission_report, (
+            data['chosen_type'], data['chosen_place'], data['chosen_college_fio'], data['chosen_college_dkps'], data['howmuchsobs'], data['howmuchcomissiob'],
+            data['chosen_vin_number'],
+            data['chosen_vin_gos_number'], data['chosen_vin_marka'], data['chosen_vin_model'], data['chosen_vin_year'],
+            data['chosen_comment'], callback.message.chat.last_name + " " + callback.message.chat.first_name,))
+    else:
+        print(f'База недоступна, статус {conn.closed}')
+
+    conn.commit()
+    conn.close()
     await callback.message.answer(
         text="Отчет отправлен, спасибо, что воспользовались ботом. Нажмите на /start для составления нового отчета.")
     await callback.message.answer(text="/start")
