@@ -270,7 +270,9 @@ MESSAGE_SELL_TORG = "НА СКОЛЬКО СТОРГОВАЛ"
 
 MESSAGE_SELL_WITH = "С КЕМ ПРОДАЛ?"
 
-MESSAGE_SELL_WITH_CREDIT = "КТО ОФОРМИЛ КРЕДИТ/ПИСАЛ ДКП?"
+MESSAGE_SELL_WITH_CREDIT = "КТО ОФОРМИЛ КРЕДИТ?"
+
+MESSAGE_SELL_WITH_DKP = "КТО ПИСАЛ ДКП?"
 
 MESSAGE_SUM_SOBS = "СУММА СОБСТВЕННИКУ"
 
@@ -290,7 +292,7 @@ MESSAGE_DATE_RASCHET = "ДАТА РАСЧЕТА?"
 
 MESSAGE_TYPE_RASCHETA_WAS = "ВИД РАСЧЕТА БЫЛ ZAGLUSHKA?"
 
-BT_SAVE = "ОСТАВЛЯЕМЯ"
+BT_SAVE = "ОСТАВЛЯЕМ"
 
 BT_EDIT = "ИЗМЕНЯЕМ"
 

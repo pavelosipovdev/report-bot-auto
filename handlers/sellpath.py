@@ -3,43 +3,18 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import Message
 from aiogram.utils.keyboard import InlineKeyboardBuilder
+import os
+import psycopg2
+from utils import editor_sell
 
-from utils import convert, api
+import utils
+from utils import downloader, connectors, convert, api, inliner
 from texts import texts
 
 router = Router()
 
 import re
 
-template_fio = 'ФИО: (.*)'
-template_marka = 'Марка: (.*)'
-template_model = 'Модель: (.*)'
-template_year = 'Год: (.*)'
-template_our = 'Наша/комиссия: (.*)'
-template_cost = 'Цена продажи: (.*)'
-template_drom = 'Сколько накинул на цену дрома: (.*)'
-template_own = 'Сколько собственнику: (.*)'
-# template_torg = 'До скольки сторговали собственника: (.*)'
-template_torg = 'До скольки сторговали собственника: (.*)'
-template_fio2 = 'С кем продал ФИО: (.*)'
-template_dkpfio = 'ДКП ФИО: (.*)'
-template_commi = 'Кто ставил на комиссию: (.*)'
-template_agent = 'Кто писал агентский договор: (.*)'
-
-
-# sender_fio = ["UNKNOWN"]
-# sender_marka = ["UNKNOWN"]
-# sender_model = ["UNKNOWN"]
-# sender_year = ["UNKNOWN"]
-# sender_our = ["UNKNOWN"]
-# sender_cost = ["UNKNOWN"]
-# sender_drom = ["UNKNOWN"]
-# sender_own = ["UNKNOWN"]
-# sender_torg = ["UNKNOWN"]
-# sender_fio2 = ["UNKNOWN"]
-# sender_dkpfio = ["UNKNOWN"]
-# sender_commi = ["UNKNOWN"]
-# sender_agent = ["UNKNOWN"]
 
 class SetReport(StatesGroup):
     choosing_buyer1 = State()
@@ -62,23 +37,106 @@ class SetReport(StatesGroup):
     choosing_buyer18 = State()
     choosing_buyer19 = State()
     choosing_buyer20 = State()
-    # choosing_download1 = State()
-    # choosing_download11 = State()
-    # choosing_vin1 = State()
-    # choosing_electro1 = State()
-    # choosing_college1 = State()
-    # choosing_dkp1 = State()
-    # choosing_cost1 = State()
-    # choosing_wire1 = State()
-    # choosing_wire121 = State()
-    # choosing_wire441 = State()
-    # choosing_wire21 = State()
-    # choosing_japan1 = State()
-    # choosing_report1 = State()
+    choosing_sell_data_car = State()
+    choosing_sell_vin = State()
+    choosing_sell_pts = State()
+    choosing_sell_data_car_marka = State()
+    choosing_sell_data_car_model = State()
+    choosing_sell_data_car_year = State()
+    choosing_sell_data_car_gosnumber = State()
+    choosing_sell_data_car_next = State()
+    choosing_sell_self_college = State()
+    choosing_sell_self_college_dkp = State()
+    choosing_sell_who_write_dkp0 = State()
+    choosing_sell_who_write_dkp = State()
+    choosing_sell_cost = State()
+    choosing_sell_cost1 = State()
+    choosing_sell_wire = State()
+    choosing_sell_wire_cost = State()
+    choosing_sell_comment = State()
+    choosing_sell_who_write_dkp_inline = State()
+    choosing_sell_cost_inline = State()
+    choosing_sell_comment = State()
+    choosing_sell_editor = State()
+    choosing_sell_editor_start = State()
+    choosing_sell_editor_first = State()
+    choosing_sell_editor_first_place = State()
+    choosing_sell_editor_first_cost = State()
+    choosing_sell_editor_first_vin_gos_number = State()
+    choosing_sell_editor_first_vin_marka = State()
+    choosing_sell_editor_first_vin_model = State()
+    choosing_sell_editor_first_vin_year = State()
+    choosing_sell_editor_first_vin_number = State()
+    choosing_sell_editor_first_comment = State()
+    choosing_sell_editor_finish = State()
+    choosing_comissiya_our = State()
+    choosing_comissiya_our2 = State()
+    choosing_comissiya_credit_cash = State()
+    choosing_our_credit_cash = State()
+    choosing_comissiya_credit2 = State()
+    choosing_comissiya_credit3 = State()
+    choosing_comissiya_credit4 = State()
+    choosing_comissiya_credit5 = State()
+    choosing_comissiya_credit6 = State()
+    choosing_comissiya_credit7 = State()
+    choosing_comissiya_credit78 = State()
+    choosing_comissiya_credit8 = State()
+    choosing_comissiya_credit9 = State()
+    choosing_comissiya_credit10 = State()
+    choosing_comissiya_credit101 = State()
+    choosing_comissiya_credit11 = State()
+    choosing_comissiya_credit12 = State()
+    choosing_comissiya_credit13 = State()
+    choosing_comissiya_credit14 = State()
+    choosing_comissiya_credit15 = State()
+    choosing_comissiya_credit16 = State()
+    choosing_comissiya_credit167 = State()
+    choosing_comissiya_credit17 = State()
+    choosing_comissiya_cash2 = State()
+    choosing_comissiya_cash3 = State()
+    choosing_comissiya_cash4 = State()
+    choosing_comissiya_cash5 = State()
+    choosing_comissiya_cash6 = State()
+    choosing_comissiya_cash7 = State()
+    choosing_comissiya_cash8 = State()
+    choosing_comissiya_cash78 = State()
+    choosing_comissiya_cash9 = State()
+    choosing_comissiya_cash10 = State()
+    choosing_comissiya_cash101 = State()
+    choosing_comissiya_cash11 = State()
+    choosing_comissiya_cash12 = State()
+    choosing_comissiya_cash13 = State()
+    choosing_comissiya_cash14 = State()
+    choosing_comissiya_cash15 = State()
+    choosing_comissiya_cash16 = State()
+    choosing_comissiya_cash167 = State()
+    choosing_comissiya_cash17 = State()
+    choosing_comissiya_cash18 = State()
+    choosing_comissiya_cash19 = State()
+    choosing_our_credit = State()
+    choosing_our_credit2 = State()
+    choosing_our_credit3 = State()
+    choosing_our_credit4 = State()
+    choosing_our_credit45 = State()
+    choosing_our_credit5 = State()
+    choosing_our_credit6 = State()
+    choosing_our_credit7 = State()
+    choosing_our_credit8 = State()
+    choosing_our_cash = State()
+    choosing_our_cash2 = State()
+    choosing_our_cash3 = State()
+    choosing_our_cash4 = State()
+    choosing_our_cash45 = State()
+    choosing_our_cash5 = State()
+    choosing_our_cash6 = State()
+    choosing_our_cash7 = State()
+    choosing_our_cash8 = State()
+    choosing_our_cash9 = State()
 
 
 @router.callback_query(F.data == texts.BT_CONSTRUCTOR_1_SELL)
 async def main_menu_bt_constructor_1_sell(callback: types.CallbackQuery, state: FSMContext):
+    await state.update_data(choosing_buyer1=callback.data)
     builder = InlineKeyboardBuilder()
     builder.add(types.InlineKeyboardButton(
         text=texts.MESSAGE_BT_CONSTRUCTOR_3_VIN_DOWNLOAD,
@@ -93,39 +151,91 @@ async def main_menu_bt_constructor_1_sell(callback: types.CallbackQuery, state: 
         callback_data=texts.MESSAGE_BT_CONSTRUCTOR_3_MANUAL)
     )
     await callback.message.answer(text=texts.MESSAGE_PHOTO_VIN_DOWNLOAD, reply_markup=builder.as_markup())
-    await state.update_data(choosing_buyer1=callback.data)
-    await state.set_state(SetReport.choosing_buyer1)
+    await state.set_state(SetReport.choosing_sell_data_car)
     await callback.message.delete()
 
 
-@router.callback_query(SetReport.choosing_buyer1, F.data == texts.MESSAGE_BT_CONSTRUCTOR_3_MANUAL)
-async def main_menu_bt_constructor_1_sell(callback: types.CallbackQuery, state: FSMContext):
+@router.callback_query(SetReport.choosing_sell_data_car, F.data == texts.MESSAGE_BT_CONSTRUCTOR_3_VIN_DOWNLOAD)
+async def main_menu_button2(callback: types.CallbackQuery, state: FSMContext):
+    await callback.message.answer(text=texts.MESSAGE_MAIN_MENU_BUY_BUTTON2)
+    await state.set_state(SetReport.choosing_sell_vin)
+
+
+@router.callback_query(SetReport.choosing_sell_data_car, F.data == texts.MESSAGE_BT_CONSTRUCTOR_3_PTS_DOWNLOAD)
+async def main_menu_button2(callback: types.CallbackQuery, state: FSMContext):
+    await callback.message.answer(text=texts.MESSAGE_MAIN_MENU_BUY_BUTTON22)
+    await state.set_state(SetReport.choosing_sell_pts)
+
+
+@router.callback_query(SetReport.choosing_sell_data_car, F.data == texts.MESSAGE_BT_CONSTRUCTOR_3_MANUAL)
+async def main_menu_button2(callback: types.CallbackQuery, state: FSMContext):
+    await callback.message.answer(text="Укажите VIN")
+    await state.set_state(SetReport.choosing_sell_data_car_marka)
+
+
+@router.message(SetReport.choosing_sell_data_car_marka)
+async def main_menu_button2(message: Message, state: FSMContext):
+    await state.update_data(chosen_vin_number=message.text.upper())
+    await message.answer(text="Укажите марку")
+    await state.set_state(SetReport.choosing_sell_data_car_model)
+
+
+@router.message(SetReport.choosing_sell_data_car_model)
+async def main_menu_button2(message: Message, state: FSMContext):
+    await state.update_data(chosen_vin_marka=message.text.upper())
+    await message.answer(text="Укажите модель")
+    await state.set_state(SetReport.choosing_sell_data_car_year)
+
+
+@router.message(SetReport.choosing_sell_data_car_year)
+async def main_menu_button2(message: Message, state: FSMContext):
+    await state.update_data(chosen_vin_model=message.text.upper())
+    await message.answer(text="Укажите год")
+    await state.set_state(SetReport.choosing_sell_data_car_gosnumber)
+
+
+@router.message(SetReport.choosing_sell_data_car_gosnumber)
+async def main_menu_button2(message: Message, state: FSMContext):
+    await state.update_data(chosen_vin_year=message.text.upper())
+    await message.answer(text="Укажите гоc номер")
+    await state.set_state(SetReport.choosing_sell_data_car_next)
+
+
+@router.message(SetReport.choosing_sell_data_car_next)
+async def main_menu_button2(message: Message, state: FSMContext):
+    await state.update_data(chosen_vin_gos_number=message.text.upper())
     builder = InlineKeyboardBuilder()
     builder.add(types.InlineKeyboardButton(
         text=texts.BT_NEXT,
         callback_data=texts.BT_NEXT)
     )
-    await callback.message.edit_text(text=texts.MESSAGE_PHOTO_VIN_DOWNLOAD_PLZ, reply_markup=builder.as_markup())
-    await state.update_data(choosing_buyer2=callback.data)
-    await state.set_state(SetReport.choosing_buyer2)
-    # 
+    data = await state.get_data()
+    text = f'''Вы указали:
+    Год {data['chosen_vin_year'].upper()}
+    Гос номер {data['chosen_vin_gos_number'].upper()}
+    VIN {data['chosen_vin_number'].upper()}
+    Марка {data['chosen_vin_marka'].upper()}
+    Модель {data['chosen_vin_model'].upper()}
+    '''
+    await message.answer(text=text, reply_markup=builder.as_markup())
+    await state.set_state(SetReport.choosing_comissiya_our)
 
 
-@router.callback_query(SetReport.choosing_buyer1, F.data == texts.MESSAGE_BT_CONSTRUCTOR_3_MANUAL)
+@router.message(SetReport.choosing_sell_vin, F.photo)
+async def constructor_choosing_vin(message: Message, state: FSMContext, bot: Bot):
+    await utils.downloader.constructor_choosing_vin(message, state, bot)
+    await state.set_state(SetReport.choosing_comissiya_our)
+
+
+@router.message(SetReport.choosing_sell_pts, F.photo)
+async def constructor_choosing_electro(message: Message, state: FSMContext, bot: Bot):
+    await utils.downloader.constructor_choosing_electro(message, state, bot)
+    await state.set_state(SetReport.choosing_comissiya_our)
+
+
+@router.callback_query(SetReport.choosing_comissiya_our)
 async def main_menu_bt_constructor_1_sell(callback: types.CallbackQuery, state: FSMContext):
-    builder = InlineKeyboardBuilder()
-    builder.add(types.InlineKeyboardButton(
-        text=texts.BT_NEXT,
-        callback_data=texts.BT_NEXT)
-    )
-    await callback.message.edit_text(text=texts.MESSAGE_PHOTO_VIN_DOWNLOAD_PLZ, reply_markup=builder.as_markup())
-    await state.update_data(choosing_buyer2=callback.data)
-    await state.set_state(SetReport.choosing_buyer2)
-    # 
-
-
-@router.callback_query(SetReport.choosing_buyer2)
-async def main_menu_bt_constructor_1_sell(callback: types.CallbackQuery, state: FSMContext):
+    await state.update_data(choosing_buyer3=callback.data)
     builder = InlineKeyboardBuilder()
     builder.add(types.InlineKeyboardButton(
         text=texts.BT_COMISSION,
@@ -136,13 +246,13 @@ async def main_menu_bt_constructor_1_sell(callback: types.CallbackQuery, state: 
         callback_data=texts.BT_OUR)
     )
     await callback.message.edit_text(text=texts.MESSAGE_COMISSION_OUR, reply_markup=builder.as_markup())
-    await state.update_data(choosing_buyer3=callback.data)
-    await state.set_state(SetReport.choosing_buyer3)
+    await state.set_state(SetReport.choosing_comissiya_our2)
     # 
 
 
-@router.callback_query(SetReport.choosing_buyer3, F.data == texts.BT_COMISSION)
+@router.callback_query(SetReport.choosing_comissiya_our2, F.data == texts.BT_COMISSION)
 async def main_menu_bt_constructor_1_sell(callback: types.CallbackQuery, state: FSMContext):
+    await state.update_data(type_credit_our=callback.data)
     builder = InlineKeyboardBuilder()
     builder.add(types.InlineKeyboardButton(
         text=texts.BT_CONSTRUCTOR_3_COMISSION_CREDIT,
@@ -153,13 +263,13 @@ async def main_menu_bt_constructor_1_sell(callback: types.CallbackQuery, state: 
         callback_data=texts.BT_CONSTRUCTOR_3_COMISSION_CASH)
     )
     await callback.message.edit_text(text=texts.MESSAGE_COMISSION_OUR_CREDIT_CASH, reply_markup=builder.as_markup())
-    await state.update_data(choosing_buyer4=callback.data)
-    await state.set_state(SetReport.choosing_buyer4)
+    await state.set_state(SetReport.choosing_comissiya_credit_cash)
     # 
 
 
-@router.callback_query(SetReport.choosing_buyer3, F.data == texts.BT_OUR)
+@router.callback_query(SetReport.choosing_comissiya_our2, F.data == texts.BT_OUR)
 async def main_menu_bt_constructor_12_sell(callback: types.CallbackQuery, state: FSMContext):
+    await state.update_data(type_credit_our=callback.data)
     builder = InlineKeyboardBuilder()
     builder.add(types.InlineKeyboardButton(
         text=texts.BT_CONSTRUCTOR_3_OUR_CREDIT,
@@ -170,80 +280,853 @@ async def main_menu_bt_constructor_12_sell(callback: types.CallbackQuery, state:
         callback_data=texts.BT_CONSTRUCTOR_3_OUR_CASH)
     )
     await callback.message.edit_text(text=texts.MESSAGE_COMISSION_OUR_CREDIT_CASH, reply_markup=builder.as_markup())
-    await state.update_data(choosing_buyer4=callback.data)
-    await state.set_state(SetReport.choosing_buyer4)
+    await state.set_state(SetReport.choosing_our_credit_cash)
     # 
+
+
+@router.callback_query(SetReport.choosing_comissiya_credit_cash, F.data == texts.BT_CONSTRUCTOR_3_COMISSION_CREDIT)
+async def sell_choosing_comissiya_credit_comission(callback: types.CallbackQuery, state: FSMContext):
+    await state.update_data(type_deal=callback.data)
+    await callback.message.answer(
+        text=texts.MESSAGE_SELL_COST_DROM,
+    )
+    await state.set_state(SetReport.choosing_comissiya_credit2)
+
+
+@router.message(SetReport.choosing_comissiya_credit2)
+async def sell_choosing_comissiya_credit_comission2(message: Message, state: FSMContext):
+    await state.update_data(drom_cost=message.text.lower())
+    await message.answer(
+        text=texts.MESSAGE_SELL_DISCOUNT,
+    )
+    await state.set_state(SetReport.choosing_comissiya_credit3)
+
+
+@router.message(SetReport.choosing_comissiya_credit3)
+async def sell_choosing_comissiya_credit_comission3(message: Message, state: FSMContext):
+    await state.update_data(dealer_discount=message.text.lower())
+    await message.answer(
+        text=texts.MESSAGE_SELL_SUM_NM,
+    )
+    await state.set_state(SetReport.choosing_comissiya_credit4)
+
+
+@router.message(SetReport.choosing_comissiya_credit4)
+async def sell_choosing_comissiya_creditcomission4(message: Message, state: FSMContext):
+    await state.update_data(summa_nm=message.text.lower())
+    await message.answer(
+        text=texts.MESSAGE_SUM_SOBS,
+    )
+    await state.set_state(SetReport.choosing_comissiya_credit5)
+
+
+@router.message(SetReport.choosing_comissiya_credit5)
+async def sell_choosing_comissiya_creditcomission5(message: Message, state: FSMContext):
+    await state.update_data(summa_sob=message.text.lower())
+    builder = InlineKeyboardBuilder()
+    builder.add(types.InlineKeyboardButton(
+        text="ОСТАВЛЯЕМ",
+        callback_data="callback_ostav")
+    )
+    builder.add(types.InlineKeyboardButton(
+        text="РЕДАКТИРОВАТЬ",
+        callback_data="callback_edit")
+    )
+    data = await state.get_data()
+    await message.answer(
+        text="СУММА СОБСТВЕННИКУ " + data['summa_sob'], reply_markup=builder.as_markup()
+    )
+    await state.set_state(SetReport.choosing_comissiya_credit6)
+
+
+@router.callback_query(SetReport.choosing_comissiya_credit6, F.data == "callback_edit")
+async def sell_choosing_comissiya_creditcomission6(callback: types.CallbackQuery, state: FSMContext):
+    await callback.message.answer(
+        text="На какую сумму хотите изменить?",
+    )
+    await state.set_state(SetReport.choosing_comissiya_credit78)
+
+
+@router.message(SetReport.choosing_comissiya_credit78)
+async def sell_choosing_comissiya_creditcomission78(message: Message, state: FSMContext):
+    await state.update_data(summa_sob=message.text.lower())
+    await message.answer(
+        text=texts.MESSAGE_SELL_TORG,
+    )
+    await state.set_state(SetReport.choosing_comissiya_credit8)
+
+
+@router.callback_query(SetReport.choosing_comissiya_credit6, F.data == "callback_ostav")
+async def sell_choosing_comissiya_creditcomission6(callback: types.CallbackQuery, state: FSMContext):
+    await callback.message.answer(
+        text=texts.MESSAGE_SELL_TORG,
+    )
+    await state.set_state(SetReport.choosing_comissiya_credit8)
+
+
+@router.message(SetReport.choosing_comissiya_credit8)
+async def sell_choosing_comissiya_creditcomission8(message: Message, state: FSMContext):
+    await state.update_data(howmuchtorg=message.text.lower())
+    builder = InlineKeyboardBuilder()
+    builder.add(types.InlineKeyboardButton(
+        text="САМ",
+        callback_data="САМ")
+    )
+    builder.add(types.InlineKeyboardButton(
+        text="Нажмите, чтобы ввести фамилию",
+        switch_inline_query_current_chat='find_b ')
+    )
+    await message.answer(
+        text=texts.MESSAGE_SELL_WITH + "\nВведите первые символы фамилии коллеги", reply_markup=builder.as_markup()
+    )
+    await state.set_state(SetReport.choosing_comissiya_credit9)
+
+
+@router.callback_query(SetReport.choosing_comissiya_credit9, F.data == "САМ")
+async def sell_choosing_comissiya_creditcomission9(callback: types.CallbackQuery, state: FSMContext):
+    await state.update_data(howsell=callback.message.chat.first_name + callback.message.chat.last_name)
+    builder = InlineKeyboardBuilder()
+    builder.add(types.InlineKeyboardButton(
+        text="САМ",
+        callback_data="САМ")
+    )
+    builder.add(types.InlineKeyboardButton(
+        text="Нажмите, чтобы ввести фамилию",
+        switch_inline_query_current_chat='find_bb ')
+    )
+    await callback.message.answer(
+        text=texts.MESSAGE_SELL_WITH_CREDIT + "\nВведите первые символы фамилии коллеги",
+        reply_markup=builder.as_markup()
+    )
+    await state.set_state(SetReport.choosing_comissiya_credit101)
+
+
+@router.callback_query(SetReport.choosing_comissiya_credit101, F.data == "САМ")
+async def sell_choosing_comissiya_creditcomission101(callback: types.CallbackQuery, state: FSMContext):
+    await state.update_data(howsellcredit=callback.message.chat.first_name + callback.message.chat.last_name)
+    builder = InlineKeyboardBuilder()
+    builder.add(types.InlineKeyboardButton(
+        text=texts.BT_YES,
+        callback_data=texts.BT_YES)
+    )
+    builder.add(types.InlineKeyboardButton(
+        text=texts.BT_NO,
+        callback_data=texts.BT_NO)
+    )
+    await callback.message.answer(
+        text=texts.MESSAGE_CAll_SOBS, reply_markup=builder.as_markup()
+    )
+    await state.set_state(SetReport.choosing_comissiya_credit13)
+
+
+@router.message(SetReport.choosing_comissiya_credit9)
+@router.inline_query(lambda query: query.query.startswith("find_b "))
+async def find_colleges(inline_query: types.InlineQuery, state: FSMContext):
+    await utils.inliner.find_colleges(inline_query, state, "find_b ")
+    await state.set_state(SetReport.choosing_comissiya_credit10)
+
+
+@router.message(SetReport.choosing_comissiya_credit10)
+async def sell_choosing_our_credit5(message: Message, state: FSMContext):
+    await message.answer(text="Пожалуйста подождите, идет проверка имени в базе данных")
+    college_name = utils.connectors.db_sql_buy_with_college(message.text.lower())
+    await state.update_data(howsell=college_name)
+    if college_name == "Некорректный USERNAME":
+        await message.answer("Некорректный USERNAME, укажите корректный в режиме редактирования")
+    builder = InlineKeyboardBuilder()
+    builder.add(types.InlineKeyboardButton(
+        text="САМ",
+        callback_data="САМ")
+    )
+    builder.add(types.InlineKeyboardButton(
+        text="Ввести фамилию",
+        switch_inline_query_current_chat='find_bb ')
+    )
+    await message.answer(
+        text=texts.MESSAGE_SELL_WITH_CREDIT + "\nВведите первые символы фамилии коллеги",
+        reply_markup=builder.as_markup()
+    )
+    await state.set_state(SetReport.choosing_comissiya_credit11)
+
+
+@router.message(SetReport.choosing_comissiya_credit11)
+@router.inline_query(lambda query: query.query.startswith("find_bb "))
+async def find_colleges(inline_query: types.InlineQuery, state: FSMContext):
+    await utils.inliner.find_colleges(inline_query, state, "find_bb ")
+    await state.set_state(SetReport.choosing_comissiya_credit12)
+
+
+@router.message(SetReport.choosing_comissiya_credit12)
+async def sell_choosing_our_credit12(message: Message, state: FSMContext):
+    await message.answer(text="Пожалуйста подождите, идет проверка имени в базе данных")
+    college_name = utils.connectors.db_sql_buy_with_college(message.text.lower())
+    await state.update_data(howsellcredit=college_name)
+    if college_name == "Некорректный USERNAME":
+        await message.answer("Некорректный USERNAME, укажите корректный в режиме редактирования")
+    builder = InlineKeyboardBuilder()
+    builder.add(types.InlineKeyboardButton(
+        text=texts.BT_YES,
+        callback_data=texts.BT_YES)
+    )
+    builder.add(types.InlineKeyboardButton(
+        text=texts.BT_NO,
+        callback_data=texts.BT_NO)
+    )
+    await message.answer(
+        text=texts.MESSAGE_CAll_SOBS, reply_markup=builder.as_markup()
+    )
+    await state.set_state(SetReport.choosing_comissiya_credit13)
+
+
+@router.callback_query(SetReport.choosing_comissiya_credit13, F.data == texts.BT_NO)
+async def sell_choosing_comissiya_creditcomission13(callback: types.CallbackQuery, state: FSMContext):
+    data = await state.get_data()
+    print(data)
+    text = f'''Спасибо, данные ниже ушли в базу:\nТИП ОТЧЕТА: {data['choosing_buyer1']}\nКОМИССИЯ ИЛИ НАША: {data['type_credit_our']}\nКРЕДИТ ИЛИ НАЛИЧНЫЕ?: {data['type_deal']}\nЦЕНА ДРОМ: {data['drom_cost']}\nМЕНЕДЖЕРСКАЯ СКИДКА: {data['dealer_discount']}\nС КЕМ ПРОДАЛ: {data['howsell']}\nКТО ОФОРМИЛ КРЕДИТ?: {data['howsellcredit']}\n\n{callback.message.chat.first_name + " " + callback.message.chat.last_name}
+            '''
+    await callback.message.answer(text=text)
+    await callback.message.answer(
+        text="Отчет отправлен, спасибо, что воспользовались ботом. Нажмите на /start для составления нового отчета.")
+    await callback.message.answer(text="/start")
+    await state.clear()
+
+
+@router.callback_query(SetReport.choosing_comissiya_credit13, F.data == texts.BT_YES)
+async def sell_choosing_comissiya_creditcomission13(callback: types.CallbackQuery, state: FSMContext):
+    await callback.message.answer(
+        text=texts.MESSAGE_DATE_RASCHET,
+    )
+    await state.set_state(SetReport.choosing_comissiya_credit14)
+
+
+@router.message(SetReport.choosing_comissiya_credit14)
+async def sell_choosing_comissiya_creditcomission14(message: Message, state: FSMContext):
+    await state.update_data(date_raschet=message.text.lower())
+    builder = InlineKeyboardBuilder()
+    builder.add(types.InlineKeyboardButton(
+        text=texts.BT_YES,
+        callback_data=texts.BT_YES)
+    )
+    builder.add(types.InlineKeyboardButton(
+        text=texts.BT_NO,
+        callback_data=texts.BT_NO)
+    )
+    await message.answer(
+        text=texts.MESSAGE_TYPE_RASCHETA_WAS, reply_markup=builder.as_markup()
+    )
+    await state.set_state(SetReport.choosing_comissiya_credit15)
+
+
+@router.callback_query(SetReport.choosing_comissiya_credit15)
+async def sell_choosing_comissiya_creditcomission15(callback: types.CallbackQuery, state: FSMContext):
+    await state.update_data(type_raschet="ZAGLUSHKA (НАЛ/БЕЗНАЛ)")
+    builder = InlineKeyboardBuilder()
+    builder.add(types.InlineKeyboardButton(
+        text="ОСТАВЛЯЕМ",
+        callback_data="callback_ostav")
+    )
+    builder.add(types.InlineKeyboardButton(
+        text="РЕДАКТИРОВАТЬ",
+        callback_data="callback_edit")
+    )
+    data = await state.get_data()
+    await callback.message.answer(
+        text="ВИД РАСЧЕТА " + data['type_raschet'], reply_markup=builder.as_markup()
+    )
+    await state.set_state(SetReport.choosing_comissiya_credit16)
+
+
+@router.callback_query(SetReport.choosing_comissiya_credit16, F.data == "callback_edit")
+async def sell_choosing_comissiya_creditcomission6(callback: types.CallbackQuery, state: FSMContext):
+    builder = InlineKeyboardBuilder()
+    builder.add(types.InlineKeyboardButton(
+        text="НАЛ",
+        callback_data="НАЛ")
+    )
+    builder.add(types.InlineKeyboardButton(
+        text="БЕЗНАЛ",
+        callback_data="БЕЗНАЛ")
+    )
+    await callback.message.answer(
+        text="На какую вид расчета хотите изменить?",
+    )
+    await state.set_state(SetReport.choosing_comissiya_credit16)
+
+
+@router.callback_query(SetReport.choosing_comissiya_credit167)
+async def sell_choosing_comissiya_creditcomission167(callback: types.CallbackQuery, state: FSMContext):
+    await state.update_data(type_raschet=callback.data)
+    builder = InlineKeyboardBuilder()
+    builder.add(types.InlineKeyboardButton(
+        text=texts.BT_SAVE,
+        callback_data=texts.BT_SAVE)
+    )
+    data = await state.get_data()
+    await callback.message.answer(
+        text="ВИД РАСЧЕТА " + data['type_raschet'], reply_markup=builder.as_markup()
+    )
+    await state.set_state(SetReport.choosing_comissiya_credit17)
+
+
+@router.callback_query(SetReport.choosing_comissiya_credit17)
+async def sell_choosing_comissiya_creditcomission17(callback: types.CallbackQuery, state: FSMContext):
+    data = await state.get_data()
+    print(data)
+    text = f'''Спасибо, данные ниже ушли в базу:\nТИП ОТЧЕТА: {data['choosing_buyer1']}\nКОМИССИЯ ИЛИ НАША: {data['type_credit_our']}\nКРЕДИТ ИЛИ НАЛИЧНЫЕ?: {data['type_deal']}\nЦЕНА ДРОМ: {data['drom_cost']}\nМЕНЕДЖЕРСКАЯ СКИДКА: {data['dealer_discount']}\nС КЕМ ПРОДАЛ: {data['howsell']}\nКТО ОФОРМИЛ КРЕДИТ?: {data['howsellcredit']}\n\n{callback.message.chat.first_name + " " + callback.message.chat.last_name}
+            '''
+    await callback.message.answer(text=text)
+    await callback.message.answer(
+        text="Отчет отправлен, спасибо, что воспользовались ботом. Нажмите на /start для составления нового отчета.")
+    await callback.message.answer(text="/start")
+    await state.clear()
+
+
+@router.callback_query(SetReport.choosing_comissiya_credit16, F.data == "callback_ostav")
+async def sell_choosing_comissiya_creditcomission16(callback: types.CallbackQuery, state: FSMContext):
+    data = await state.get_data()
+    print(data)
+    text = f'''Спасибо, данные ниже ушли в базу:\nТИП ОТЧЕТА: {data['choosing_buyer1']}\nКОМИССИЯ ИЛИ НАША: {data['type_credit_our']}\nКРЕДИТ ИЛИ НАЛИЧНЫЕ?: {data['type_deal']}\nЦЕНА ДРОМ: {data['drom_cost']}\nМЕНЕДЖЕРСКАЯ СКИДКА: {data['dealer_discount']}\nС КЕМ ПРОДАЛ: {data['howsell']}\nКТО ОФОРМИЛ КРЕДИТ?: {data['howsellcredit']}\n\n{callback.message.chat.first_name + " " + callback.message.chat.last_name}
+            '''
+    await callback.message.answer(text=text)
+    await callback.message.answer(
+        text="Отчет отправлен, спасибо, что воспользовались ботом. Нажмите на /start для составления нового отчета.")
+    await callback.message.answer(text="/start")
+    await state.clear()
+
+
+@router.callback_query(SetReport.choosing_comissiya_credit_cash, F.data == texts.BT_CONSTRUCTOR_3_COMISSION_CASH)
+async def sell_choosing_comissiya_cash_comission(callback: types.CallbackQuery, state: FSMContext):
+    await state.update_data(type_deal=callback.data)
+    await callback.message.answer(
+        text=texts.MESSAGE_SELL_COST_DROM,
+    )
+    await state.set_state(SetReport.choosing_comissiya_cash2)
+
+
+@router.message(SetReport.choosing_comissiya_cash2)
+async def sell_choosing_comissiya_cash_comission2(message: Message, state: FSMContext):
+    await state.update_data(drom_cost=message.text.lower())
+    await message.answer(
+        text=texts.MESSAGE_SELL_DISCOUNT,
+    )
+    await state.set_state(SetReport.choosing_comissiya_cash3)
+
+
+@router.message(SetReport.choosing_comissiya_cash3)
+async def sell_choosing_comissiya_cash_comission3(message: Message, state: FSMContext):
+    await state.update_data(dealer_discount=message.text.lower())
+    await message.answer(
+        text=texts.MESSAGE_SELL_SUM_NM,
+    )
+    await state.set_state(SetReport.choosing_comissiya_cash4)
+
+
+@router.message(SetReport.choosing_comissiya_cash4)
+async def sell_choosing_comissiya_cash_comission4(message: Message, state: FSMContext):
+    await state.update_data(summa_nm=message.text.lower())
+    await message.answer(
+        text=texts.MESSAGE_SUM_SOBS,
+    )
+    await state.set_state(SetReport.choosing_comissiya_cash5)
+
+
+@router.message(SetReport.choosing_comissiya_cash5)
+async def sell_choosing_comissiya_cash_comission5(message: Message, state: FSMContext):
+    await state.update_data(summa_sob=message.text.lower())
+    builder = InlineKeyboardBuilder()
+    builder.add(types.InlineKeyboardButton(
+        text="ОСТАВЛЯЕМ",
+        callback_data="callback_ostav")
+    )
+    builder.add(types.InlineKeyboardButton(
+        text="РЕДАКТИРОВАТЬ",
+        callback_data="callback_edit")
+    )
+    data = await state.get_data()
+    await message.answer(
+        text="СУММА СОБСТВЕННИКУ " + data['summa_sob'], reply_markup=builder.as_markup()
+    )
+    await state.set_state(SetReport.choosing_comissiya_cash6)
+
+
+@router.callback_query(SetReport.choosing_comissiya_cash6, F.data == "callback_edit")
+async def sell_choosing_comissiya_cash_comission6(callback: types.CallbackQuery, state: FSMContext):
+    await callback.message.answer(
+        text="На какую сумму хотите изменить?",
+    )
+    await state.set_state(SetReport.choosing_comissiya_cash78)
+
+
+@router.message(SetReport.choosing_comissiya_cash78)
+async def sell_choosing_comissiya_cash_comission78(message: Message, state: FSMContext):
+    await state.update_data(summa_sob=message.text.lower())
+    await message.answer(
+        text=texts.MESSAGE_SELL_TORG,
+    )
+    await state.set_state(SetReport.choosing_comissiya_cash8)
+
+
+@router.callback_query(SetReport.choosing_comissiya_cash6, F.data == "callback_ostav")
+async def sell_choosing_comissiya_cash_comission6(callback: types.CallbackQuery, state: FSMContext):
+    await callback.message.answer(
+        text=texts.MESSAGE_SELL_TORG,
+    )
+    await state.set_state(SetReport.choosing_comissiya_cash8)
+
+
+@router.message(SetReport.choosing_comissiya_cash8)
+async def sell_choosing_comissiya_cash_comission8(message: Message, state: FSMContext):
+    await state.update_data(howmuchtorg=message.text.lower())
+    builder = InlineKeyboardBuilder()
+    builder.add(types.InlineKeyboardButton(
+        text="САМ",
+        callback_data="САМ")
+    )
+    builder.add(types.InlineKeyboardButton(
+        text="Нажмите, чтобы ввести фамилию",
+        switch_inline_query_current_chat='find_b ')
+    )
+    await message.answer(
+        text=texts.MESSAGE_SELL_WITH + "\nВведите первые символы фамилии коллеги", reply_markup=builder.as_markup()
+    )
+    await state.set_state(SetReport.choosing_comissiya_cash9)
+
+
+@router.callback_query(SetReport.choosing_comissiya_cash9, F.data == "САМ")
+async def sell_choosing_comissiya_cash_comission9(callback: types.CallbackQuery, state: FSMContext):
+    await state.update_data(howsell=callback.message.chat.first_name + callback.message.chat.last_name)
+    builder = InlineKeyboardBuilder()
+    builder.add(types.InlineKeyboardButton(
+        text="САМ",
+        callback_data="САМ")
+    )
+    builder.add(types.InlineKeyboardButton(
+        text="Нажмите, чтобы ввести фамилию",
+        switch_inline_query_current_chat='find_bb ')
+    )
+    await callback.message.answer(
+        text=texts.MESSAGE_SELL_WITH_CREDIT + "\nВведите первые символы фамилии коллеги",
+        reply_markup=builder.as_markup()
+    )
+    await state.set_state(SetReport.choosing_comissiya_cash101)
+
+
+@router.callback_query(SetReport.choosing_comissiya_cash101, F.data == "САМ")
+async def sell_choosing_comissiya_cash_comission101(callback: types.CallbackQuery, state: FSMContext):
+    await state.update_data(howsellcredit=callback.message.chat.first_name + callback.message.chat.last_name)
+    builder = InlineKeyboardBuilder()
+    builder.add(types.InlineKeyboardButton(
+        text=texts.BT_YES,
+        callback_data=texts.BT_YES)
+    )
+    builder.add(types.InlineKeyboardButton(
+        text=texts.BT_NO,
+        callback_data=texts.BT_NO)
+    )
+    await callback.message.answer(
+        text=texts.MESSAGE_CAll_SOBS, reply_markup=builder.as_markup()
+    )
+    await state.set_state(SetReport.choosing_comissiya_cash13)
+
+
+@router.message(SetReport.choosing_comissiya_cash9)
+@router.inline_query(lambda query: query.query.startswith("find_b "))
+async def find_colleges(inline_query: types.InlineQuery, state: FSMContext):
+    await utils.inliner.find_colleges(inline_query, state, "find_b ")
+    await state.set_state(SetReport.choosing_comissiya_cash10)
+
+
+@router.message(SetReport.choosing_comissiya_cash10)
+async def sell_choosing_comissiya_cash_comission10(message: Message, state: FSMContext):
+    await message.answer(text="Пожалуйста подождите, идет проверка имени в базе данных")
+    college_name = utils.connectors.db_sql_buy_with_college(message.text.lower())
+    await state.update_data(howsell=college_name)
+    if college_name == "Некорректный USERNAME":
+        await message.answer("Некорректный USERNAME, укажите корректный в режиме редактирования")
+    builder = InlineKeyboardBuilder()
+    builder.add(types.InlineKeyboardButton(
+        text="САМ",
+        callback_data="САМ")
+    )
+    builder.add(types.InlineKeyboardButton(
+        text="Нажмите, чтобы ввести фамилию",
+        switch_inline_query_current_chat='find_bb ')
+    )
+    await message.answer(
+        text=texts.MESSAGE_SELL_WITH_CREDIT + "\nВведите первые символы фамилии коллеги",
+        reply_markup=builder.as_markup()
+    )
+    await state.set_state(SetReport.choosing_comissiya_cash11)
+
+
+@router.message(SetReport.choosing_comissiya_cash11)
+@router.inline_query(lambda query: query.query.startswith("find_bb "))
+async def find_colleges(inline_query: types.InlineQuery, state: FSMContext):
+    await utils.inliner.find_colleges(inline_query, state, "find_bb ")
+    await state.set_state(SetReport.choosing_comissiya_cash12)
+
+
+@router.message(SetReport.choosing_comissiya_cash12)
+async def sell_choosing_comissiya_cash_comission12(message: Message, state: FSMContext):
+    await message.answer(text="Пожалуйста подождите, идет проверка имени в базе данных")
+    college_name = utils.connectors.db_sql_buy_with_college(message.text.lower())
+    await state.update_data(howsellcredit=college_name)
+    if college_name == "Некорректный USERNAME":
+        await message.answer("Некорректный USERNAME, укажите корректный в режиме редактирования")
+    builder = InlineKeyboardBuilder()
+    builder.add(types.InlineKeyboardButton(
+        text=texts.BT_YES,
+        callback_data=texts.BT_YES)
+    )
+    builder.add(types.InlineKeyboardButton(
+        text=texts.BT_NO,
+        callback_data=texts.BT_NO)
+    )
+    await message.answer(
+        text=texts.MESSAGE_CAll_SOBS, reply_markup=builder.as_markup()
+    )
+    await state.set_state(SetReport.choosing_comissiya_cash13)
+
+
+@router.callback_query(SetReport.choosing_comissiya_cash13, F.data == texts.BT_NO)
+async def sell_choosing_comissiya_cash_comission13(callback: types.CallbackQuery, state: FSMContext):
+    data = await state.get_data()
+    print(data)
+    text = f'''Спасибо, данные ниже ушли в базу:\nТИП ОТЧЕТА: {data['choosing_buyer1']}\nКОМИССИЯ ИЛИ НАША: {data['type_credit_our']}\nКРЕДИТ ИЛИ НАЛИЧНЫЕ?: {data['type_deal']}\nЦЕНА ДРОМ: {data['drom_cost']}\nМЕНЕДЖЕРСКАЯ СКИДКА: {data['dealer_discount']}\nС КЕМ ПРОДАЛ: {data['howsell']}\nКТО ОФОРМИЛ КРЕДИТ?: {data['howsellcredit']}\n\n{callback.message.chat.first_name + " " + callback.message.chat.last_name}
+            '''
+    await callback.message.answer(text=text)
+    await callback.message.answer(
+        text="Отчет отправлен, спасибо, что воспользовались ботом. Нажмите на /start для составления нового отчета.")
+    await callback.message.answer(text="/start")
+    await state.clear()
+
+
+@router.callback_query(SetReport.choosing_comissiya_cash13, F.data == texts.BT_YES)
+async def sell_choosing_comissiya_cash_comission13(callback: types.CallbackQuery, state: FSMContext):
+    await callback.message.answer(
+        text=texts.MESSAGE_DATE_RASCHET,
+    )
+    await state.set_state(SetReport.choosing_comissiya_cash14)
+
+
+@router.message(SetReport.choosing_comissiya_cash14)
+async def sell_choosing_comissiya_cash_comission14(message: Message, state: FSMContext):
+    await state.update_data(date_raschet=message.text.lower())
+    builder = InlineKeyboardBuilder()
+    builder.add(types.InlineKeyboardButton(
+        text=texts.BT_YES,
+        callback_data=texts.BT_YES)
+    )
+    builder.add(types.InlineKeyboardButton(
+        text=texts.BT_NO,
+        callback_data=texts.BT_NO)
+    )
+    await message.answer(
+        text=texts.MESSAGE_TYPE_RASCHETA_WAS, reply_markup=builder.as_markup()
+    )
+    await state.set_state(SetReport.choosing_comissiya_cash15)
+
+
+@router.callback_query(SetReport.choosing_comissiya_cash15)
+async def sell_choosing_comissiya_cash_comission15(callback: types.CallbackQuery, state: FSMContext):
+    await state.update_data(type_raschet="ZAGLUSHKA (НАЛ/БЕЗНАЛ)")
+    builder = InlineKeyboardBuilder()
+    builder.add(types.InlineKeyboardButton(
+        text="ОСТАВЛЯЕМ",
+        callback_data="callback_ostav")
+    )
+    builder.add(types.InlineKeyboardButton(
+        text="РЕДАКТИРОВАТЬ",
+        callback_data="callback_edit")
+    )
+    data = await state.get_data()
+    await callback.message.answer(
+        text="ВИД РАСЧЕТА " + data['type_raschet'], reply_markup=builder.as_markup()
+    )
+    await state.set_state(SetReport.choosing_comissiya_cash16)
+
+
+@router.callback_query(SetReport.choosing_comissiya_cash16, F.data == "callback_edit")
+async def sell_choosing_comissiya_cash_comission16(callback: types.CallbackQuery, state: FSMContext):
+    builder = InlineKeyboardBuilder()
+    builder.add(types.InlineKeyboardButton(
+        text="НАЛ",
+        callback_data="НАЛ")
+    )
+    builder.add(types.InlineKeyboardButton(
+        text="БЕЗНАЛ",
+        callback_data="БЕЗНАЛ")
+    )
+    await callback.message.answer(
+        text="На какую вид расчета хотите изменить?",
+    )
+    await state.set_state(SetReport.choosing_comissiya_cash16)
+
+
+@router.callback_query(SetReport.choosing_comissiya_cash167)
+async def sell_choosing_comissiya_cash_comission167(callback: types.CallbackQuery, state: FSMContext):
+    await state.update_data(type_raschet=callback.data)
+    builder = InlineKeyboardBuilder()
+    builder.add(types.InlineKeyboardButton(
+        text=texts.BT_SAVE,
+        callback_data=texts.BT_SAVE)
+    )
+    data = await state.get_data()
+    await callback.message.answer(
+        text="ВИД РАСЧЕТА " + data['type_raschet'], reply_markup=builder.as_markup()
+    )
+    await state.set_state(SetReport.choosing_comissiya_cash17)
+
+
+@router.callback_query(SetReport.choosing_comissiya_cash17)
+async def sell_choosing_comissiya_cash_comission17(callback: types.CallbackQuery, state: FSMContext):
+    data = await state.get_data()
+    print(data)
+    text = f'''Спасибо, данные ниже ушли в базу:\nТИП ОТЧЕТА: {data['choosing_buyer1']}\nКОМИССИЯ ИЛИ НАША: {data['type_credit_our']}\nКРЕДИТ ИЛИ НАЛИЧНЫЕ?: {data['type_deal']}\nЦЕНА ДРОМ: {data['drom_cost']}\nМЕНЕДЖЕРСКАЯ СКИДКА: {data['dealer_discount']}\nС КЕМ ПРОДАЛ: {data['howsell']}\nКТО ОФОРМИЛ КРЕДИТ?: {data['howsellcredit']}\n\n{callback.message.chat.first_name + " " + callback.message.chat.last_name}
+            '''
+    await callback.message.answer(text=text)
+    await callback.message.answer(
+        text="Отчет отправлен, спасибо, что воспользовались ботом. Нажмите на /start для составления нового отчета.")
+    await callback.message.answer(text="/start")
+    await state.clear()
+
+
+@router.callback_query(SetReport.choosing_comissiya_cash16, F.data == "callback_ostav")
+async def sell_choosing_comissiya_cash_comission16(callback: types.CallbackQuery, state: FSMContext):
+    data = await state.get_data()
+    print(data)
+    text = f'''Спасибо, данные ниже ушли в базу:\nТИП ОТЧЕТА: {data['choosing_buyer1']}\nКОМИССИЯ ИЛИ НАША: {data['type_credit_our']}\nКРЕДИТ ИЛИ НАЛИЧНЫЕ?: {data['type_deal']}\nЦЕНА ДРОМ: {data['drom_cost']}\nМЕНЕДЖЕРСКАЯ СКИДКА: {data['dealer_discount']}\nС КЕМ ПРОДАЛ: {data['howsell']}\nКТО ОФОРМИЛ КРЕДИТ?: {data['howsellcredit']}\n\n{callback.message.chat.first_name + " " + callback.message.chat.last_name}
+            '''
+    await callback.message.answer(text=text)
+    await callback.message.answer(
+        text="Отчет отправлен, спасибо, что воспользовались ботом. Нажмите на /start для составления нового отчета.")
+    await callback.message.answer(text="/start")
+    await state.clear()
+
+
+@router.callback_query(SetReport.choosing_our_credit_cash, F.data == texts.BT_CONSTRUCTOR_3_OUR_CREDIT)
+async def sell_choosing_our_credit0(callback: types.CallbackQuery, state: FSMContext):
+    await state.update_data(type_deal=callback.data)
+    await callback.message.answer(
+        text=texts.MESSAGE_SELL_COST_DROM,
+    )
+    await state.set_state(SetReport.choosing_our_credit2)
+
+
+@router.message(SetReport.choosing_our_credit)
+async def sell_choosing_our_credit1(message: Message, state: FSMContext):
+    await state.update_data(drom_cost=message.text.lower())
+    await message.answer(
+        text=texts.MESSAGE_SELL_DISCOUNT,
+    )
+    await state.set_state(SetReport.choosing_our_credit2)
+
+
+@router.message(SetReport.choosing_our_credit2)
+async def sell_choosing_our_credit2(message: Message, state: FSMContext):
+    await state.update_data(dealer_discount=message.text.lower())
+    await message.answer(
+        text=texts.MESSAGE_SELL_TORG,
+    )
+    await state.set_state(SetReport.choosing_our_credit3)
+
+
+@router.message(SetReport.choosing_our_credit3)
+async def sell_choosing_our_credit3(message: Message, state: FSMContext):
+    await state.update_data(howmuchtorg=message.text.lower())
+    builder = InlineKeyboardBuilder()
+    builder.add(types.InlineKeyboardButton(
+        text="Нажмите, чтобы ввести фамилию",
+        switch_inline_query_current_chat='find_colleges ')
+    )
+    await message.answer(
+        text=texts.MESSAGE_SELL_WITH + "\nВведите первые символы фамилии коллеги", reply_markup=builder.as_markup()
+    )
+    await state.set_state(SetReport.choosing_our_credit45)
+
+
+@router.message(SetReport.choosing_our_credit45)
+@router.inline_query(lambda query: query.query.startswith("find_colleges "))
+async def find_colleges(inline_query: types.InlineQuery, state: FSMContext):
+    await utils.inliner.find_colleges(inline_query, state, "find_colleges ")
+    await state.set_state(SetReport.choosing_our_credit5)
+
+
+@router.message(SetReport.choosing_our_credit5)
+async def sell_choosing_our_credit5(message: Message, state: FSMContext):
+    await message.answer(text="Пожалуйста подождите, идет проверка имени в базе данных")
+    college_name = utils.connectors.db_sql_buy_with_college(message.text.lower())
+    await state.update_data(howsell=college_name)
+    if college_name == "Некорректный USERNAME":
+        await message.answer("Некорректный USERNAME, укажите корректный в режиме редактирования")
+    builder = InlineKeyboardBuilder()
+    builder.add(types.InlineKeyboardButton(
+        text="Нажмите, чтобы ввести фамилию",
+        switch_inline_query_current_chat='find_colleges_dkp ')
+    )
+    await message.answer(
+        text=texts.MESSAGE_SELL_WITH_CREDIT + "\nВведите первые символы фамилии коллеги",
+        reply_markup=builder.as_markup()
+    )
+    await state.set_state(SetReport.choosing_our_credit6)
+
+
+@router.message(SetReport.choosing_our_credit6)
+@router.inline_query(lambda query: query.query.startswith("find_colleges_dkp "))
+async def find_colleges(inline_query: types.InlineQuery, state: FSMContext):
+    await utils.inliner.find_colleges(inline_query, state, "find_colleges_dkp ")
+    await state.set_state(SetReport.choosing_our_credit8)
+
+
+@router.message(SetReport.choosing_our_credit8)
+async def sell_choosing_our_credit8(message: Message, state: FSMContext):
+    await message.answer(text="Пожалуйста подождите, идет проверка имени в базе данных")
+    college_name = utils.connectors.db_sql_buy_with_college(message.text.lower())
+    await state.update_data(howsellcredit=college_name)
+    if college_name == "Некорректный USERNAME":
+        await message.answer("Некорректный USERNAME, укажите корректный в режиме редактирования")
+    data = await state.get_data()
+    print(data)
+    text = f'''Спасибо, данные ниже ушли в базу:\nТИП ОТЧЕТА: {data['choosing_buyer1']}\nКОМИССИЯ ИЛИ НАША: {data['type_credit_our']}\nКРЕДИТ ИЛИ НАЛИЧНЫЕ?: {data['type_deal']}\nЦЕНА ДРОМ: {data['drom_cost']}\nМЕНЕДЖЕРСКАЯ СКИДКА: {data['dealer_discount']}\nС КЕМ ПРОДАЛ: {data['howsell']}\nКТО ОФОРМИЛ КРЕДИТ?: {data['howsellcredit']}\n\n{message.chat.first_name + " " + message.chat.last_name}
+        '''
+    await message.answer(text=text)
+    await message.answer(
+        text="Отчет отправлен, спасибо, что воспользовались ботом. Нажмите на /start для составления нового отчета.")
+    await message.answer(text="/start")
+    await state.clear()
+
+
+@router.callback_query(SetReport.choosing_our_credit_cash, F.data == texts.BT_CONSTRUCTOR_3_OUR_CASH)
+async def sell_choosing_our_credit(callback: types.CallbackQuery, state: FSMContext):
+    await state.update_data(type_deal=callback.data)
+    await callback.message.answer(
+        text=texts.MESSAGE_SELL_COST_DROM,
+    )
+    await state.set_state(SetReport.choosing_our_cash)
+
+
+@router.message(SetReport.choosing_our_cash)
+async def sell_choosing_our_credit2(message: Message, state: FSMContext):
+    await state.update_data(drom_cost=message.text.lower())
+    await message.answer(
+        text=texts.MESSAGE_SELL_DISCOUNT,
+    )
+    await state.set_state(SetReport.choosing_our_cash2)
+
+
+@router.message(SetReport.choosing_our_cash2)
+async def sell_choosing_our_credit3(message: Message, state: FSMContext):
+    await state.update_data(dealer_discount=message.text.lower())
+    await message.answer(
+        text=texts.MESSAGE_SELL_TORG,
+    )
+    await state.set_state(SetReport.choosing_our_cash3)
+
+
+@router.message(SetReport.choosing_our_cash3)
+async def sell_choosing_our_credit4(message: Message, state: FSMContext):
+    await state.update_data(howmuchtorg=message.text.lower())
+    builder = InlineKeyboardBuilder()
+    builder.add(types.InlineKeyboardButton(
+        text="Нажмите, чтобы ввести фамилию",
+        switch_inline_query_current_chat='find_colleges ')
+    )
+    await message.answer(
+        text=texts.MESSAGE_SELL_WITH + "\nНажмите кнопку и введите первые символы фамилии коллеги",
+        reply_markup=builder.as_markup()
+    )
+    await state.set_state(SetReport.choosing_our_cash45)
+
+
+@router.message(SetReport.choosing_our_cash45)
+@router.inline_query(lambda query: query.query.startswith("find_colleges "))
+async def find_colleges(inline_query: types.InlineQuery, state: FSMContext):
+    await utils.inliner.find_colleges(inline_query, state, "find_colleges ")
+    await state.set_state(SetReport.choosing_our_cash5)
+
+
+@router.message(SetReport.choosing_our_cash5)
+async def sell_choosing_our_credit5(message: Message, state: FSMContext):
+    await message.answer(text="Пожалуйста подождите, идет проверка имени в базе данных")
+    college_name = utils.connectors.db_sql_buy_with_college(message.text.lower())
+    await state.update_data(howsell=college_name)
+    if college_name == "Некорректный USERNAME":
+        await message.answer("Некорректный USERNAME, укажите корректный в режиме редактирования")
+    builder = InlineKeyboardBuilder()
+    builder.add(types.InlineKeyboardButton(
+        text="Нажмите, чтобы ввести фамилию",
+        switch_inline_query_current_chat='find_colleges_dkp ')
+    )
+    await message.answer(
+        text=texts.MESSAGE_SELL_WITH_DKP + "\nНажмите кнопку и введите первые символы фамилии коллеги",
+        reply_markup=builder.as_markup()
+    )
+    await state.set_state(SetReport.choosing_our_cash6)
+
+
+@router.message(SetReport.choosing_our_cash6)
+@router.inline_query(lambda query: query.query.startswith("find_colleges_dkp "))
+async def find_colleges(inline_query: types.InlineQuery, state: FSMContext):
+    await utils.inliner.find_colleges(inline_query, state, "find_colleges_dkp ")
+    await state.set_state(SetReport.choosing_our_cash7)
+
+
+@router.message(SetReport.choosing_our_cash7)
+async def sell_choosing_our_credit7(message: Message, state: FSMContext):
+    await message.answer(text="Пожалуйста подождите, идет проверка имени в базе данных")
+    college_name = utils.connectors.db_sql_buy_with_college(message.text.lower())
+    await state.update_data(howsellcredit=college_name)
+    if college_name == "Некорректный USERNAME":
+        await message.answer("Некорректный USERNAME, укажите корректный в режиме редактирования")
+    data = await state.get_data()
+    print(data)
+    text = f'''Спасибо, данные ниже ушли в базу:\nТИП ОТЧЕТА: {data['choosing_buyer1']}\nКОМИССИЯ ИЛИ НАША: {data['type_credit_our']}\nКРЕДИТ ИЛИ НАЛИЧНЫЕ?: {data['type_deal']}\nЦЕНА ДРОМ: {data['drom_cost']}\nМЕНЕДЖЕРСКАЯ СКИДКА: {data['dealer_discount']}\nС КЕМ ПРОДАЛ: {data['howsell']}\nКТО ПИСАЛ ДКП?: {data['howsellcredit']}\n\n{message.chat.first_name + " " + message.chat.last_name}
+        '''
+    await message.answer(text=text)
+    await message.answer(
+        text="Отчет отправлен, спасибо, что воспользовались ботом. Нажмите на /start для составления нового отчета.")
+    await message.answer(text="/start")
+    await state.clear()
+
+
+@router.callback_query(SetReport.choosing_our_credit4)
+async def sell_choosing_comissiya_credit_cash_comission(callback: types.CallbackQuery, state: FSMContext):
+    await state.set_state(SetReport.choosing_comissiya_credit2)
 
 
 @router.callback_query(SetReport.choosing_buyer4)
 # @router.message(SetReport.choosing_buyer4)
 async def any_message(callback: types.CallbackQuery, state: FSMContext):
+    await state.update_data(choosing_buyer5=callback.message.text.lower())
     await callback.message.answer(
         text=texts.MESSAGE_SELL_COST_DROM,
     )
-    await state.update_data(choosing_buyer5=callback.message.text.lower())
     await state.set_state(SetReport.choosing_buyer5)
 
 
 @router.message(SetReport.choosing_buyer5)
 # @router.callback_query(SetReport.choosing_buyer5)
 async def any_message(message: Message, state: FSMContext):
+    await state.update_data(choosing_buyer6=message.text.lower())
     await message.answer(
         text=texts.MESSAGE_SELL_DISCOUNT,
     )
-    await state.update_data(choosing_buyer6=message.text.lower())
     await state.set_state(SetReport.choosing_buyer7)
 
 
 @router.message(SetReport.choosing_buyer7)
 # @router.callback_query(SetReport.choosing_buyer5)
 async def any_message(message: Message, state: FSMContext):
+    await state.update_data(choosing_buyer7=message.text.lower())
     await message.answer(
         text=texts.MESSAGE_SELL_SUM_NM,
     )
-    await state.update_data(choosing_buyer7=message.text.lower())
     await state.set_state(SetReport.choosing_buyer13)
 
 
-# @router.callback_query(SetReport.choosing_buyer4, F.data == texts.BT_CONSTRUCTOR_3_COMISSION_CREDIT)
-# # @router.callback_query(lambda call: call.data == texts.MESSAGE_SELL_DISCOUNT)
-# async def main_menu_bt_constructor_1_sell(callback: types.CallbackQuery, state: FSMContext):
-#     builder = InlineKeyboardBuilder()
-#     builder.add(types.InlineKeyboardButton(
-#         text=texts.BT_NEXT,
-#         callback_data=texts.BT_NEXT)
-#     )
-#     await callback.message.edit_text(text=texts.MESSAGE_SELL_COST_DROM, reply_markup=builder.as_markup())
-#     await state.update_data(choosing_buyer5=callback.data)
-#     await state.set_state(SetReport.choosing_buyer5)
-
-#
-# @router.callback_query(SetReport.choosing_buyer5)
-# async def main_menu_bt_constructor_1_sell(callback: types.CallbackQuery, state: FSMContext):
-#     builder = InlineKeyboardBuilder()
-#     builder.add(types.InlineKeyboardButton(
-#         text=texts.BT_NEXT,
-#         callback_data=texts.BT_NEXT)
-#     )
-#     await callback.message.edit_text(text=texts.MESSAGE_SELL_DISCOUNT, reply_markup=builder.as_markup())
-#     await state.update_data(choosing_buyer6=callback.data)
-#     await state.set_state(SetReport.choosing_buyer13)
-
-#
-# @router.callback_query(SetReport.choosing_buyer6)
-# async def main_menu_bt_constructor_1_sell(callback: types.CallbackQuery, state: FSMContext):
-#     builder = InlineKeyboardBuilder()
-#     builder.add(types.InlineKeyboardButton(
-#         text=texts.BT_NEXT,
-#         callback_data=texts.BT_NEXT)
-#     )
-#     await callback.message.edit_text(text=texts.MESSAGE_SELL_SUM_NM, reply_markup=builder.as_markup())
-#     await state.update_data(choosing_buyer7=callback.data)
-#     await state.set_state(SetReport.choosing_buyer7)
-#
-
 @router.callback_query(SetReport.choosing_buyer7)
 async def main_menu_bt_constructor_1_sell(callback: types.CallbackQuery, state: FSMContext):
+    await state.update_data(choosing_buyer8=callback.data)
     builder = InlineKeyboardBuilder()
     builder.add(types.InlineKeyboardButton(
         text=texts.BT_SUM_SOBS_OSTAV,
@@ -254,60 +1137,60 @@ async def main_menu_bt_constructor_1_sell(callback: types.CallbackQuery, state: 
         callback_data="bt_sum_sobs_edit")
     )
     await callback.message.edit_text(text=texts.MESSAGE_SUM_SOBS, reply_markup=builder.as_markup())
-    await state.update_data(choosing_buyer8=callback.data)
     await state.set_state(SetReport.choosing_buyer8)
 
 
 @router.callback_query(SetReport.choosing_buyer8, F.data == texts.BT_SUM_SOBS_EDIT)
 async def main_menu_bt_constructor_1_sell(callback: types.CallbackQuery, state: FSMContext):
+    await state.update_data(choosing_buyer9=callback.data)
     builder = InlineKeyboardBuilder()
     builder.add(types.InlineKeyboardButton(
         text=texts.BT_NEXT,
         callback_data=texts.BT_NEXT)
     )
     await callback.message.edit_text(text=texts.MESSAGE_EDIT_NEW_SUM, reply_markup=builder.as_markup())
-    await state.update_data(choosing_buyer9=callback.data)
     await state.set_state(SetReport.choosing_buyer7)
 
 
 @router.callback_query(SetReport.choosing_buyer8, F.data == texts.BT_SUM_SOBS_OSTAV)
 async def main_menu_bt_constructor_1_sell(callback: types.CallbackQuery, state: FSMContext):
+    await state.update_data(choosing_buyer9=callback.data)
     builder = InlineKeyboardBuilder()
     builder.add(types.InlineKeyboardButton(
         text=texts.BT_NEXT,
         callback_data=texts.BT_NEXT)
     )
     await callback.message.edit_text(text=texts.MESSAGE_SELL_TORG, reply_markup=builder.as_markup())
-    await state.update_data(choosing_buyer9=callback.data)
     await state.set_state(SetReport.choosing_buyer9)
 
 
 @router.callback_query(SetReport.choosing_buyer9)
 async def main_menu_bt_constructor_1_sell(callback: types.CallbackQuery, state: FSMContext):
+    await state.update_data(choosing_buyer10=callback.data)
     builder = InlineKeyboardBuilder()
     builder.add(types.InlineKeyboardButton(
         text=texts.BT_NEXT,
         callback_data=texts.BT_NEXT)
     )
     await callback.message.edit_text(text=texts.MESSAGE_SELL_WITH, reply_markup=builder.as_markup())
-    await state.update_data(choosing_buyer10=callback.data)
     await state.set_state(SetReport.choosing_buyer10)
 
 
 @router.callback_query(SetReport.choosing_buyer10)
 async def main_menu_bt_constructor_1_sell(callback: types.CallbackQuery, state: FSMContext):
+    await state.update_data(choosing_buyer11=callback.data)
     builder = InlineKeyboardBuilder()
     builder.add(types.InlineKeyboardButton(
         text=texts.BT_NEXT,
         callback_data=texts.BT_NEXT)
     )
     await callback.message.edit_text(text=texts.MESSAGE_SELL_WITH_CREDIT, reply_markup=builder.as_markup())
-    await state.update_data(choosing_buyer11=callback.data)
     await state.set_state(SetReport.choosing_buyer11)
 
 
 @router.callback_query(SetReport.choosing_buyer11)
 async def main_menu_bt_constructor_1_sell(callback: types.CallbackQuery, state: FSMContext):
+    await state.update_data(choosing_buyer12=callback.data)
     builder = InlineKeyboardBuilder()
     builder.add(types.InlineKeyboardButton(
         text=texts.BT_YES,
@@ -318,94 +1201,20 @@ async def main_menu_bt_constructor_1_sell(callback: types.CallbackQuery, state: 
         callback_data=texts.BT_NO)
     )
     await callback.message.edit_text(text=texts.MESSAGE_CAll_SOBS, reply_markup=builder.as_markup())
-    await state.update_data(choosing_buyer12=callback.data)
     await state.set_state(SetReport.choosing_buyer12)
 
 
 @router.callback_query(SetReport.choosing_buyer12)
 async def main_menu_bt_constructor_1_sell(callback: types.CallbackQuery, state: FSMContext):
+    await state.update_data(choosing_buyer13=callback.data)
     builder = InlineKeyboardBuilder()
     builder.add(types.InlineKeyboardButton(
         text=texts.BT_NEXT,
         callback_data=texts.BT_NEXT)
     )
     await callback.message.edit_text(text=texts.MESSAGE_DATE_RASCHET, reply_markup=builder.as_markup())
-    await state.update_data(choosing_buyer13=callback.data)
     await state.set_state(SetReport.choosing_buyer13)
 
-
-# @router.callback_query(SetReport.choosing_buyer13)
-# async def main_menu_bt_constructor_1_sell(callback: types.CallbackQuery, state: FSMContext):
-#     builder = InlineKeyboardBuilder()
-#     builder.add(types.InlineKeyboardButton(
-#         text=texts.BT_SAVE,
-#         callback_data="bt_save")
-#     )
-#     builder.add(types.InlineKeyboardButton(
-#         text=texts.BT_EDIT,
-#         callback_data="bt_edit")
-#     )
-#     await callback.message.answer(text=texts.MESSAGE_TYPE_RASCHETA_WAS, reply_markup=builder.as_markup())
-#     await state.update_data(choosing_buyer14=callback.data)
-#     await state.set_state(SetReport.choosing_buyer14)
-#     
-#
-#
-# @router.callback_query(SetReport.choosing_buyer14, F.data == "bt_edit")
-# async def main_menu_bt_constructor_1_sell(callback: types.CallbackQuery, state: FSMContext):
-#     builder = InlineKeyboardBuilder()
-#     builder.add(types.InlineKeyboardButton(
-#         text=texts.BT_NEXT,
-#         callback_data="bt_constructor_3_download")
-#     )
-#     await callback.message.answer(text=texts.MESSAGE_TYPE_RASCHETA_EDIT, reply_markup=builder.as_markup())
-#     await state.update_data(choosing_buyer14=callback.data)
-#     await state.set_state(SetReport.choosing_buyer13)
-#     
-
-#
-# def transformer(value):
-#     if value == "bt_constructor_2_atp":
-#         return "АТП",
-#     elif value == "bt_constructor_2_abakan":
-#         return "АБАКАН",
-#     elif value == "bt_constructor_2_planeta":
-#         return "ПЛАНЕТА АВТО",
-#     elif value == "bt_constructor_2_alien":
-#         return "ИНОГОРОДНИЕ",
-#     elif value == "bt_constructor_2_getout":
-#         return "ВЫЕЗД",
-#     elif value == "bt_constructor_1_buy":
-#         return "КУПИЛ",
-#     elif value == "bt_constructor_1_sell":
-#         return "ПРОДАЛ",
-#     elif value == "bt_constructor_33_download":
-#         return "САМ",
-#     elif value == "bt_constructor_33_manual":
-#         return "КОЛЛЕГА",
-#     elif value == "bt_constructor_4_college_self":
-#         return "САМ",
-#     elif value == "bt_constructor_4_college_college":
-#         return "КОЛЛЕГА",
-#     elif value == "bt_constructor_6_wire_yes":
-#         return "ЕСТЬ",
-#     elif value == "bt_constructor_6_wire_no":
-#         return "НЕТ",
-#     else:
-#         return "-"
-
-
-# @router.callback_query(SetReport.choosing_buyer14, F.data == "bt_save")
-# async def main_menu_bt_constructor_1_sell(callback: types.CallbackQuery, state: FSMContext):
-#     builder = InlineKeyboardBuilder()
-#     builder.add(types.InlineKeyboardButton(
-#         text=texts.BT_NEXT,
-#         callback_data="bt_constructor_3_download")
-#     )
-#     await callback.message.answer(text=texts.MESSAGE_TYPE_RASCHETA_EDIT, reply_markup=builder.as_markup())
-#     await state.update_data(choosing_buyer14=callback.data)
-#     await state.set_state(SetReport.choosing_buyer13)
-#     
 
 @router.message(SetReport.choosing_buyer13)
 async def constructor_choosing_awa_our_credit22(message: Message, state: FSMContext):
@@ -419,12 +1228,6 @@ async def constructor_choosing_awa_our_credit22(message: Message, state: FSMCont
         callback_data=texts.BT_EDIT)
     )
     data = await state.get_data()
-    # print(data['chosen_buyer'])
-    # tip_otcheta = str(transformer(data['chosen_buyer']))[2:-3]
-    # gde_prodal = str(transformer(data['chosen_download']))[2:-3]
-    # odin_ili_s_college = str(transformer(data['chosen_dkp1']))[2:-3]
-    # kto_pisal_dkp = str(transformer(data['chosen_cost1']))[2:-3]
-    # rezina_est = str(transformer(data['chosen_wire23']))[2:-3]
     text = f'''Спасибо, данные ниже ушли в базу:\nТИП ОТЧЕТА: {data['choosing_buyer1']}\nКОМИССИЯ ИЛИ НАША: {data['choosing_buyer4']}\nКРЕДИТ ИЛИ НАЛИЧНЫЕ?: {data['choosing_buyer5']}\nЦЕНА ДРОМ: {data['choosing_buyer6']}\nМЕНЕДЖЕРСКАЯ СКИДКА: {data['choosing_buyer7']}\nСУММА НМ: {texts.MESSAGE_ZAGLUSHKA}\n\nНА СКОЛЬКО СТОРГОВАЛ: {texts.MESSAGE_ZAGLUSHKA}\n\nС КЕМ ПРОДАЛ?: {texts.MESSAGE_ZAGLUSHKA}\n\nКТО ОФОРМИЛ КРЕДИТ/ПИСАЛ ДКП?: {texts.MESSAGE_ZAGLUSHKA}\n\nСУММА СОБСТВЕННИКУ: {texts.MESSAGE_ZAGLUSHKA}\n\nСОЗВОНИЛСЯ С ВЛАДЕЛЬЦЕМ?: {texts.MESSAGE_ZAGLUSHKA}\n\nДАТА РАСЧЕТА?: {texts.MESSAGE_ZAGLUSHKA}\n\n@{message.chat.username}
         '''
     for i in data:
@@ -442,471 +1245,57 @@ async def constructor_choosing_awa_our_credit22(message: Message, state: FSMCont
 
 @router.callback_query(SetReport.choosing_buyer14, F.data == texts.BT_SAVE)
 async def constructor_choosing_awa_our_credit44(callback: types.CallbackQuery, state: FSMContext):
-    builder = InlineKeyboardBuilder()
-    builder.add(types.InlineKeyboardButton(
-        text="Начать сначала",
-        callback_data="main_menu23232"
-    ))
-    await callback.message.answer(text="ЗАГЛУШКА, введите /start", reply_markup=builder.as_markup())
+    data = await state.get_data()
+    conn = psycopg2.connect(user=os.getenv('SQL_USER'),
+                            password=os.getenv('SQL_PASSWORD'),
+                            host=os.getenv('SQL_HOST'),
+                            port=os.getenv('SQL_PORT'),
+                            database=os.getenv('SQL_DATABASE')
+                            )
+    cur = conn.cursor()
+    if conn.closed == 0:
+        print(f'Успешное подключение к бд, статус {conn.closed}')
+        sql_insert_comission_report = 'INSERT INTO bot_planeta_avto.commission_report(type_purchase_report, platform, username_commission_сolleagues, write_ag,price_owner, size_commission, vin, gos_number, brand, model, years, comment_report, username_commission_report) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)'
+        cur.execute(sql_insert_comission_report, (
+            data['chosen_type'], data['chosen_place'], data['chosen_college_fio'], data['chosen_college_dkps'], data['howmuchsobs'], data['howmuchcomissiob'],
+            data['chosen_vin_number'],
+            data['chosen_vin_gos_number'], data['chosen_vin_marka'], data['chosen_vin_model'], data['chosen_vin_year'],
+            data['chosen_comment'], callback.message.chat.first_name + " " + callback.message.chat.last_name,))
+    else:
+        print(f'База недоступна, статус {conn.closed}')
+
+    conn.commit()
+    conn.close()
+    await callback.message.answer(
+        text="Отчет отправлен, спасибо, что воспользовались ботом. Нажмите на /start для составления нового отчета.")
+    await callback.message.answer(text="/start")
     await state.clear()
 
 
 @router.callback_query(SetReport.choosing_buyer14, F.data == texts.BT_EDIT)
-async def constructor_choosing_awa_our_credit424(callback: types.CallbackQuery, state: FSMContext):
-    builder = InlineKeyboardBuilder()
-    builder.add(types.InlineKeyboardButton(
-        text="Начать сначала",
-        callback_data="main_menu23232"
-    ))
-    await callback.message.answer(text="ЗАГЛУШКА, введите /start", reply_markup=builder.as_markup())
-    await state.clear()
+async def constructor_choosing_awa_our_credit44(callback: types.CallbackQuery, state: FSMContext):
+    data = await state.get_data()
+    conn = psycopg2.connect(user=os.getenv('SQL_USER'),
+                            password=os.getenv('SQL_PASSWORD'),
+                            host=os.getenv('SQL_HOST'),
+                            port=os.getenv('SQL_PORT'),
+                            database=os.getenv('SQL_DATABASE')
+                            )
+    cur = conn.cursor()
+    if conn.closed == 0:
+        print(f'Успешное подключение к бд, статус {conn.closed}')
+        sql_insert_comission_report = 'INSERT INTO bot_planeta_avto.commission_report(type_purchase_report, platform, username_commission_сolleagues, write_ag,price_owner, size_commission, vin, gos_number, brand, model, years, comment_report, username_commission_report) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)'
+        cur.execute(sql_insert_comission_report, (
+            data['chosen_type'], data['chosen_place'], data['chosen_college_fio'], data['chosen_college_dkps'], data['howmuchsobs'], data['howmuchcomissiob'],
+            data['chosen_vin_number'],
+            data['chosen_vin_gos_number'], data['chosen_vin_marka'], data['chosen_vin_model'], data['chosen_vin_year'],
+            data['chosen_comment'], callback.message.chat.first_name + " " + callback.message.chat.last_name,))
+    else:
+        print(f'База недоступна, статус {conn.closed}')
 
-# @router.callback_query(SetReport.choosing_buyer1)
-# async def constructor_choosing_download(callback: types.CallbackQuery, state: FSMContext):
-#     builder = InlineKeyboardBuilder()
-#     builder.add(types.InlineKeyboardButton(
-#         text=texts.MESSAGE_BT_CONSTRUCTOR_3_DOWNLOAD,
-#         callback_data="bt_constructor_3_download")
-#     )
-#     builder.add(types.InlineKeyboardButton(
-#         text=texts.MESSAGE_BT_CONSTRUCTOR_3_MANUAL,
-#         callback_data="bt_constructor_3_manual")
-#     )
-#     await callback.message.answer(text="Скачать или руками", reply_markup=builder.as_markup())
-#     await state.update_data(chosen_download=callback.data)
-#     await state.set_state(SetReport.choosing_college1)
-#     
-#
-#
-# @router.message(SetReport.choosing_japan1, F.photo)
-# async def constructor_choosing_vin(message: Message, state: FSMContext, bot: Bot):
-#     builder = InlineKeyboardBuilder()
-#     builder.add(types.InlineKeyboardButton(
-#         text=texts.MESSAGE_IN_MAIN_MENU,
-#         callback_data="main_menu")
-#     )
-#     await bot.download(
-#         message.photo[-1],
-#         destination=f"tmp/{message.photo[-1].file_id}.jpg"
-#
-#     )
-#     await message.answer(text="Подождите пожалуйста", reply_markup=builder.as_markup())
-#     convert.convert_json_vin(f"tmp/{message.photo[-1].file_id}.jpg")
-#     msg = api.get_strings_vin()
-#     print(msg)
-#     doka = []
-#     for i in msg:
-#         if i["name"] == "stsfront_car_year":
-#             doka.append(i["text"])
-#         elif i["name"] == "stsfront_car_number":
-#             doka.append(i["text"])
-#         elif i["name"] == "stsfront_vin_number":
-#             doka.append(i["text"])
-#         elif i["name"] == "stsfront_car_brand":
-#             doka.append(i["text"])
-#         elif i["name"] == "stsfront_car_model":
-#             doka.append(i["text"])
-#         elif i["name"] == "stsfront_car_color":
-#             doka.append(i["text"])
-#
-#     print(doka)
-#     msg2 = f'''В базу внесено:
-#     Год {doka[0]}
-#     Гос номер {doka[1]}
-#     VIN {str(doka[2]).upper()}
-#     Марка {doka[3]}
-#     Модель {doka[4]}
-#     Цвет {doka[5]}
-#     '''
-#     await message.answer(text=msg2, reply_markup=builder.as_markup())
-#     await state.set_state(SetReport.choosing_college1)
-#
-#
-# @router.callback_query(SetReport.choosing_college1)
-# async def constructor_choosing_dkp(callback: types.CallbackQuery, state: FSMContext):
-#     builder = InlineKeyboardBuilder()
-#     builder.add(types.InlineKeyboardButton(
-#         text=texts.BT_CONSTRUCTOR_4_COLLEGE_SELF,
-#         callback_data="bt_constructor_4_college_self")
-#     )
-#     builder.add(types.InlineKeyboardButton(
-#         text=texts.BT_CONSTRUCTOR_4_COLLEGE_COLLEGE,
-#         callback_data="bt_constructor_4_college_self")
-#     )
-#     await callback.message.answer(text=texts.MESSAGE_BT_CONSTRUCTOR_4_COLLEGE, reply_markup=builder.as_markup())
-#     await state.update_data(chosen_dkp1=callback.data, chosen_dkp=callback.message.text.upper())
-#     await state.set_state(SetReport.choosing_dkp1)
-#     
-#
-#
-# @router.callback_query(SetReport.choosing_dkp1)
-# async def constructor_choosing_cost(callback: types.CallbackQuery, state: FSMContext):
-#     builder = InlineKeyboardBuilder()
-#     builder.add(types.InlineKeyboardButton(
-#         text=texts.BT_CONSTRUCTOR_4_COLLEGE_SELF,
-#         callback_data="bt_constructor_4_college_self")
-#     )
-#     builder.add(types.InlineKeyboardButton(
-#         text=texts.BT_CONSTRUCTOR_4_COLLEGE_COLLEGE,
-#         callback_data="bt_constructor_4_college_college")
-#     )
-#     await callback.message.answer(text="КТО ПИСАЛ ДКП?", reply_markup=builder.as_markup())
-#     await state.update_data(chosen_cost1=callback.data, chosen_cost=callback.message.text.upper())
-#     await state.set_state(SetReport.choosing_cost1)
-#     
-#
-#
-# # @router.message(SetReport.choosing_cost)
-# # async def constructor_choosing_wire(message: Message, state: FSMContext):
-# #     builder = InlineKeyboardBuilder()
-# #     builder.add(types.InlineKeyboardButton(
-# #         text="Следующий шаг",
-# #         callback_data="bt_constructor_55_college_self")
-# #     )
-# #     await message.answer(text=texts.MESSAGE_BT_CONSTRUCTOR_5_COST, reply_markup=builder.as_markup())
-# #     await state.update_data(chosen_wire=message.text.upper())
-# #     await state.set_state(SetReport.choosing_wire)
-#
-# @router.callback_query(SetReport.choosing_cost1)
-# async def constructor_choosing_wire(callback: types.CallbackQuery, state: FSMContext):
-#     builder = InlineKeyboardBuilder()
-#     builder.add(types.InlineKeyboardButton(
-#         text="Следующий шаг",
-#         callback_data="bt_constructor_55_college_self")
-#     )
-#     await callback.message.answer(text=texts.MESSAGE_BT_CONSTRUCTOR_5_COST, reply_markup=builder.as_markup())
-#     await state.update_data(chosen_wire=callback.message.text.upper())
-#     await state.set_state(SetReport.choosing_wire1)
-#     
-#
-#
-# @router.callback_query(SetReport.choosing_wire1)
-# async def constructor_choosing_wire2(callback: types.CallbackQuery, state: FSMContext):
-#     builder = InlineKeyboardBuilder()
-#     builder.add(types.InlineKeyboardButton(
-#         text=texts.BT_CONSTRUCTOR_6_WIRE_YES,
-#         callback_data="bt_constructor_6_wire_yes")
-#     )
-#     builder.add(types.InlineKeyboardButton(
-#         text=texts.BT_CONSTRUCTOR_6_WIRE_NO,
-#         callback_data="bt_constructor_6_wire_no")
-#     )
-#     await callback.message.answer(text=texts.MESSAGE_BT_CONSTRUCTOR_6_WIRE, reply_markup=builder.as_markup())
-#     await state.set_state(SetReport.choosing_wire121)
-#     
-#
-#
-# @router.callback_query(SetReport.choosing_wire121)
-# async def constructor_choosing_wire12(callback: types.CallbackQuery, state: FSMContext):
-#     builder = InlineKeyboardBuilder()
-#     builder.add(types.InlineKeyboardButton(
-#         text="Следующий шаг",
-#         callback_data="bt_constructor_56_college_self")
-#     )
-#     await callback.message.answer(text="Все?", reply_markup=builder.as_markup())
-#     await state.update_data(chosen_wire23=callback.data)
-#     await state.set_state(SetReport.choosing_wire21)
-#     
-#
-#
-# def transformer(value):
-#     if value == "bt_constructor_2_atp":
-#         return "АТП",
-#     elif value == "bt_constructor_2_abakan":
-#         return "АБАКАН",
-#     elif value == "bt_constructor_2_planeta":
-#         return "ПЛАНЕТА АВТО",
-#     elif value == "bt_constructor_2_alien":
-#         return "ИНОГОРОДНИЕ",
-#     elif value == "bt_constructor_2_getout":
-#         return "ВЫЕЗД",
-#     elif value == "bt_constructor_1_buy":
-#         return "КУПИЛ",
-#     elif value == "bt_constructor_1_sell":
-#         return "ПРОДАЛ",
-#     elif value == "bt_constructor_33_download":
-#         return "САМ",
-#     elif value == "bt_constructor_33_manual":
-#         return "КОЛЛЕГА",
-#     elif value == "bt_constructor_4_college_self":
-#         return "САМ",
-#     elif value == "bt_constructor_4_college_college":
-#         return "КОЛЛЕГА",
-#     elif value == "bt_constructor_6_wire_yes":
-#         return "ЕСТЬ",
-#     elif value == "bt_constructor_6_wire_no":
-#         return "НЕТ",
-#     else:
-#         return "-"
-#
-#
-# @router.callback_query(SetReport.choosing_wire21)
-# async def constructor_choosing_awa_our_credit22(callback: types.CallbackQuery, state: FSMContext):
-#     builder = InlineKeyboardBuilder()
-#     builder.add(types.InlineKeyboardButton(
-#         text=texts.BT_CONSTRUCTOR_7_SAVE,
-#         callback_data="bt_constructor_7_save")
-#     )
-#     builder.add(types.InlineKeyboardButton(
-#         text=texts.BT_CONSTRUCTOR_7_EDIT,
-#         callback_data="bt_constructor_7_edit")
-#     )
-#     data = await state.get_data()
-#     print(data['chosen_buyer'])
-#     tip_otcheta = str(transformer(data['chosen_buyer']))[2:-3]
-#     gde_prodal = str(transformer(data['chosen_download']))[2:-3]
-#     odin_ili_s_college = str(transformer(data['chosen_dkp1']))[2:-3]
-#     kto_pisal_dkp = str(transformer(data['chosen_cost1']))[2:-3]
-#     rezina_est = str(transformer(data['chosen_wire23']))[2:-3]
-#     text = f'''Спасибо, данные ниже ушли в базу:\nТип отчета: {tip_otcheta}\nГде продал: {gde_prodal}\nОдин или с коллегой: {odin_ili_s_college}\nКто писал дкп: {kto_pisal_dkp}\nЦена: {data['chosen_wire']}\nРезина есть?: {rezina_est}\n\n@{callback.message.chat.username}
-#         '''
-#     for i in data:
-#         print(i)
-#     await callback.message.answer(
-#         text=text,
-#     )
-#     await callback.message.answer(
-#         text="Сохранить?",
-#         reply_markup=builder.as_markup()
-#     )
-#     # Устанавливаем пользователю состояние "выбирает марку и модель"
-#     await state.set_state(SetReport.choosing_wire441)
-#
-#
-# @router.callback_query(SetReport.choosing_wire441, F.data == "bt_constructor_7_save")
-# async def constructor_choosing_awa_our_credit44(callback: types.CallbackQuery, state: FSMContext):
-#     builder = InlineKeyboardBuilder()
-#     builder.add(types.InlineKeyboardButton(
-#         text="Начать сначала",
-#         callback_data="main_menu23232"
-#     ))
-#     await callback.message.answer(text="ЗАГЛУШКА, введите /start", reply_markup=builder.as_markup())
-#     await state.clear()
-#
-#
-# @router.callback_query(SetReport.choosing_wire441, F.data == "bt_constructor_7_edit")
-# async def constructor_choosing_awa_our_credit424(callback: types.CallbackQuery, state: FSMContext):
-#     builder = InlineKeyboardBuilder()
-#     builder.add(types.InlineKeyboardButton(
-#         text="Начать сначала",
-#         callback_data="main_menu23232"
-#     ))
-#     await callback.message.answer(text="ЗАГЛУШКА, введите /start", reply_markup=builder.as_markup())
-#     await state.clear()
-#
-#
-# @router.message(SetReport.choosing_vin1, F.photo)
-# async def constructor_choosing_vin(message: Message, state: FSMContext, bot: Bot):
-#     builder = InlineKeyboardBuilder()
-#     builder.add(types.InlineKeyboardButton(
-#         text=texts.MESSAGE_IN_MAIN_MENU,
-#         callback_data="main_menu")
-#     )
-#     await bot.download(
-#         message.photo[-1],
-#         destination=f"tmp/{message.photo[-1].file_id}.jpg"
-#
-#     )
-#     await message.answer(text="Подождите пожалуйста", reply_markup=builder.as_markup())
-#     convert.convert_json_vin(f"tmp/{message.photo[-1].file_id}.jpg")
-#     msg = api.get_strings_vin()
-#     print(msg)
-#     doka = []
-#     for i in msg:
-#         if i["name"] == "stsfront_car_year":
-#             doka.append(i["text"])
-#         elif i["name"] == "stsfront_car_number":
-#             doka.append(i["text"])
-#         elif i["name"] == "stsfront_vin_number":
-#             doka.append(i["text"])
-#         elif i["name"] == "stsfront_car_brand":
-#             doka.append(i["text"])
-#         elif i["name"] == "stsfront_car_model":
-#             doka.append(i["text"])
-#         elif i["name"] == "stsfront_car_color":
-#             doka.append(i["text"])
-#
-#     print(doka)
-#     # data_new = f"{msg[]}"
-#     msg2 = f'''В базу внесено:
-#     Год {doka[0]}
-#     Гос номер {doka[1]}
-#     VIN {str(doka[2]).upper()}
-#     Марка {doka[3]}
-#     Модель {doka[4]}
-#     Цвет {doka[5]}
-#     '''
-#     # await message.answer(text=texts.MESSAGE_MAIN_MENU_VIN, reply_markup=builder.as_markup())
-#     await message.answer(text=msg2, reply_markup=builder.as_markup())
-#     await state.clear()
-#
-#
-# @router.message(SetReport.choosing_japan1, F.photo)
-# async def constructor_choosing_japan(message: Message, state: FSMContext, bot: Bot):
-#     builder = InlineKeyboardBuilder()
-#     builder.add(types.InlineKeyboardButton(
-#         text=texts.MESSAGE_IN_MAIN_MENU,
-#         callback_data="main_menu")
-#     )
-#     await bot.download(
-#         message.photo[-1],
-#         destination=f"tmp/{message.photo[-1].file_id}.jpg"
-#
-#     )
-#     await message.answer(text="Подождите пожалуйста", reply_markup=builder.as_markup())
-#     convert.convert_json_japan(f"tmp/{message.photo[-1].file_id}.jpg")
-#     msg = api.get_strings_japan()
-#     # print(msg)
-#     doka = []
-#     japan_vin = 'UNKNOWN'
-#     for i in msg:
-#         if i["lines"][0]["words"][0]["text"]:
-#             doka.append(i["lines"][0]["words"][0]["text"])
-#     # print(doka)
-#     for k in doka:
-#         if len(k) == 13:
-#             japan_vin = str(k).upper()
-#
-#     msg2 = f'''В базу внесено:
-#     VIN {japan_vin}
-#     '''
-#     # await message.answer(text=texts.MESSAGE_MAIN_MENU_VIN, reply_markup=builder.as_markup())
-#     await message.answer(text=msg2, reply_markup=builder.as_markup())
-#     await state.clear()
-#
-#
-# @router.message(SetReport.choosing_electro1, F.photo)
-# async def constructor_choosing_electro(message: Message, state: FSMContext, bot: Bot):
-#     builder = InlineKeyboardBuilder()
-#     builder.add(types.InlineKeyboardButton(
-#         text=texts.MESSAGE_IN_MAIN_MENU,
-#         callback_data="main_menu")
-#     )
-#     await bot.download(
-#         message.photo[-1],
-#         destination=f"tmp/{message.photo[-1].file_id}.jpg"
-#
-#     )
-#     await message.answer(text="Подождите пожалуйста", reply_markup=builder.as_markup())
-#     convert.convert_json_japan(f"tmp/{message.photo[-1].file_id}.jpg")
-#     msg = api.get_strings_japan()
-#     # print(msg)
-#     doka = []
-#     electro_vin = 'UNKNOWN'
-#     for i in msg:
-#         if i["lines"][0]["words"][0]["text"]:
-#             doka.append(i["lines"][0]["words"][0]["text"])
-#     print(doka)
-#     for k in doka:
-#         if len(k) == 14 and str(k[13]).isdigit():
-#             electro_vin = str(k).upper()
-#             print(electro_vin)
-#     msg2 = f'''В базу внесено:
-#     VIN {electro_vin}
-#     '''
-#     # await message.answer(text=texts.MESSAGE_MAIN_MENU_VIN, reply_markup=builder.as_markup())
-#     await message.answer(text=msg2, reply_markup=builder.as_markup())
-#     await state.clear()
-#
-#
-# @router.message(SetReport.choosing_report1)
-# async def cb_place_ad(message: Message, state: FSMContext):
-#     global sender_marka, sender_model, sender_year, sender_our, sender_fio, sender_cost, sender_drom, sender_own, sender_torg, sender_fio2, sender_dkpfio, sender_commi, sender_agent
-#     sample_data = message.text
-#     print(sample_data)
-#     builder = InlineKeyboardBuilder()
-#     builder.add(types.InlineKeyboardButton(
-#         text=texts.MESSAGE_IN_MAIN_MENU,
-#         callback_data="main_menu")
-#     )
-#     try:
-#         sender_fio = re.findall(template_fio, sample_data)
-#         sender_marka = re.findall(template_marka, sample_data)
-#         sender_model = re.findall(template_model, sample_data)
-#         sender_year = re.findall(template_year, sample_data)
-#         sender_our = re.findall(template_our, sample_data)
-#         sender_cost = re.findall(template_cost, sample_data)
-#         sender_drom = re.findall(template_drom, sample_data)
-#         sender_own = re.findall(template_own, sample_data)
-#         sender_torg = re.findall(template_torg, sample_data)
-#         sender_fio2 = re.findall(template_fio2, sample_data)
-#         sender_dkpfio = re.findall(template_dkpfio, sample_data)
-#         sender_commi = re.findall(template_commi, sample_data)
-#         sender_agent = re.findall(template_agent, sample_data)
-#         print(sender_fio[0])
-#         print(sender_marka[0])
-#         print(sender_model[0])
-#         print(sender_year[0])
-#         print(sender_our[0])
-#         print(sender_cost[0])
-#         print(sender_drom[0])
-#         print(sender_own[0])
-#         print(sender_torg[0])
-#         print(sender_fio2[0])
-#         print(sender_dkpfio[0])
-#         print(sender_commi[0])
-#         print(sender_agent[0])
-#         text = f'''ФИО: {sender_fio[0]}\nМарка: {sender_marka[0]}\nМодель: {sender_model[0]}\nГод: {sender_year[0]}\nНаша/комиссия: {sender_our[0]}\nЦена продажи: {sender_cost[0]}\nСколько накинул на цену дрома: {sender_drom[0]}\nСколько собственнику: {sender_own[0]}\nДо скольки сторговали собственника: {sender_torg[0]}\nС кем продал ФИО: {sender_fio2[0]}\nДКП ФИО: {sender_dkpfio[0]}\nКто ставил на комиссию: {sender_commi[0]}\nКто писал агентский договор:{sender_agent[0]}
-#         '''
-#         builder = InlineKeyboardBuilder()
-#         builder.add(types.InlineKeyboardButton(
-#             text=texts.MESSAGE_IN_MAIN_MENU,
-#             callback_data="main_menu")
-#         )
-#         await message.answer(text=texts.MESSAGE_MAIN_MENU_BUY_EXIT)
-#         await message.answer(text=text)
-#     except IndexError as error:
-#         print(error)
-#         await message.answer(text=texts.MESSAGE_MAIN_MENU_BUY_CANCEL)
-#         builder = InlineKeyboardBuilder()
-#         builder.add(types.InlineKeyboardButton(
-#             text=texts.MESSAGE_IN_MAIN_MENU,
-#             callback_data="main_menu")
-#         )
-#
-#     # try:
-# conn = psycopg2.connect(user=os.environ['SQL_USER'],
-#                         password=os.environ['SQL_PASSWORD'],
-#                         host=os.environ['SQL_HOST'],
-#                         port=os.environ['SQL_PORT'],
-#                         database=os.environ['SQL_DATABASE']
-#                         )
-#     #     cur = conn.cursor()
-#     #     print(f'Статус подключение к бд {conn.closed}')
-#     #     sql_insert_data_otchet = 'INSERT INTO bot_vitek.wb_otchet_data(city, full_name, route_number, date_otchet, start_otchet, finish_otchet, waybill_number, amount_shk, loader, amount_flight) VALUES (%s,%s, %s,%s,%s, %s, %s, %s,%s,%s)'
-#     #     cur.execute(sql_insert_data_otchet, (
-#     #         city[0], full_name[0], route_number[0], date_otchet[0], start_otchet[0], finish_otchet[0],
-#     #         waybill_number[0],
-#     #         amount_shk[0], loader[0], amount_flight[0],))
-#     #     conn.commit()
-#     #     count = cur.rowcount
-#     #     print(count, "Record inserted successfully into mobile table")
-#     #     update.message.reply_text('Отчет отправлен!', reply_markup=main_keyboard())
-#     #     conn.close()
-#     #     await state.set_state(SetReport.choosing_exit)
-#     # except (Exception, psycopg2.Error) as error:
-#     #     print("Failed to insert record into mobile table", error)
-#     #     await state.clear()
-#     await state.clear()
-#
-# # def get_report_excel(update, context):
-# #     update.message.reply_text('Ваш отчет:')
-# #     try:
-# #         conn1 = psycopg2.connect(user='habrpguser',
-# #                                  password='pgpwd4habr',
-# #                                  host='91.238.99.236',
-# #                                  port='5432',
-# #                                  database='NEWBASE'
-# #                                  )
-# #         cur1 = conn1.cursor()
-# #         print(f'Статус подключение к бд {conn1.closed}')
-# #         cur1.execute(
-# #             'SELECT city, full_name, route_number, date_otchet, waybill_number, amount_shk, loader, amount_flight from bot_vitek.wb_otchet_data_2 where date_otchet >= %s and  date_otchet <=%s ',
-# #             ('2022-11-12', '2022-11-14',))
-# #         # sql = '''select * from bot_vitek.wb_otchet_data;'''
-# #         # cur.execute(sql)
-# #         results = cur1.fetchall()
-# #         print(results)
-# #         conn1.close()
-# #     except (Exception, psycopg2.Error) as error:
-# #         print("Failed to insert record into mobile table", error)
+    conn.commit()
+    conn.close()
+    await callback.message.answer(
+        text="Отчет отправлен, спасибо, что воспользовались ботом. Нажмите на /start для составления нового отчета.")
+    await callback.message.answer(text="/start")
+    await state.clear()
