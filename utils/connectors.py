@@ -3,7 +3,8 @@ import logging
 
 import psycopg2
 import os
-from aiogram import Router, F, types, Bot
+from aiogram import types
+from aiogram import Bot
 
 
 def get_data_from_template():
@@ -46,7 +47,7 @@ def set_data_from_template_backup(dict_for_update):
         print(dict_for_update)
 
 
-async def db_sql_start(username, firstname, lastname):
+async def db_sql_start(username, firstname, lastname, bot: Bot):
     conn = psycopg2.connect(user=os.getenv('SQL_USER'),
                             password=os.getenv('SQL_PASSWORD'),
                             host=os.getenv('SQL_HOST'),
@@ -66,7 +67,9 @@ async def db_sql_start(username, firstname, lastname):
             cur.execute(sql_insert_tg_info_user, (username, firstname + " " + lastname,))
             set_data_from_template({"name": firstname + " " + lastname, "tag": username})
             set_data_from_template_backup({"name": firstname + " " + lastname, "tag": username})
-            logging.info("Succes first login for " + firstname + " " + lastname + " " + username)
+            logging.info("Success first login for " + firstname + " " + lastname + " " + username)
+            await bot.send_message(os.getenv('ERROR_CHAT_ID'),
+                                   "Success FIRST login for " + firstname + " " + lastname)
 
     else:
         print(f'База недоступна, статус {conn.closed}')
@@ -94,11 +97,11 @@ def db_sql_buy_with_college(username):
             sql_select_tg_user_info = "select user_name_tg from bot_planeta_avto.tg_info_user where user_name_tg='{value_user_name_tg}';"
             cur.execute(sql_select_tg_user_info.format(value_user_name_tg=username))
             select_tg_user_info = cur.fetchall()
-            logging.info("Succes insert buy_with_college for " + username)
+
             return select_tg_user_info[0][0]
         else:
             print(count_tg_user_info[0][0])
-            logging.error("Некорректный USERNAME "+ username)
+            logging.error("Некорректный USERNAME " + username)
             return "Некорректный USERNAME"
     else:
         print(f'База недоступна, статус {conn.closed}')
@@ -127,7 +130,8 @@ async def db_sql_buy_insert(callback=types.CallbackQuery, dict_report=None):
             data['chosen_cost'], data['chosen_wire_boolean'], data['chosen_vin_number'],
             data['chosen_vin_gos_number'], data['chosen_vin_marka'], data['chosen_vin_model'], data['chosen_vin_year'],
             data['chosen_comment'], callback.message.chat.first_name + " " + callback.message.chat.last_name,))
-        logging.info("Succes insert buy for " + callback.message.chat.first_name + " " + callback.message.chat.last_name)
+        logging.info(
+            "Success insert buy for " + callback.message.chat.first_name + " " + callback.message.chat.last_name)
     else:
         print(f'База недоступна, статус {conn.closed}')
         logging.error(f'База недоступна, статус {conn.closed}')
@@ -159,7 +163,7 @@ async def db_sql_comission_insert(callback=types.CallbackQuery, dict_report=None
             data['chosen_vin_gos_number'], data['chosen_vin_marka'], data['chosen_vin_model'], data['chosen_vin_year'],
             data['chosen_comment'], callback.message.chat.first_name + " " + callback.message.chat.last_name,))
         logging.info(
-            "Succes insert comission for " + callback.message.chat.first_name + " " + callback.message.chat.last_name)
+            "Success insert comission for " + callback.message.chat.first_name + " " + callback.message.chat.last_name)
     else:
         print(f'База недоступна, статус {conn.closed}')
         logging.error(f'База недоступна, статус {conn.closed}')
