@@ -1,12 +1,42 @@
+import json
+
 import psycopg2
 import os
 from aiogram import Router, F, types, Bot
 
-dict_colleges = [
-    {"name": "Papa Roach", "tag": "rogerthatdev"},
-    {"name": "Pavel Chudin", "tag": "p_chudin"},
-    {"name": "Семен Дьяченко", "tag": "Semen008"},
-]
+
+# dict_colleges = [
+#     {"name": "Papa Roach", "tag": "rogerthatdev"},
+#     {"name": "Pavel Chudin", "tag": "p_chudin"},
+#     {"name": "Семен Дьяченко", "tag": "Semen008"},
+# ]
+
+
+def get_data_from_template():
+    dict_colleges = []
+    with open('templates/dict_collegues.txt', 'r', encoding='utf-8') as f:
+        try:
+            loaded_dict_colleges = json.load(f)
+            print(loaded_dict_colleges)
+        except json.JSONDecodeError as e:
+            print(f"Ошибка при разборе JSON get: {e}")
+
+    return dict_colleges
+
+
+def set_data_from_template(dict_for_update):
+    dict_colleges = get_data_from_template()
+    if dict_for_update not in dict_colleges:
+        dict_colleges.append(dict_for_update)
+        print(dict_colleges)
+        with open('templates/dict_collegues.txt', 'w') as f:
+            try:
+                json.dump(dict_colleges, f)
+                print(dict_colleges)
+            except json.JSONDecodeError as e:
+                print(f"Ошибка при разборе JSON set: {e}")
+    else:
+        print(dict_colleges)
 
 
 async def db_sql_start(username, firstname, lastname):
@@ -20,13 +50,15 @@ async def db_sql_start(username, firstname, lastname):
     if conn.closed == 0:
         print(f'Успешное подключение к бд, статус {conn.closed}')
         sql_count_tg_user_info = "select count(*) from bot_planeta_avto.tg_info_user where teg_name_tg='{value_teg_name_tg}';"
-        cur.execute(sql_count_tg_user_info.format(value_teg_name_tg="@" + username))
+        cur.execute(sql_count_tg_user_info.format(value_teg_name_tg=username))
         count_tg_user_info = cur.fetchall()
         print(count_tg_user_info[0][0])
 
         if count_tg_user_info[0][0] == 0:
             sql_insert_tg_info_user = 'INSERT INTO bot_planeta_avto.tg_info_user(teg_name_tg, user_name_tg) VALUES (%s,%s)'
-            cur.execute(sql_insert_tg_info_user, ("@" + username, firstname + " " + lastname,))
+            cur.execute(sql_insert_tg_info_user, (username, firstname + " " + lastname,))
+            set_data_from_template({{"name": firstname + " " + lastname, "tag": username}})
+
     else:
         print(f'База недоступна, статус {conn.closed}')
     conn.commit()

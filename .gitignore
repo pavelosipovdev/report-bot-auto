@@ -169,3 +169,4 @@ body_vin.json
 body_vin2.json
 .env
 /tmp
+/templates

@@ -12,7 +12,7 @@ async def find_colleges(inline_query: types.InlineQuery, state: FSMContext, str_
     query = inline_query.query
     query = query.replace(str_for_replace, "").strip()
 
-    for college in utils.connectors.dict_colleges:
+    for college in utils.connectors.get_data_from_template():
         if query.lower() in college["name"].lower():
             result = types.InlineQueryResultArticle(
                 id=college["tag"],
