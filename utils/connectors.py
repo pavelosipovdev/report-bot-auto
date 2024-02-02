@@ -1,8 +1,10 @@
 import json
+import logging
 
 import psycopg2
 import os
-from aiogram import Router, F, types, Bot
+from aiogram import types
+from aiogram import Bot
 
 
 def get_data_from_template():
@@ -26,10 +28,26 @@ def set_data_from_template(dict_for_update):
             except json.JSONDecodeError as e:
                 print(f"Ошибка при разборе JSON set: {e}")
     else:
+        print("Добавили в словарь: ")
+        print(dict_for_update)
         print(dict_colleges)
 
 
-async def db_sql_start(username, firstname, lastname):
+def set_data_from_template_backup(dict_for_update):
+    dict_colleges = get_data_from_template()
+    if dict_for_update not in dict_colleges:
+        dict_colleges.append(dict_for_update)
+        with open('templates/dict_collegues_backup.txt', 'w') as f:
+            try:
+                json.dump(dict_colleges, f)
+            except json.JSONDecodeError as e:
+                print(f"Ошибка при разборе JSON set: {e}")
+    else:
+        print("Добавили в словарь бэкап: ")
+        print(dict_for_update)
+
+
+async def db_sql_start(username, firstname, lastname, bot: Bot):
     conn = psycopg2.connect(user=os.getenv('SQL_USER'),
                             password=os.getenv('SQL_PASSWORD'),
                             host=os.getenv('SQL_HOST'),
@@ -48,13 +66,16 @@ async def db_sql_start(username, firstname, lastname):
             sql_insert_tg_info_user = 'INSERT INTO bot_planeta_avto.tg_info_user(teg_name_tg, user_name_tg) VALUES (%s,%s)'
             cur.execute(sql_insert_tg_info_user, (username, firstname + " " + lastname,))
             set_data_from_template({"name": firstname + " " + lastname, "tag": username})
+            set_data_from_template_backup({"name": firstname + " " + lastname, "tag": username})
+            logging.info("Success first login for " + firstname + " " + lastname + " " + username)
+            await bot.send_message(os.getenv('ERROR_CHAT_ID'),
+                                   "Success FIRST login for " + firstname + " " + lastname)
 
     else:
         print(f'База недоступна, статус {conn.closed}')
+        logging.error(f'База недоступна, статус {conn.closed}')
     conn.commit()
     conn.close()
-    # with open("dict_report.txt", "a") as myfile:
-    #     myfile.write("@" + username + firstname + " " + lastname)
 
 
 def db_sql_buy_with_college(username):
@@ -76,9 +97,11 @@ def db_sql_buy_with_college(username):
             sql_select_tg_user_info = "select user_name_tg from bot_planeta_avto.tg_info_user where user_name_tg='{value_user_name_tg}';"
             cur.execute(sql_select_tg_user_info.format(value_user_name_tg=username))
             select_tg_user_info = cur.fetchall()
+
             return select_tg_user_info[0][0]
         else:
             print(count_tg_user_info[0][0])
+            logging.error("Некорректный USERNAME " + username)
             return "Некорректный USERNAME"
     else:
         print(f'База недоступна, статус {conn.closed}')
@@ -107,8 +130,11 @@ async def db_sql_buy_insert(callback=types.CallbackQuery, dict_report=None):
             data['chosen_cost'], data['chosen_wire_boolean'], data['chosen_vin_number'],
             data['chosen_vin_gos_number'], data['chosen_vin_marka'], data['chosen_vin_model'], data['chosen_vin_year'],
             data['chosen_comment'], callback.message.chat.first_name + " " + callback.message.chat.last_name,))
+        logging.info(
+            "Success insert buy for " + callback.message.chat.first_name + " " + callback.message.chat.last_name)
     else:
         print(f'База недоступна, статус {conn.closed}')
+        logging.error(f'База недоступна, статус {conn.closed}')
         await callback.message.answer(
             text="База недоступна, свяжитесь с администратором>")
     conn.commit()
@@ -136,8 +162,11 @@ async def db_sql_comission_insert(callback=types.CallbackQuery, dict_report=None
             data['chosen_vin_number'],
             data['chosen_vin_gos_number'], data['chosen_vin_marka'], data['chosen_vin_model'], data['chosen_vin_year'],
             data['chosen_comment'], callback.message.chat.first_name + " " + callback.message.chat.last_name,))
+        logging.info(
+            "Success insert comission for " + callback.message.chat.first_name + " " + callback.message.chat.last_name)
     else:
         print(f'База недоступна, статус {conn.closed}')
+        logging.error(f'База недоступна, статус {conn.closed}')
         await callback.message.answer(
             text="База недоступна, свяжитесь с администратором>")
     conn.commit()
