@@ -169,4 +169,5 @@ body_vin.json
 body_vin2.json
 .env
 /tmp
-templates/
+templates/dict_collegues.txt
+templates/dict_collegues_backup.txt

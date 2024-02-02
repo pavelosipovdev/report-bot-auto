@@ -266,7 +266,7 @@ async def find_colleges(inline_query: types.InlineQuery, state: FSMContext):
 
 @router.callback_query(SetReport.choosing_self_college_dkp, F.data == texts.BT_CONSTRUCTOR_4_COLLEGE_SELF)
 async def constructor_choosing_cost(callback: types.CallbackQuery, state: FSMContext):
-    await state.update_data(chosen_college_fio=callback.message.chat.last_name + " " + callback.message.chat.first_name)
+    await state.update_data(chosen_college_fio=callback.message.chat.first_name + " " + callback.message.chat.last_name)
     await state.update_data(chosen_college=callback.data)
     builder = InlineKeyboardBuilder()
     builder.add(types.InlineKeyboardButton(
@@ -284,7 +284,7 @@ async def constructor_choosing_cost(callback: types.CallbackQuery, state: FSMCon
 @router.callback_query(SetReport.choosing_cost, F.data == texts.BT_CONSTRUCTOR_4_COLLEGE_SELF)
 async def constructor_choosing_wire(callback: types.CallbackQuery, state: FSMContext):
     await state.update_data(
-        chosen_college_fio_dkp=callback.message.chat.last_name + " " + callback.message.chat.first_name)
+        chosen_college_fio_dkp=callback.message.chat.first_name + " " + callback.message.chat.last_name)
     await callback.message.edit_text(text=texts.MESSAGE_BT_CONSTRUCTOR_5_COST)
     await state.set_state(SetReport.choosing_wire)
 

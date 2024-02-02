@@ -1260,7 +1260,7 @@ async def constructor_choosing_awa_our_credit44(callback: types.CallbackQuery, s
             data['chosen_type'], data['chosen_place'], data['chosen_college_fio'], data['chosen_college_dkps'], data['howmuchsobs'], data['howmuchcomissiob'],
             data['chosen_vin_number'],
             data['chosen_vin_gos_number'], data['chosen_vin_marka'], data['chosen_vin_model'], data['chosen_vin_year'],
-            data['chosen_comment'], callback.message.chat.last_name + " " + callback.message.chat.first_name,))
+            data['chosen_comment'], callback.message.chat.first_name + " " + callback.message.chat.last_name,))
     else:
         print(f'База недоступна, статус {conn.closed}')
 
@@ -1289,7 +1289,7 @@ async def constructor_choosing_awa_our_credit44(callback: types.CallbackQuery, s
             data['chosen_type'], data['chosen_place'], data['chosen_college_fio'], data['chosen_college_dkps'], data['howmuchsobs'], data['howmuchcomissiob'],
             data['chosen_vin_number'],
             data['chosen_vin_gos_number'], data['chosen_vin_marka'], data['chosen_vin_model'], data['chosen_vin_year'],
-            data['chosen_comment'], callback.message.chat.last_name + " " + callback.message.chat.first_name,))
+            data['chosen_comment'], callback.message.chat.first_name + " " + callback.message.chat.last_name,))
     else:
         print(f'База недоступна, статус {conn.closed}')
 
