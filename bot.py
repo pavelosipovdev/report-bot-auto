@@ -18,15 +18,38 @@ from handlers.sellpath import router
 from handlers.buypath import router
 from handlers.comissionpath import router
 from texts import texts
-from utils import api, convert, inliner
+import atexit
 
-# Для записей с типом Secret* необходимо
-# вызывать метод get_secret_value(),
-# чтобы получить настоящее содержимое вместо '*******'
 load_dotenv()
 bot = Bot(token=os.getenv('BOT_TOKEN'))
 # Включаем логирование, чтобы не пропустить важные сообщения
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.DEBUG, filename="bot_log.log", filemode="a",
+                    format="%(asctime)s %(levelname)s %(message)s", encoding="utf-8")
+logging.info("===================START_BOT===================")
+console_handler = logging.StreamHandler()
+console_handler.setLevel(logging.DEBUG)
+logging.getLogger().addHandler(console_handler)
+
+
+class NotHandledHandler(logging.Handler):
+    def emit(self, record):
+        if "is not handled" in record.msg:
+            print(f"Необработанное обновление: {record.msg}")
+            logging.error(f"Необработанное обновление: {record.msg}")
+
+
+not_handled_handler = NotHandledHandler()
+logging.getLogger("aiogram").addHandler(not_handled_handler)
+
+
+# Отправка сообщения при завершении бота
+def finish_bot():
+    logging.info("===================FINISH_BOT===================")
+
+
+# Регистрация обработчика atexit
+atexit.register(finish_bot)
+
 # Диспетчер
 storage = MemoryStorage()
 dp = Dispatcher(storage=storage)
@@ -84,7 +107,6 @@ async def cmd_start(message: types.Message):
 dp.include_routers(handlers.sellpath.router)
 dp.include_routers(handlers.buypath.router)
 dp.include_routers(handlers.comissionpath.router)
-# dp.include_routers(inliner.router)
 
 if __name__ == "__main__":
     asyncio.run(main())
