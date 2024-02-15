@@ -1,16 +1,12 @@
-from pydoc import html
-from typing import Optional
 
-import psycopg2
-import os
 from aiogram import Router, F, types, Bot
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
-from aiogram.types import Message, InlineQueryResultArticle, InputTextMessageContent, InlineQuery
+from aiogram.types import Message
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from utils import editor_buy
 import utils
-from utils import downloader, connectors, convert, api, inliner
+from utils import downloader, connectors, inliner
 from texts import texts
 import re
 
@@ -303,7 +299,7 @@ async def constructor_choosing_wire(callback: types.CallbackQuery, state: FSMCon
 @router.message(SetReport.choosing_wire)
 async def constructor_choosing_wire2(message: Message, state: FSMContext):
     just = message.text.upper()
-    await state.update_data(chosen_cost=re.sub("[^0-9]", "", just))
+    await state.update_data(chosen_cost=int(re.sub("[^0-9]", "", just)))
     builder = InlineKeyboardBuilder()
     builder.add(types.InlineKeyboardButton(
         text=texts.BT_CONSTRUCTOR_6_WIRE_YES,
