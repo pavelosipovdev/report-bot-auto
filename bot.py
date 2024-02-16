@@ -10,7 +10,7 @@ import utils.connectors
 from aiogram.filters import Command
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from dotenv import load_dotenv
-from aiogram import Bot, Dispatcher, types, F
+from aiogram import Bot, Dispatcher, types
 
 from handlers.sellpath import router
 from handlers.buypath import router

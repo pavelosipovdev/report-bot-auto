@@ -1,3 +1,4 @@
+import datetime
 import json
 import logging
 
@@ -5,6 +6,7 @@ import psycopg2
 import os
 from aiogram import types
 from aiogram import Bot
+from aiogram.types import Message
 
 
 def get_data_from_template():
@@ -141,6 +143,37 @@ async def db_sql_buy_insert(callback=types.CallbackQuery, dict_report=None):
     conn.close()
 
 
+async def db_sql_sell_insert(callback=types.CallbackQuery, dict_report=None):
+    if dict_report is None:
+        dict_report = {}
+    data = dict_report
+    print(data)
+    conn = psycopg2.connect(user=os.getenv('SQL_USER'),
+                            password=os.getenv('SQL_PASSWORD'),
+                            host=os.getenv('SQL_HOST'),
+                            port=os.getenv('SQL_PORT'),
+                            database=os.getenv('SQL_DATABASE')
+                            )
+    cur = conn.cursor()
+    if conn.closed == 0:
+        print(f'Успешное подключение к бд, статус {conn.closed}')
+        sql_insert_tg_info_user = 'INSERT INTO bot_planeta_avto.sell_report(type_sell_report,type_credit_our,type_deal,drom_cost,dealer_discount,summa_nm,summa_sob,howmuchtorg,whosell,whosellcredit,date_raschet,type_of_calс,vin,gos_number,brand,model,years,comment_report,username_sell_report) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)'
+        cur.execute(sql_insert_tg_info_user, (
+            data['chosen_type'], data['type_credit_our'], data['type_deal'], data['drom_cost'],
+            data['dealer_discount'], data['summa_nm'], data['summa_sob'], data['howmuchtorg'], data['whosell'], data['whosellcredit'], data['date_raschet'], data['type_raschet'], data['chosen_vin_number'],
+            data['chosen_vin_gos_number'], data['chosen_vin_marka'], data['chosen_vin_model'], data['chosen_vin_year'],
+            data['chosen_comment'], callback.message.chat.first_name + " " + callback.message.chat.last_name,))
+        logging.info(
+            "Success insert sell for " + callback.message.chat.first_name + " " + callback.message.chat.last_name)
+    else:
+        print(f'База недоступна, статус {conn.closed}')
+        logging.error(f'База недоступна, статус {conn.closed}')
+        await callback.message.answer(
+            text="База недоступна, свяжитесь с администратором>")
+    conn.commit()
+    conn.close()
+
+
 async def db_sql_comission_insert(callback=types.CallbackQuery, dict_report=None):
     if dict_report is None:
         dict_report = {}
@@ -155,13 +188,13 @@ async def db_sql_comission_insert(callback=types.CallbackQuery, dict_report=None
     cur = conn.cursor()
     if conn.closed == 0:
         print(f'Успешное подключение к бд, статус {conn.closed}')
-        sql_insert_comission_report = 'INSERT INTO bot_planeta_avto.commission_report(type_purchase_report, platform, username_commission_сolleagues, write_ag,price_owner, size_commission, vin, gos_number, brand, model, years, comment_report, username_commission_report) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)'
+        sql_insert_comission_report = 'INSERT INTO bot_planeta_avto.commission_report(type_purchase_report, platform, username_commission_сolleagues, write_ag,price_owner, size_commission, vin, gos_number, brand, model, years, comment_report, username_commission_report, type_of_calс) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)'
         cur.execute(sql_insert_comission_report, (
             data['chosen_type'], data['chosen_place'], data['chosen_college_fio'], data['chosen_college_dkps'],
             data['howmuchsobs'], data['howmuchcomissiob'],
             data['chosen_vin_number'],
             data['chosen_vin_gos_number'], data['chosen_vin_marka'], data['chosen_vin_model'], data['chosen_vin_year'],
-            data['chosen_comment'], callback.message.chat.first_name + " " + callback.message.chat.last_name,))
+            data['chosen_comment'], callback.message.chat.first_name + " " + callback.message.chat.last_name, data['typeraschet']))
         logging.info(
             "Success insert comission for " + callback.message.chat.first_name + " " + callback.message.chat.last_name)
     else:
@@ -171,3 +204,79 @@ async def db_sql_comission_insert(callback=types.CallbackQuery, dict_report=None
             text="База недоступна, свяжитесь с администратором>")
     conn.commit()
     conn.close()
+
+
+def db_sql_price_owner_select(vin_dict):
+    conn = psycopg2.connect(user=os.getenv('SQL_USER'),
+                            password=os.getenv('SQL_PASSWORD'),
+                            host=os.getenv('SQL_HOST'),
+                            port=os.getenv('SQL_PORT'),
+                            database=os.getenv('SQL_DATABASE')
+                            )
+    cur = conn.cursor()
+    if conn.closed == 0:
+        print(f'Успешное подключение к бд, статус {conn.closed}')
+        print(vin_dict)
+        sql_select_vin_commission_report = "select price_owner from bot_planeta_avto.commission_report where vin='{value_vin_tg}';"
+        cur.execute(sql_select_vin_commission_report.format(value_vin_tg=vin_dict))
+        select_price_owner = cur.fetchall()
+        try:
+            price_owner = select_price_owner[0][0]
+            print(price_owner)
+            logging.info(
+                "Success select priceowner for ")
+            return str(price_owner)
+        except Exception as e:
+            print("An error has occurred:", e)
+            return "UNKNOWN"
+    else:
+        print(f'База недоступна, статус {conn.closed}')
+        logging.error(f'База недоступна, статус {conn.closed}')
+        # await callback.message.answer(
+        #     text="База недоступна, свяжитесь с администратором>")
+
+    conn.commit()
+    conn.close()
+
+
+def db_sql_type_of_calc_select(vin_dict):
+    conn = psycopg2.connect(user=os.getenv('SQL_USER'),
+                            password=os.getenv('SQL_PASSWORD'),
+                            host=os.getenv('SQL_HOST'),
+                            port=os.getenv('SQL_PORT'),
+                            database=os.getenv('SQL_DATABASE')
+                            )
+    cur = conn.cursor()
+    if conn.closed == 0:
+        print(f'Успешное подключение к бд, статус {conn.closed}')
+        print(vin_dict)
+        sql_select_type_of_calс_commission_report="select type_of_calс from bot_planeta_avto.commission_report where vin='{value_vin_tg}';"
+        cur.execute(sql_select_type_of_calс_commission_report.format(value_vin_tg=vin_dict))
+        select_type_of_calс = cur.fetchall()
+        try:
+            type_of_calс = select_type_of_calс[0][0]
+            print(type_of_calс)
+            logging.info(
+                "Success select type_of_calc for ")
+            return str(type_of_calс)
+        except Exception as e:
+            print("An error has occurred:", e)
+            # await callback.message.answer(
+            #     text="Вин номер не найдет, проверьте его корректность")
+            return "UNKNOWN"
+    else:
+        print(f'База недоступна, статус {conn.closed}')
+        logging.error(f'База недоступна, статус {conn.closed}')
+        # await callback.message.answer(
+        #     text="База недоступна, свяжитесь с администратором>")
+    conn.commit()
+    conn.close()
+
+
+async def date_normalizer(date_from_user):
+    try:
+        date_normal = datetime.datetime.strptime(date_from_user, "%d.%m.%Y").date().isoformat()
+        return date_normal
+    except Exception as e:
+        print(e)
+        return False

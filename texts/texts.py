@@ -239,8 +239,8 @@ MESSAGE_HOW_MUCH_COMISSION = "РАЗМЕР КОММИССИИ?"
 
 MESSAGE_TYPE_RASHCHET = "ТИП РАСЧЕТА?"
 
-BT_CASH = "НАЛИЧНЫЕ"
-BT_NOTCASH = "БЕЗНАЛИЧНЫЕ"
+BT_CASH = "НАЛ"
+BT_NOTCASH = "БЕЗНАЛ"
 
 BT_NEXT = "ДАЛЕЕ"
 
@@ -288,9 +288,9 @@ BT_YES = "ДА"
 
 BT_NO = "НЕТ"
 
-MESSAGE_DATE_RASCHET = "ДАТА РАСЧЕТА?"
+MESSAGE_DATE_RASCHET = "ДАТА РАСЧЕТА? Введите дату в формате ДД.ММ.ГГГГ (пример - 27.12.2023)"
 
-MESSAGE_TYPE_RASCHETA_WAS = "ВИД РАСЧЕТА БЫЛ ZAGLUSHKA?"
+MESSAGE_TYPE_RASCHETA_WAS = "ВИД РАСЧЕТА БЫЛ "
 
 BT_SAVE = "ОСТАВЛЯЕМ"
 

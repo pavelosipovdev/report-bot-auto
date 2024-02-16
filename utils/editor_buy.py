@@ -1,3 +1,5 @@
+import re
+
 from aiogram import types
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
@@ -95,12 +97,30 @@ async def editor_first_place(callback: types.CallbackQuery, state: FSMContext):
     await callback.message.answer(text="Замена на " + callback.data, reply_markup=builder.as_markup())
 
 
+# async def editor_first_cost_first(callback: types.CallbackQuery, state: FSMContext):
+#     await utils.editor_changer.getter(callback, state, chosen_data="chosen_cost")
+#
+#
+# async def editor_first_cost(message: Message, state: FSMContext):
+#     await utils.editor_changer.setter(message, state, chosen_data="chosen_cost")
+
+
 async def editor_first_cost_first(callback: types.CallbackQuery, state: FSMContext):
-    await utils.editor_changer.getter(callback, state, chosen_data="chosen_cost")
+    data = await state.get_data()
+    msg2 = "В данный момент используется " + data['chosen_cost'] + ", на какое значение хотите изменить?"
+    await callback.message.answer(text=msg2)
 
 
 async def editor_first_cost(message: Message, state: FSMContext):
-    await utils.editor_changer.setter(message, state, chosen_data="chosen_cost")
+    just = message.text.upper()
+    await state.update_data(drom_cost=int(re.sub("[^0-9]", "", just)))
+    builder = InlineKeyboardBuilder()
+    builder.add(types.InlineKeyboardButton(
+        text="ОК",
+        callback_data=texts.BT_CONSTRUCTOR_2_ATP)
+    )
+    data = await state.get_data()
+    await message.answer(text="Замена на " + data['chosen_cost'], reply_markup=builder.as_markup())
 
 
 async def editor_first_gosnumber(callback: types.CallbackQuery, state: FSMContext):
@@ -127,12 +147,30 @@ async def editor_first_vin_model(message: Message, state: FSMContext):
     await utils.editor_changer.setter(message, state, chosen_data="chosen_vin_model")
 
 
+# async def editor_first_year(callback: types.CallbackQuery, state: FSMContext):
+#     await utils.editor_changer.getter(callback, state, chosen_data="chosen_vin_year")
+#
+#
+# async def editor_first_vin_year(message: Message, state: FSMContext):
+#     await utils.editor_changer.setter(message, state, chosen_data="chosen_vin_year")
+
+
 async def editor_first_year(callback: types.CallbackQuery, state: FSMContext):
-    await utils.editor_changer.getter(callback, state, chosen_data="chosen_vin_year")
+    data = await state.get_data()
+    msg2 = "В данный момент используется " + data['chosen_vin_year'] + ", на какое значение хотите изменить?"
+    await callback.message.answer(text=msg2)
 
 
 async def editor_first_vin_year(message: Message, state: FSMContext):
-    await utils.editor_changer.setter(message, state, chosen_data="chosen_vin_year")
+    just = message.text.upper()
+    await state.update_data(chosen_vin_year=int(re.sub("[^0-9]", "", just)))
+    builder = InlineKeyboardBuilder()
+    builder.add(types.InlineKeyboardButton(
+        text="ОК",
+        callback_data=texts.BT_CONSTRUCTOR_2_ATP)
+    )
+    data = await state.get_data()
+    await message.answer(text="Замена на " + data['chosen_vin_year'], reply_markup=builder.as_markup())
 
 
 async def editor_first_menu_vin(callback: types.CallbackQuery, state: FSMContext):
