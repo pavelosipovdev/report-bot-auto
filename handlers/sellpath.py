@@ -276,6 +276,9 @@ class SetReport(StatesGroup):
     choosing_our_credit3 = State()
     choosing_our_credit4 = State()
     choosing_our_credit45 = State()
+    choosing_our_credit451 = State()
+    choosing_our_credit452 = State()
+    choosing_our_credit453 = State()
     choosing_our_credit5 = State()
     choosing_our_credit6 = State()
     choosing_our_credit7 = State()
@@ -285,6 +288,9 @@ class SetReport(StatesGroup):
     choosing_our_cash3 = State()
     choosing_our_cash4 = State()
     choosing_our_cash45 = State()
+    choosing_our_cash451 = State()
+    choosing_our_cash452 = State()
+    choosing_our_cash453 = State()
     choosing_our_cash5 = State()
     choosing_our_cash6 = State()
     choosing_our_cash7 = State()
@@ -462,21 +468,39 @@ async def sell_choosing_comissiya_credit_comission(callback: types.CallbackQuery
 @router.message(SetReport.choosing_comissiya_credit2)
 async def sell_choosing_comissiya_credit_comission2(message: Message, state: FSMContext):
     just = message.text.upper()
-    await state.update_data(drom_cost=int(re.sub("[^0-9]", "", just)))
-    await message.answer(
-        text=texts.MESSAGE_SELL_DISCOUNT,
-    )
-    await state.set_state(SetReport.choosing_comissiya_credit3)
+    if just.isdigit():
+        await state.update_data(drom_cost=just)
+        await message.answer(
+            text=texts.MESSAGE_SELL_DISCOUNT,
+        )
+        await state.set_state(SetReport.choosing_comissiya_credit3)
+    else:
+        await message.answer(
+            text=texts.MESSAGE_ONLY_DIGITS,
+        )
+        await message.answer(
+            text=texts.MESSAGE_SELL_COST_DROM,
+        )
+        await state.set_state(SetReport.choosing_comissiya_credit2)
 
 
 @router.message(SetReport.choosing_comissiya_credit3)
 async def sell_choosing_comissiya_credit_comission3(message: Message, state: FSMContext):
     just = message.text.upper()
-    await state.update_data(dealer_discount=int(re.sub("[^0-9]", "", just)))
-    await message.answer(
-        text=texts.MESSAGE_SELL_SUM_NM,
-    )
-    await state.set_state(SetReport.choosing_comissiya_credit4)
+    if just.isdigit():
+        await state.update_data(dealer_discount=int(just))
+        await message.answer(
+            text=texts.MESSAGE_SELL_SUM_NM,
+        )
+        await state.set_state(SetReport.choosing_comissiya_credit4)
+    else:
+        await message.answer(
+            text=texts.MESSAGE_ONLY_DIGITS,
+        )
+        await message.answer(
+            text=texts.MESSAGE_SELL_DISCOUNT,
+        )
+        await state.set_state(SetReport.choosing_comissiya_credit3)
 
 
 # @router.message(SetReport.choosing_comissiya_credit4)
@@ -495,7 +519,7 @@ async def sell_choosing_comissiya_creditcomission5(message: Message, state: FSMC
     await state.update_data(summa_nm=int(re.sub("[^0-9]", "", just)))
     builder = InlineKeyboardBuilder()
     builder.add(types.InlineKeyboardButton(
-        text="ОСТАВЛЯЕМ",
+        text="ВСЕ ОК",
         callback_data="callback_ostav")
     )
     builder.add(types.InlineKeyboardButton(
@@ -525,11 +549,20 @@ async def sell_choosing_comissiya_creditcomission6(callback: types.CallbackQuery
 async def sell_choosing_comissiya_creditcomission78(message: Message, state: FSMContext):
     just = message.text.upper()
     # just = "0"
-    await state.update_data(summa_sob=int(re.sub("[^0-9]", "", just)))
-    await message.answer(
-        text=texts.MESSAGE_SELL_TORG,
-    )
-    await state.set_state(SetReport.choosing_comissiya_credit8)
+    if just.isdigit():
+        await state.update_data(summa_sob=int(just))
+        await message.answer(
+            text=texts.MESSAGE_SELL_TORG,
+        )
+        await state.set_state(SetReport.choosing_comissiya_credit8)
+    else:
+        await message.answer(
+            text=texts.MESSAGE_ONLY_DIGITS,
+        )
+        await message.answer(
+            text="На какую сумму хотите изменить?",
+        )
+        await state.set_state(SetReport.choosing_comissiya_credit78)
 
 
 @router.callback_query(SetReport.choosing_comissiya_credit6, F.data == "callback_ostav")
@@ -547,20 +580,29 @@ async def sell_choosing_comissiya_creditcomission6(callback: types.CallbackQuery
 @router.message(SetReport.choosing_comissiya_credit8)
 async def sell_choosing_comissiya_creditcomission8(message: Message, state: FSMContext):
     just = message.text.upper()
-    await state.update_data(howmuchtorg=int(re.sub("[^0-9]", "", just)))
-    builder = InlineKeyboardBuilder()
-    builder.add(types.InlineKeyboardButton(
-        text="САМ",
-        callback_data="САМ")
-    )
-    builder.add(types.InlineKeyboardButton(
-        text="Нажмите, чтобы ввести фамилию",
-        switch_inline_query_current_chat='find_b1 ')
-    )
-    await message.answer(
-        text=texts.MESSAGE_SELL_WITH + "\nВведите первые символы фамилии коллеги", reply_markup=builder.as_markup()
-    )
-    await state.set_state(SetReport.choosing_comissiya_credit9)
+    if just.isdigit():
+        await state.update_data(howmuchtorg=int(just))
+        builder = InlineKeyboardBuilder()
+        builder.add(types.InlineKeyboardButton(
+            text="САМ",
+            callback_data="САМ")
+        )
+        builder.add(types.InlineKeyboardButton(
+            text="Нажмите, чтобы ввести фамилию",
+            switch_inline_query_current_chat='find_b4 ')
+        )
+        await message.answer(
+            text=texts.MESSAGE_SELL_WITH + "\nВведите первые символы фамилии коллеги", reply_markup=builder.as_markup()
+        )
+        await state.set_state(SetReport.choosing_comissiya_credit9)
+    else:
+        await message.answer(
+            text=texts.MESSAGE_ONLY_DIGITS,
+        )
+        await message.answer(
+            text=texts.MESSAGE_SELL_TORG,
+        )
+        await state.set_state(SetReport.choosing_comissiya_credit8)
 
 
 @router.callback_query(SetReport.choosing_comissiya_credit9, F.data == "САМ")
@@ -610,7 +652,7 @@ async def find_colleges(inline_query: types.InlineQuery, state: FSMContext):
 @router.message(SetReport.choosing_comissiya_credit10)
 async def sell_choosing_our_credit5(message: Message, state: FSMContext):
     # await message.answer(text="Пожалуйста подождите, идет проверка имени в базе данных")
-    college_name = message.text.lower()
+    college_name = message.text
     await state.update_data(whosell=college_name)
     # if college_name == "Некорректный USERNAME":
     #     await message.answer("Некорректный USERNAME, укажите корректный в режиме редактирования")
@@ -640,7 +682,7 @@ async def find_colleges(inline_query: types.InlineQuery, state: FSMContext):
 @router.message(SetReport.choosing_comissiya_credit12)
 async def sell_choosing_our_credit12(message: Message, state: FSMContext):
     # await message.answer(text="Пожалуйста подождите, идет проверка имени в базе данных")
-    college_name = message.text.lower()
+    college_name = message.text
     await state.update_data(whosellcredit=college_name)
     # if college_name == "Некорректный USERNAME":
     #     await message.answer("Некорректный USERNAME, укажите корректный в режиме редактирования")
@@ -932,7 +974,7 @@ async def sell_choosing_comissiya_creditcomission15(callback: types.CallbackQuer
     await state.update_data(type_raschet=str(type_of_calc))
     builder = InlineKeyboardBuilder()
     builder.add(types.InlineKeyboardButton(
-        text="ОСТАВЛЯЕМ",
+        text="ВСЕ ОК",
         callback_data="callback_ostav")
     )
     builder.add(types.InlineKeyboardButton(
@@ -1389,21 +1431,39 @@ async def sell_choosing_comissiya_cash_comission(callback: types.CallbackQuery, 
 @router.message(SetReport.choosing_comissiya_cash2)
 async def sell_choosing_comissiya_cash_comission2(message: Message, state: FSMContext):
     just = message.text.upper()
-    await state.update_data(drom_cost=int(re.sub("[^0-9]", "", just)))
-    await message.answer(
-        text=texts.MESSAGE_SELL_DISCOUNT,
-    )
-    await state.set_state(SetReport.choosing_comissiya_cash3)
+    if just.isdigit():
+        await state.update_data(drom_cost=just)
+        await message.answer(
+            text=texts.MESSAGE_SELL_DISCOUNT,
+        )
+        await state.set_state(SetReport.choosing_comissiya_cash3)
+    else:
+        await message.answer(
+            text=texts.MESSAGE_ONLY_DIGITS,
+        )
+        await message.answer(
+            text=texts.MESSAGE_SELL_COST_DROM,
+        )
+        await state.set_state(SetReport.choosing_comissiya_cash2)
 
 
 @router.message(SetReport.choosing_comissiya_cash3)
 async def sell_choosing_comissiya_cash_comission3(message: Message, state: FSMContext):
     just = message.text.upper()
-    await state.update_data(dealer_discount=int(re.sub("[^0-9]", "", just)))
-    await message.answer(
-        text=texts.MESSAGE_SELL_SUM_NM,
-    )
-    await state.set_state(SetReport.choosing_comissiya_cash4)
+    if just.isdigit():
+        await state.update_data(dealer_discount=int(just))
+        await message.answer(
+            text=texts.MESSAGE_SELL_SUM_NM,
+        )
+        await state.set_state(SetReport.choosing_comissiya_cash4)
+    else:
+        await message.answer(
+            text=texts.MESSAGE_ONLY_DIGITS,
+        )
+        await message.answer(
+            text=texts.MESSAGE_SELL_DISCOUNT,
+        )
+        await state.set_state(SetReport.choosing_comissiya_cash3)
 
 
 # @router.message(SetReport.choosing_comissiya_cash4)
@@ -1422,7 +1482,7 @@ async def sell_choosing_comissiya_cash_comission5(message: Message, state: FSMCo
     await state.update_data(summa_nm=int(re.sub("[^0-9]", "", just)))
     builder = InlineKeyboardBuilder()
     builder.add(types.InlineKeyboardButton(
-        text="ОСТАВЛЯЕМ",
+        text="ВСЕ ОК",
         callback_data="callback_ostav")
     )
     builder.add(types.InlineKeyboardButton(
@@ -1452,11 +1512,20 @@ async def sell_choosing_comissiya_cash_comission6(callback: types.CallbackQuery,
 async def sell_choosing_comissiya_cash_comission78(message: Message, state: FSMContext):
     just = message.text.upper()
     # just = "0"
-    await state.update_data(summa_sob=int(re.sub("[^0-9]", "", just)))
-    await message.answer(
-        text=texts.MESSAGE_SELL_TORG,
-    )
-    await state.set_state(SetReport.choosing_comissiya_cash8)
+    if just.isdigit():
+        await state.update_data(summa_sob=int(just))
+        await message.answer(
+            text=texts.MESSAGE_SELL_TORG,
+        )
+        await state.set_state(SetReport.choosing_comissiya_cash8)
+    else:
+        await message.answer(
+            text=texts.MESSAGE_ONLY_DIGITS,
+        )
+        await message.answer(
+            text="На какую сумму хотите изменить?",
+        )
+        await state.set_state(SetReport.choosing_comissiya_cash78)
 
 
 @router.callback_query(SetReport.choosing_comissiya_cash6, F.data == "callback_ostav")
@@ -1474,20 +1543,29 @@ async def sell_choosing_comissiya_cash_comission6(callback: types.CallbackQuery,
 @router.message(SetReport.choosing_comissiya_cash8)
 async def sell_choosing_comissiya_cash_comission8(message: Message, state: FSMContext):
     just = message.text.upper()
-    await state.update_data(howmuchtorg=int(re.sub("[^0-9]", "", just)))
-    builder = InlineKeyboardBuilder()
-    builder.add(types.InlineKeyboardButton(
-        text="САМ",
-        callback_data="САМ")
-    )
-    builder.add(types.InlineKeyboardButton(
-        text="Нажмите, чтобы ввести фамилию",
-        switch_inline_query_current_chat='find_b4 ')
-    )
-    await message.answer(
-        text=texts.MESSAGE_SELL_WITH + "\nВведите первые символы фамилии коллеги", reply_markup=builder.as_markup()
-    )
-    await state.set_state(SetReport.choosing_comissiya_cash9)
+    if just.isdigit():
+        await state.update_data(howmuchtorg=int(just))
+        builder = InlineKeyboardBuilder()
+        builder.add(types.InlineKeyboardButton(
+            text="САМ",
+            callback_data="САМ")
+        )
+        builder.add(types.InlineKeyboardButton(
+            text="Нажмите, чтобы ввести фамилию",
+            switch_inline_query_current_chat='find_b6 ')
+        )
+        await message.answer(
+            text=texts.MESSAGE_SELL_WITH + "\nВведите первые символы фамилии коллеги", reply_markup=builder.as_markup()
+        )
+        await state.set_state(SetReport.choosing_comissiya_cash9)
+    else:
+        await message.answer(
+            text=texts.MESSAGE_ONLY_DIGITS,
+        )
+        await message.answer(
+            text=texts.MESSAGE_SELL_TORG,
+        )
+        await state.set_state(SetReport.choosing_comissiya_cash8)
 
 
 @router.callback_query(SetReport.choosing_comissiya_cash9, F.data == "САМ")
@@ -1537,7 +1615,7 @@ async def find_colleges(inline_query: types.InlineQuery, state: FSMContext):
 @router.message(SetReport.choosing_comissiya_cash10)
 async def sell_choosing_comissiya_cash_comission10(message: Message, state: FSMContext):
     # await message.answer(text="Пожалуйста подождите, идет проверка имени в базе данных")
-    college_name = message.text.lower()
+    college_name = message.text
     await state.update_data(whosell=college_name)
     # if college_name == "Некорректный USERNAME":
     #     await message.answer("Некорректный USERNAME, укажите корректный в режиме редактирования")
@@ -1567,7 +1645,7 @@ async def find_colleges(inline_query: types.InlineQuery, state: FSMContext):
 @router.message(SetReport.choosing_comissiya_cash12)
 async def sell_choosing_comissiya_cash_comission12(message: Message, state: FSMContext):
     # await message.answer(text="Пожалуйста подождите, идет проверка имени в базе данных")
-    college_name = message.text.lower()
+    college_name = message.text
     await state.update_data(whosellcredit=college_name)
     # if college_name == "Некорректный USERNAME":
     #     await message.answer("Некорректный USERNAME, укажите корректный в режиме редактирования")
@@ -2312,44 +2390,72 @@ async def sell_choosing_our_credit0(callback: types.CallbackQuery, state: FSMCon
 @router.message(SetReport.choosing_our_credit)
 async def sell_choosing_our_credit1(message: Message, state: FSMContext):
     just = message.text.upper()
-    await state.update_data(drom_cost=int(re.sub("[^0-9]", "", just)))
-    await message.answer(
-        text=texts.MESSAGE_SELL_DISCOUNT,
-    )
-    await state.set_state(SetReport.choosing_our_credit2)
+    if just.isdigit():
+        await state.update_data(drom_cost=int(just))
+        await message.answer(
+            text=texts.MESSAGE_SELL_DISCOUNT,
+        )
+        await state.set_state(SetReport.choosing_our_credit2)
+    else:
+        await message.answer(
+            text=texts.MESSAGE_ONLY_DIGITS,
+        )
+        await message.answer(
+            text=texts.MESSAGE_SELL_COST_DROM,
+        )
+        await state.set_state(SetReport.choosing_our_credit)
 
 
 @router.message(SetReport.choosing_our_credit2)
 async def sell_choosing_our_credit2(message: Message, state: FSMContext):
     just = message.text.upper()
-    await state.update_data(dealer_discount=int(re.sub("[^0-9]", "", just)))
-    await message.answer(
-        text=texts.MESSAGE_SELL_TORG,
-    )
-    await state.set_state(SetReport.choosing_our_credit3)
+    if just.isdigit():
+        await state.update_data(dealer_discount=int(just))
+        await message.answer(
+            text=texts.MESSAGE_SELL_TORG,
+        )
+        await state.set_state(SetReport.choosing_our_credit3)
+    else:
+        await message.answer(
+            text=texts.MESSAGE_ONLY_DIGITS,
+        )
+        await message.answer(
+            text=texts.MESSAGE_SELL_DISCOUNT,
+        )
+        await state.set_state(SetReport.choosing_our_credit2)
 
 
+# ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 @router.message(SetReport.choosing_our_credit3)
-async def sell_choosing_our_credit3(message: Message, state: FSMContext):
+async def sell_choosing_comissiya_cash_comission8(message: Message, state: FSMContext):
     just = message.text.upper()
-    await state.update_data(howmuchtorg=int(re.sub("[^0-9]", "", just)))
-    builder = InlineKeyboardBuilder()
-    builder.add(types.InlineKeyboardButton(
-        text="САМ",
-        callback_data="САМ")
-    )
-    builder.add(types.InlineKeyboardButton(
-        text="Нажмите, чтобы ввести фамилию",
-        switch_inline_query_current_chat='find_b7 ')
-    )
-    await message.answer(
-        text=texts.MESSAGE_SELL_WITH + "\nВведите первые символы фамилии коллеги", reply_markup=builder.as_markup()
-    )
-    await state.set_state(SetReport.choosing_our_credit45)
+    if just.isdigit():
+        await state.update_data(howmuchtorg=int(just))
+        builder = InlineKeyboardBuilder()
+        builder.add(types.InlineKeyboardButton(
+            text="САМ",
+            callback_data="САМ")
+        )
+        builder.add(types.InlineKeyboardButton(
+            text="Нажмите, чтобы ввести фамилию",
+            switch_inline_query_current_chat='find_b7 ')
+        )
+        await message.answer(
+            text=texts.MESSAGE_SELL_WITH + "\nВведите первые символы фамилии коллеги", reply_markup=builder.as_markup()
+        )
+        await state.set_state(SetReport.choosing_our_credit45)
+    else:
+        await message.answer(
+            text=texts.MESSAGE_ONLY_DIGITS,
+        )
+        await message.answer(
+            text=texts.MESSAGE_SELL_TORG,
+        )
+        await state.set_state(SetReport.choosing_our_credit3)
 
 
 @router.callback_query(SetReport.choosing_our_credit45, F.data == "САМ")
-async def sell_choosing_our_credit45(callback: types.CallbackQuery, state: FSMContext):
+async def sell_choosing_comissiya_cash_comission9(callback: types.CallbackQuery, state: FSMContext):
     await state.update_data(whosell=callback.message.chat.first_name + callback.message.chat.last_name)
     builder = InlineKeyboardBuilder()
     builder.add(types.InlineKeyboardButton(
@@ -2358,7 +2464,7 @@ async def sell_choosing_our_credit45(callback: types.CallbackQuery, state: FSMCo
     )
     builder.add(types.InlineKeyboardButton(
         text="Нажмите, чтобы ввести фамилию",
-        switch_inline_query_current_chat='find_7 ')
+        switch_inline_query_current_chat='find_b8 ')
     )
     await callback.message.answer(
         text=texts.MESSAGE_SELL_WITH_CREDIT + "\nВведите первые символы фамилии коллеги",
@@ -2367,45 +2473,8 @@ async def sell_choosing_our_credit45(callback: types.CallbackQuery, state: FSMCo
     await state.set_state(SetReport.choosing_our_credit6)
 
 
-@router.message(SetReport.choosing_our_credit45)
-@router.inline_query(lambda query: query.query.startswith("find_b5 "))
-async def find_colleges(inline_query: types.InlineQuery, state: FSMContext):
-    await utils.inliner.find_colleges(inline_query, state, "find_b5 ")
-    await state.set_state(SetReport.choosing_our_credit5)
-
-
-@router.message(SetReport.choosing_our_credit5)
-async def sell_choosing_our_credit5(message: Message, state: FSMContext):
-    # await message.answer(text="Пожалуйста подождите, идет проверка имени в базе данных")
-    # college_name = utils.connectors.db_sql_buy_with_college(message.text.lower())
-    await state.update_data(whosell=message.text.lower())
-    # if college_name == "Некорректный USERNAME":
-    #     await message.answer("Некорректный USERNAME, укажите корректный в режиме редактирования")
-    builder = InlineKeyboardBuilder()
-    builder.add(types.InlineKeyboardButton(
-        text="САМ",
-        callback_data="САМ")
-    )
-    builder.add(types.InlineKeyboardButton(
-        text="Нажмите, чтобы ввести фамилию",
-        switch_inline_query_current_chat='find_b6 ')
-    )
-    await message.answer(
-        text=texts.MESSAGE_SELL_WITH_CREDIT + "\nВведите первые символы фамилии коллеги",
-        reply_markup=builder.as_markup()
-    )
-    await state.set_state(SetReport.choosing_our_credit6)
-
-
-@router.message(SetReport.choosing_our_credit6)
-@router.inline_query(lambda query: query.query.startswith("find_b6 "))
-async def find_colleges(inline_query: types.InlineQuery, state: FSMContext):
-    await utils.inliner.find_colleges(inline_query, state, "find_b6 ")
-    await state.set_state(SetReport.choosing_our_credit8)
-
-
 @router.callback_query(SetReport.choosing_our_credit6, F.data == "САМ")
-async def sell_choosing_our_credit45(callback: types.CallbackQuery, state: FSMContext):
+async def sell_choosing_comissiya_cash_comission101(callback: types.CallbackQuery, state: FSMContext):
     await state.update_data(whosellcredit=callback.message.chat.first_name + callback.message.chat.last_name)
     kb = [
         [types.KeyboardButton(text="Без комментариев")]
@@ -2418,6 +2487,171 @@ async def sell_choosing_our_credit45(callback: types.CallbackQuery, state: FSMCo
     )
     await callback.message.answer(text="Комментарии", reply_markup=keyboard)
     await state.set_state(SetReport.choosing_sell_editor_7)
+
+
+# @router.callback_query(SetReport.choosing_our_cash5, F.data == "САМ")
+# async def sell_choosing_comissiya_creditcomission101(callback: types.CallbackQuery, state: FSMContext):
+#     await state.update_data(whosellcredit=callback.message.chat.first_name + callback.message.chat.last_name)
+#     kb = [
+#         [types.KeyboardButton(text="Без комментариев")]
+#     ]
+#     keyboard = types.ReplyKeyboardMarkup(
+#         keyboard=kb,
+#         resize_keyboard=True,
+#         one_time_keyboard=True,
+#
+#     )
+#     await callback.message.answer(text="Комментарии", reply_markup=keyboard)
+#     await state.set_state(SetReport.choosing_sell_editor_8)
+
+
+@router.message(SetReport.choosing_our_credit45)
+@router.inline_query(lambda query: query.query.startswith("find_b7 "))
+async def find_colleges(inline_query: types.InlineQuery, state: FSMContext):
+    await utils.inliner.find_colleges(inline_query, state, "find_b7 ")
+    await state.set_state(SetReport.choosing_our_credit451)
+
+
+@router.message(SetReport.choosing_our_credit451)
+async def sell_choosing_comissiya_cash_comission10(message: Message, state: FSMContext):
+    # await message.answer(text="Пожалуйста подождите, идет проверка имени в базе данных")
+    college_name = message.text
+    await state.update_data(whosell=college_name)
+    # if college_name == "Некорректный USERNAME":
+    #     await message.answer("Некорректный USERNAME, укажите корректный в режиме редактирования")
+    builder = InlineKeyboardBuilder()
+    builder.add(types.InlineKeyboardButton(
+        text="САМ",
+        callback_data="САМ")
+    )
+    builder.add(types.InlineKeyboardButton(
+        text="Нажмите, чтобы ввести фамилию",
+        switch_inline_query_current_chat='find_b8 ')
+    )
+    await message.answer(
+        text=texts.MESSAGE_SELL_WITH_CREDIT + "\nВведите первые символы фамилии коллеги",
+        reply_markup=builder.as_markup()
+    )
+    await state.set_state(SetReport.choosing_our_credit452)
+
+
+@router.message(SetReport.choosing_our_credit452)
+@router.inline_query(lambda query: query.query.startswith("find_b8 "))
+async def find_colleges(inline_query: types.InlineQuery, state: FSMContext):
+    await utils.inliner.find_colleges(inline_query, state, "find_b8 ")
+    await state.set_state(SetReport.choosing_our_credit453)
+
+
+@router.message(SetReport.choosing_our_credit453)
+async def sell_choosing_comissiya_cash_comission12(message: Message, state: FSMContext):
+    # await message.answer(text="Пожалуйста подождите, идет проверка имени в базе данных")
+    college_name = message.text
+    await state.update_data(whosellcredit=college_name)
+    # if college_name == "Некорректный USERNAME":
+    #     await message.answer("Некорректный USERNAME, укажите корректный в режиме редактирования")
+    kb = [
+        [types.KeyboardButton(text="Без комментариев")]
+    ]
+    keyboard = types.ReplyKeyboardMarkup(
+        keyboard=kb,
+        resize_keyboard=True,
+        one_time_keyboard=True,
+
+    )
+    await message.answer(text="Комментарии", reply_markup=keyboard)
+    await state.set_state(SetReport.choosing_sell_editor_7)
+
+
+# _________________________________________________________
+# @router.message(SetReport.choosing_our_credit3)
+# async def sell_choosing_our_credit3(message: Message, state: FSMContext):
+#     just = message.text.upper()
+#     await state.update_data(howmuchtorg=int(re.sub("[^0-9]", "", just)))
+#     builder = InlineKeyboardBuilder()
+#     builder.add(types.InlineKeyboardButton(
+#         text="САМ",
+#         callback_data="САМ")
+#     )
+#     builder.add(types.InlineKeyboardButton(
+#         text="Нажмите, чтобы ввести фамилию",
+#         switch_inline_query_current_chat='find_b7 ')
+#     )
+#     await message.answer(
+#         text=texts.MESSAGE_SELL_WITH + "\nВведите первые символы фамилии коллеги", reply_markup=builder.as_markup()
+#     )
+#     await state.set_state(SetReport.choosing_our_credit45)
+#
+#
+# @router.callback_query(SetReport.choosing_our_credit45, F.data == "САМ")
+# async def sell_choosing_our_credit45(callback: types.CallbackQuery, state: FSMContext):
+#     await state.update_data(whosell=callback.message.chat.first_name + callback.message.chat.last_name)
+#     builder = InlineKeyboardBuilder()
+#     builder.add(types.InlineKeyboardButton(
+#         text="САМ",
+#         callback_data="САМ")
+#     )
+#     builder.add(types.InlineKeyboardButton(
+#         text="Нажмите, чтобы ввести фамилию",
+#         switch_inline_query_current_chat='find_7 ')
+#     )
+#     await callback.message.answer(
+#         text=texts.MESSAGE_SELL_WITH_CREDIT + "\nВведите первые символы фамилии коллеги",
+#         reply_markup=builder.as_markup()
+#     )
+#     await state.set_state(SetReport.choosing_our_credit6)
+#
+#
+# @router.callback_query(SetReport.choosing_our_credit6, F.data == "САМ")
+# async def sell_choosing_our_credit45(callback: types.CallbackQuery, state: FSMContext):
+#     await state.update_data(whosellcredit=callback.message.chat.first_name + callback.message.chat.last_name)
+#     kb = [
+#         [types.KeyboardButton(text="Без комментариев")]
+#     ]
+#     keyboard = types.ReplyKeyboardMarkup(
+#         keyboard=kb,
+#         resize_keyboard=True,
+#         one_time_keyboard=True,
+#
+#     )
+#     await callback.message.answer(text="Комментарии", reply_markup=keyboard)
+#     await state.set_state(SetReport.choosing_sell_editor_7)
+#
+#
+# @router.message(SetReport.choosing_our_credit45)
+# @router.inline_query(lambda query: query.query.startswith("find_b5 "))
+# async def find_colleges(inline_query: types.InlineQuery, state: FSMContext):
+#     await utils.inliner.find_colleges(inline_query, state, "find_b5 ")
+#     await state.set_state(SetReport.choosing_our_credit5)
+#
+#
+# @router.message(SetReport.choosing_our_credit5)
+# async def sell_choosing_our_credit5(message: Message, state: FSMContext):
+#     # await message.answer(text="Пожалуйста подождите, идет проверка имени в базе данных")
+#     # college_name = utils.connectors.db_sql_buy_with_college(message.text.lower())
+#     await state.update_data(whosell=message.text.lower())
+#     # if college_name == "Некорректный USERNAME":
+#     #     await message.answer("Некорректный USERNAME, укажите корректный в режиме редактирования")
+#     builder = InlineKeyboardBuilder()
+#     builder.add(types.InlineKeyboardButton(
+#         text="САМ",
+#         callback_data="САМ")
+#     )
+#     builder.add(types.InlineKeyboardButton(
+#         text="Нажмите, чтобы ввести фамилию",
+#         switch_inline_query_current_chat='find_b6 ')
+#     )
+#     await message.answer(
+#         text=texts.MESSAGE_SELL_WITH_CREDIT + "\nВведите первые символы фамилии коллеги",
+#         reply_markup=builder.as_markup()
+#     )
+#     await state.set_state(SetReport.choosing_our_credit56)
+#
+#
+# @router.message(SetReport.choosing_our_credit56)
+# @router.inline_query(lambda query: query.query.startswith("find_b6 "))
+# async def find_colleges(inline_query: types.InlineQuery, state: FSMContext):
+#     await utils.inliner.find_colleges(inline_query, state, "find_b6 ")
+#     await state.set_state(SetReport.choosing_our_credit8)
 
 
 # ==================================================================================================
@@ -2636,63 +2870,72 @@ async def sell_choosing_our_credit(callback: types.CallbackQuery, state: FSMCont
 @router.message(SetReport.choosing_our_cash)
 async def sell_choosing_our_credit2(message: Message, state: FSMContext):
     just = message.text.upper()
-    await state.update_data(drom_cost=int(re.sub("[^0-9]", "", just)))
-    await message.answer(
-        text=texts.MESSAGE_SELL_DISCOUNT,
-    )
-    await state.set_state(SetReport.choosing_our_cash2)
+    if just.isdigit():
+        await state.update_data(drom_cost=int(just))
+        await message.answer(
+            text=texts.MESSAGE_SELL_DISCOUNT,
+        )
+        await state.set_state(SetReport.choosing_our_cash2)
+    else:
+        await message.answer(
+            text=texts.MESSAGE_ONLY_DIGITS,
+        )
+        await message.answer(
+            text=texts.MESSAGE_SELL_COST_DROM,
+        )
+        await state.set_state(SetReport.choosing_our_cash)
 
 
 @router.message(SetReport.choosing_our_cash2)
 async def sell_choosing_our_credit3(message: Message, state: FSMContext):
     just = message.text.upper()
-    await state.update_data(dealer_discount=int(re.sub("[^0-9]", "", just)))
-    await message.answer(
-        text=texts.MESSAGE_SELL_TORG,
-    )
-    await state.set_state(SetReport.choosing_our_cash3)
+    if just.isdigit():
+        await state.update_data(dealer_discount=int(just))
+        await message.answer(
+            text=texts.MESSAGE_SELL_TORG,
+        )
+        await state.set_state(SetReport.choosing_our_cash3)
+    else:
+        await message.answer(
+            text=texts.MESSAGE_ONLY_DIGITS,
+        )
+        await message.answer(
+            text=texts.MESSAGE_SELL_DISCOUNT,
+        )
+        await state.set_state(SetReport.choosing_our_cash2)
 
 
+# ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 @router.message(SetReport.choosing_our_cash3)
-async def sell_choosing_our_credit4(message: Message, state: FSMContext):
-    await state.update_data(howmuchtorg=message.text.lower())
-    builder = InlineKeyboardBuilder()
-    builder.add(types.InlineKeyboardButton(
-        text="САМ",
-        callback_data="САМ")
-    )
-    builder.add(types.InlineKeyboardButton(
-        text="Нажмите, чтобы ввести фамилию",
-        switch_inline_query_current_chat='find_b8 ')
-    )
-    await message.answer(
-        text=texts.MESSAGE_SELL_WITH + "\nНажмите кнопку и введите первые символы фамилии коллеги",
-        reply_markup=builder.as_markup()
-    )
-    await state.set_state(SetReport.choosing_our_cash45)
+async def sell_choosing_comissiya_cash_comission8(message: Message, state: FSMContext):
+    just = message.text.upper()
+    if just.isdigit():
+        await state.update_data(howmuchtorg=int(just))
+        builder = InlineKeyboardBuilder()
+        builder.add(types.InlineKeyboardButton(
+            text="САМ",
+            callback_data="САМ")
+        )
+        builder.add(types.InlineKeyboardButton(
+            text="Нажмите, чтобы ввести фамилию",
+            switch_inline_query_current_chat='find_b9 ')
+        )
+        await message.answer(
+            text=texts.MESSAGE_SELL_WITH + "\nВведите первые символы фамилии коллеги", reply_markup=builder.as_markup()
+        )
+        await state.set_state(SetReport.choosing_our_cash45)
+    else:
+        await message.answer(
+            text=texts.MESSAGE_ONLY_DIGITS,
+        )
+        await message.answer(
+            text=texts.MESSAGE_SELL_TORG,
+        )
+        await state.set_state(SetReport.choosing_our_cash3)
 
 
-# @router.callback_query(SetReport.choosing_our_cash45, F.data == "САМ")
-# async def sell_choosing_comissiya_creditcomission9(callback: types.CallbackQuery, state: FSMContext):
-#     await state.update_data(whosell=callback.message.chat.first_name + callback.message.chat.last_name)
-#     builder = InlineKeyboardBuilder()
-#     builder.add(types.InlineKeyboardButton(
-#         text="САМ",
-#         callback_data="САМ")
-#     )
-#     builder.add(types.InlineKeyboardButton(
-#         text="Нажмите, чтобы ввести фамилию",
-#         switch_inline_query_current_chat='find_b8 ')
-#     )
-#     await callback.message.answer(
-#         text=texts.MESSAGE_SELL_WITH_CREDIT + "\nВведите первые символы фамилии коллеги",
-#         reply_markup=builder.as_markup()
-#     )
-#     await state.set_state(SetReport.choosing_our_cash45)
-
-
-@router.callback_query(SetReport.choosing_our_cash45, F.data == "САМ")
-async def sell_choosing_comissiya_creditcomission101(callback: types.CallbackQuery, state: FSMContext):
+@router.callback_query(SetReport.choosing_our_cash, F.data == "САМ")
+async def sell_choosing_comissiya_cash_comission9(callback: types.CallbackQuery, state: FSMContext):
     await state.update_data(whosell=callback.message.chat.first_name + callback.message.chat.last_name)
     builder = InlineKeyboardBuilder()
     builder.add(types.InlineKeyboardButton(
@@ -2701,47 +2944,17 @@ async def sell_choosing_comissiya_creditcomission101(callback: types.CallbackQue
     )
     builder.add(types.InlineKeyboardButton(
         text="Нажмите, чтобы ввести фамилию",
-        switch_inline_query_current_chat='find_b7 ')
+        switch_inline_query_current_chat='find_b10 ')
     )
     await callback.message.answer(
         text=texts.MESSAGE_SELL_WITH_CREDIT + "\nВведите первые символы фамилии коллеги",
         reply_markup=builder.as_markup()
     )
-    await state.set_state(SetReport.choosing_our_cash5)
+    await state.set_state(SetReport.choosing_our_cash6)
 
 
-@router.message(SetReport.choosing_our_cash5)
-@router.inline_query(lambda query: query.query.startswith("find_b7 "))
-async def find_colleges(inline_query: types.InlineQuery, state: FSMContext):
-    await utils.inliner.find_colleges(inline_query, state, "find_b7 ")
-    await state.set_state(SetReport.choosing_our_cash5)
-
-
-# @router.message(SetReport.choosing_our_cash5)
-# async def sell_choosing_our_credit5(message: Message, state: FSMContext):
-#     # await message.answer(text="Пожалуйста подождите, идет проверка имени в базе данных")
-#     college_name = message.text.lower()
-#     await state.update_data(whosellcredit=college_name)
-#     # if college_name == "Некорректный USERNAME":
-#     #     await message.answer("Некорректный USERNAME, укажите корректный в режиме редактирования")
-#     builder = InlineKeyboardBuilder()
-#     builder.add(types.InlineKeyboardButton(
-#         text="САМ",
-#         callback_data="САМ")
-#     )
-#     builder.add(types.InlineKeyboardButton(
-#         text="Нажмите, чтобы ввести фамилию",
-#         switch_inline_query_current_chat='find_b8 ')
-#     )
-#     await message.answer(
-#         text=texts.MESSAGE_SELL_WITH_CREDIT + "\n9Нажмите кнопку и введите первые символы фамилии коллеги",
-#         reply_markup=builder.as_markup()
-#     )
-#     await state.set_state(SetReport.choosing_our_cash6)
-
-
-@router.callback_query(SetReport.choosing_our_cash5, F.data == "САМ")
-async def sell_choosing_comissiya_creditcomission101(callback: types.CallbackQuery, state: FSMContext):
+@router.callback_query(SetReport.choosing_our_cash6, F.data == "САМ")
+async def sell_choosing_comissiya_cash_comission101(callback: types.CallbackQuery, state: FSMContext):
     await state.update_data(whosellcredit=callback.message.chat.first_name + callback.message.chat.last_name)
     kb = [
         [types.KeyboardButton(text="Без комментариев")]
@@ -2756,11 +2969,170 @@ async def sell_choosing_comissiya_creditcomission101(callback: types.CallbackQue
     await state.set_state(SetReport.choosing_sell_editor_8)
 
 
-@router.message(SetReport.choosing_our_cash6)
-@router.inline_query(lambda query: query.query.startswith("find_b8 "))
+@router.message(SetReport.choosing_our_cash45)
+@router.inline_query(lambda query: query.query.startswith("find_b9 "))
 async def find_colleges(inline_query: types.InlineQuery, state: FSMContext):
-    await utils.inliner.find_colleges(inline_query, state, "find_b8 ")
+    await utils.inliner.find_colleges(inline_query, state, "find_b9 ")
+    await state.set_state(SetReport.choosing_our_cash451)
+
+
+@router.message(SetReport.choosing_our_cash451)
+async def sell_choosing_comissiya_cash_comission10(message: Message, state: FSMContext):
+    # await message.answer(text="Пожалуйста подождите, идет проверка имени в базе данных")
+    college_name = message.text
+    await state.update_data(whosell=college_name)
+    # if college_name == "Некорректный USERNAME":
+    #     await message.answer("Некорректный USERNAME, укажите корректный в режиме редактирования")
+    builder = InlineKeyboardBuilder()
+    builder.add(types.InlineKeyboardButton(
+        text="САМ",
+        callback_data="САМ")
+    )
+    builder.add(types.InlineKeyboardButton(
+        text="Нажмите, чтобы ввести фамилию",
+        switch_inline_query_current_chat='find_b10 ')
+    )
+    await message.answer(
+        text=texts.MESSAGE_SELL_WITH_CREDIT + "\nВведите первые символы фамилии коллеги",
+        reply_markup=builder.as_markup()
+    )
+    await state.set_state(SetReport.choosing_our_cash452)
+
+
+@router.message(SetReport.choosing_our_cash452)
+@router.inline_query(lambda query: query.query.startswith("find_b10 "))
+async def find_colleges(inline_query: types.InlineQuery, state: FSMContext):
+    await utils.inliner.find_colleges(inline_query, state, "find_b10 ")
+    await state.set_state(SetReport.choosing_our_cash453)
+
+
+@router.message(SetReport.choosing_our_cash453)
+async def sell_choosing_comissiya_cash_comission12(message: Message, state: FSMContext):
+    # await message.answer(text="Пожалуйста подождите, идет проверка имени в базе данных")
+    college_name = message.text
+    await state.update_data(whosellcredit=college_name)
+    kb = [
+        [types.KeyboardButton(text="Без комментариев")]
+    ]
+    keyboard = types.ReplyKeyboardMarkup(
+        keyboard=kb,
+        resize_keyboard=True,
+        one_time_keyboard=True,
+
+    )
+    await message.answer(text="Комментарии", reply_markup=keyboard)
     await state.set_state(SetReport.choosing_sell_editor_8)
+
+
+# _________________________________________________________
+# @router.message(SetReport.choosing_our_cash3)
+# async def sell_choosing_our_credit4(message: Message, state: FSMContext):
+#     await state.update_data(howmuchtorg=message.text.lower())
+#     builder = InlineKeyboardBuilder()
+#     builder.add(types.InlineKeyboardButton(
+#         text="САМ",
+#         callback_data="САМ")
+#     )
+#     builder.add(types.InlineKeyboardButton(
+#         text="Нажмите, чтобы ввести фамилию",
+#         switch_inline_query_current_chat='find_b8 ')
+#     )
+#     await message.answer(
+#         text=texts.MESSAGE_SELL_WITH + "\nНажмите кнопку и введите первые символы фамилии коллеги",
+#         reply_markup=builder.as_markup()
+#     )
+#     await state.set_state(SetReport.choosing_our_cash45)
+#
+#
+# # @router.callback_query(SetReport.choosing_our_cash45, F.data == "САМ")
+# # async def sell_choosing_comissiya_creditcomission9(callback: types.CallbackQuery, state: FSMContext):
+# #     await state.update_data(whosell=callback.message.chat.first_name + callback.message.chat.last_name)
+# #     builder = InlineKeyboardBuilder()
+# #     builder.add(types.InlineKeyboardButton(
+# #         text="САМ",
+# #         callback_data="САМ")
+# #     )
+# #     builder.add(types.InlineKeyboardButton(
+# #         text="Нажмите, чтобы ввести фамилию",
+# #         switch_inline_query_current_chat='find_b8 ')
+# #     )
+# #     await callback.message.answer(
+# #         text=texts.MESSAGE_SELL_WITH_CREDIT + "\nВведите первые символы фамилии коллеги",
+# #         reply_markup=builder.as_markup()
+# #     )
+# #     await state.set_state(SetReport.choosing_our_cash45)
+#
+#
+# @router.callback_query(SetReport.choosing_our_cash45, F.data == "САМ")
+# async def sell_choosing_comissiya_creditcomission101(callback: types.CallbackQuery, state: FSMContext):
+#     await state.update_data(whosell=callback.message.chat.first_name + callback.message.chat.last_name)
+#     builder = InlineKeyboardBuilder()
+#     builder.add(types.InlineKeyboardButton(
+#         text="САМ",
+#         callback_data="САМ")
+#     )
+#     builder.add(types.InlineKeyboardButton(
+#         text="Нажмите, чтобы ввести фамилию",
+#         switch_inline_query_current_chat='find_b7 ')
+#     )
+#     await callback.message.answer(
+#         text=texts.MESSAGE_SELL_WITH_CREDIT + "\nВведите первые символы фамилии коллеги",
+#         reply_markup=builder.as_markup()
+#     )
+#     await state.set_state(SetReport.choosing_our_cash5)
+#
+#
+# @router.message(SetReport.choosing_our_cash5)
+# @router.inline_query(lambda query: query.query.startswith("find_b7 "))
+# async def find_colleges(inline_query: types.InlineQuery, state: FSMContext):
+#     await utils.inliner.find_colleges(inline_query, state, "find_b7 ")
+#     await state.set_state(SetReport.choosing_our_cash6)
+#
+#
+# # @router.message(SetReport.choosing_our_cash5)
+# # async def sell_choosing_our_credit5(message: Message, state: FSMContext):
+# #     # await message.answer(text="Пожалуйста подождите, идет проверка имени в базе данных")
+# #     college_name = message.text.lower()
+# #     await state.update_data(whosellcredit=college_name)
+# #     # if college_name == "Некорректный USERNAME":
+# #     #     await message.answer("Некорректный USERNAME, укажите корректный в режиме редактирования")
+# #     builder = InlineKeyboardBuilder()
+# #     builder.add(types.InlineKeyboardButton(
+# #         text="САМ",
+# #         callback_data="САМ")
+# #     )
+# #     builder.add(types.InlineKeyboardButton(
+# #         text="Нажмите, чтобы ввести фамилию",
+# #         switch_inline_query_current_chat='find_b8 ')
+# #     )
+# #     await message.answer(
+# #         text=texts.MESSAGE_SELL_WITH_CREDIT + "\n9Нажмите кнопку и введите первые символы фамилии коллеги",
+# #         reply_markup=builder.as_markup()
+# #     )
+# #     await state.set_state(SetReport.choosing_our_cash6)
+#
+#
+# @router.callback_query(SetReport.choosing_our_cash5, F.data == "САМ")
+# async def sell_choosing_comissiya_creditcomission101(callback: types.CallbackQuery, state: FSMContext):
+#     await state.update_data(whosellcredit=callback.message.chat.first_name + callback.message.chat.last_name)
+#     kb = [
+#         [types.KeyboardButton(text="Без комментариев")]
+#     ]
+#     keyboard = types.ReplyKeyboardMarkup(
+#         keyboard=kb,
+#         resize_keyboard=True,
+#         one_time_keyboard=True,
+#
+#     )
+#     await callback.message.answer(text="Комментарии", reply_markup=keyboard)
+#     await state.set_state(SetReport.choosing_sell_editor_8)
+#
+#
+# @router.message(SetReport.choosing_our_cash6)
+# @router.inline_query(lambda query: query.query.startswith("find_b8 "))
+# async def find_colleges(inline_query: types.InlineQuery, state: FSMContext):
+#     await utils.inliner.find_colleges(inline_query, state, "find_b8 ")
+#     await state.set_state(SetReport.choosing_sell_editor_8)
 
 
 # ==================================================================================================
@@ -2768,7 +3140,7 @@ async def find_colleges(inline_query: types.InlineQuery, state: FSMContext):
 async def constructor_choosing_wire(message: Message, state: FSMContext):
     # await message.answer(text="Пожалуйста подождите, идет проверка имени в базе данных")
     # college_name = utils.connectors.db_sql_buy_with_college(message.text.lower())
-    await state.update_data(whosellcredit=message.text.lower())
+    await state.update_data(whosellcredit=message.text)
     # if college_name == "Некорректный USERNAME":
     #     await message.answer("Некорректный USERNAME, укажите корректный в режиме редактирования")
     data = await state.get_data()

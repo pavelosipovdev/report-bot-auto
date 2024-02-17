@@ -264,6 +264,8 @@ MESSAGE_SELL_COST_DROM = "ЦЕНА ДРОМ"
 
 MESSAGE_SELL_DISCOUNT = "МЕНЕДЖЕРСКАЯ СКИДКА"
 
+MESSAGE_ONLY_DIGITS = "ИСПОЛЬЗУЙТЕ ТОЛЬКО ЦИФРЫ"
+
 MESSAGE_SELL_SUM_NM = "СУММА НМ"
 
 MESSAGE_SELL_TORG = "НА СКОЛЬКО СТОРГОВАЛ"
@@ -278,7 +280,7 @@ MESSAGE_SUM_SOBS = "СУММА СОБСТВЕННИКУ"
 
 BT_SUM_SOBS_OSTAV = "ОСТАВЛЯЕМ СУММУ"
 
-BT_SUM_SOBS_EDIT = "ИЗМЕНЯЕМ СУММУ"
+BT_SUM_SOBS_EDIT = "РЕДАКТИРОВАТЬ СУММУ"
 
 MESSAGE_EDIT_NEW_SUM = "ВВЕДИТЕ НОВУЮ СУММУ"
 
@@ -292,9 +294,9 @@ MESSAGE_DATE_RASCHET = "ДАТА РАСЧЕТА? Введите дату в фо
 
 MESSAGE_TYPE_RASCHETA_WAS = "ВИД РАСЧЕТА БЫЛ "
 
-BT_SAVE = "ОСТАВЛЯЕМ"
+BT_SAVE = "ВСЕ ОК"
 
-BT_EDIT = "ИЗМЕНЯЕМ"
+BT_EDIT = "РЕДАКТИРОВАТЬ"
 
 MESSAGE_TYPE_RASCHETA_EDIT = "ВВЕДИТЕ ВИД РАСЧЕТА"
 

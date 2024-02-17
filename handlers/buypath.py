@@ -1,4 +1,3 @@
-
 from aiogram import Router, F, types, Bot
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
@@ -299,18 +298,27 @@ async def constructor_choosing_wire(callback: types.CallbackQuery, state: FSMCon
 @router.message(SetReport.choosing_wire)
 async def constructor_choosing_wire2(message: Message, state: FSMContext):
     just = message.text.upper()
-    await state.update_data(chosen_cost=int(re.sub("[^0-9]", "", just)))
-    builder = InlineKeyboardBuilder()
-    builder.add(types.InlineKeyboardButton(
-        text=texts.BT_CONSTRUCTOR_6_WIRE_YES,
-        callback_data=texts.BT_CONSTRUCTOR_6_WIRE_YES)
-    )
-    builder.add(types.InlineKeyboardButton(
-        text=texts.BT_CONSTRUCTOR_6_WIRE_NO,
-        callback_data=texts.BT_CONSTRUCTOR_6_WIRE_NO)
-    )
-    await message.answer(text=texts.MESSAGE_BT_CONSTRUCTOR_6_WIRE, reply_markup=builder.as_markup())
-    await state.set_state(SetReport.choosing_comment)
+    if just.isdigit():
+        await state.update_data(chosen_cost=int(just))
+        builder = InlineKeyboardBuilder()
+        builder.add(types.InlineKeyboardButton(
+            text=texts.BT_CONSTRUCTOR_6_WIRE_YES,
+            callback_data=texts.BT_CONSTRUCTOR_6_WIRE_YES)
+        )
+        builder.add(types.InlineKeyboardButton(
+            text=texts.BT_CONSTRUCTOR_6_WIRE_NO,
+            callback_data=texts.BT_CONSTRUCTOR_6_WIRE_NO)
+        )
+        await message.answer(text=texts.MESSAGE_BT_CONSTRUCTOR_6_WIRE, reply_markup=builder.as_markup())
+        await state.set_state(SetReport.choosing_comment)
+    else:
+        await message.answer(
+            text=texts.MESSAGE_ONLY_DIGITS,
+        )
+        await message.answer(
+            text=texts.MESSAGE_BT_CONSTRUCTOR_5_COST,
+        )
+        await state.set_state(SetReport.choosing_wire)
 
 
 @router.message(SetReport.choosing_wire_cost)
@@ -370,7 +378,7 @@ async def constructor_choosing_wire12(message: Message, state: FSMContext):
         callback_data="bt_constructor_7_save"
     ))
     data = await state.get_data()
-    text = f'''Предварительный отчет:\nТип отчета: {data['chosen_type']}\nГде продал: {data['chosen_place']}\nОдин или с коллегой: {data['chosen_college']}\nФИО Коллеги: {data['chosen_college_fio']}\nКто писал дкп: {data['chosen_college_fio_dkp']}\nЦена: {data['chosen_cost']}\nРезина есть?: {data['chosen_wire']}\nVIN: {data['chosen_vin_number']}\nГос номер: {data['chosen_vin_gos_number']}\nМарка: {data['chosen_vin_marka']}\nМодель: {data['chosen_vin_model']}\nГод: {data['chosen_vin_year']}\nКомментарий: {data['chosen_comment']}\n\n{message.chat.first_name + " " + message.chat.last_name}
+    text = f'''Предварительный отчет:\nТип отчета: {data['chosen_type']}\nГде продал: {data['chosen_place']}\nФИО Коллеги: {data['chosen_college_fio']}\nКто писал дкп: {data['chosen_college_fio_dkp']}\nЦена: {data['chosen_cost']}\nРезина есть?: {data['chosen_wire']}\nVIN: {data['chosen_vin_number']}\nГос номер: {data['chosen_vin_gos_number']}\nМарка: {data['chosen_vin_marka']}\nМодель: {data['chosen_vin_model']}\nГод: {data['chosen_vin_year']}\nКомментарий: {data['chosen_comment']}\n\n{message.chat.first_name + " " + message.chat.last_name}
         '''
 
     await message.answer(
@@ -389,7 +397,7 @@ async def constructor_choosing_awa_our_credit44(callback: types.CallbackQuery, s
     await state.clear()
 
 
-@router.callback_query(SetReport.choosing_buy_editor_start)
+@router.callback_query(SetReport.choosing_buy_editor_start, F.data == "bt_constructor_7_edit111")
 async def constructor_editor_start(callback: types.CallbackQuery, state: FSMContext):
     dict_editor = {'editor_start':
                        {'text': ["Где продал", "Цена", "Гос номер", "Марка", "Модель", "Год", "VIN",
@@ -512,6 +520,17 @@ async def editor_first_comment(message: Message, state: FSMContext):
 
 
 @router.callback_query(SetReport.choosing_buy_editor_first, F.data == "edit_menu_finish")
+async def editor_first_menu_comment(callback: types.CallbackQuery, state: FSMContext):
+    await callback.message.answer("Подождите, идет выгрузка отчета")
+    data = await state.get_data()
+    await utils.connectors.db_sql_buy_insert(callback, data)
+    await callback.message.answer(
+        text="Отчет отправлен, спасибо, что воспользовались ботом. Нажмите на /start для составления нового отчета.")
+    await callback.message.answer(text="/start")
+    await state.clear()
+
+
+@router.callback_query(SetReport.choosing_buy_editor_start, F.data == "bt_constructor_7_save")
 async def editor_first_menu_comment(callback: types.CallbackQuery, state: FSMContext):
     await callback.message.answer("Подождите, идет выгрузка отчета")
     data = await state.get_data()

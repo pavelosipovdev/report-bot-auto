@@ -243,11 +243,8 @@ async def find_colleges(inline_query: types.InlineQuery, state: FSMContext):
 
 @router.message(SetReport.choosing_comission_who_write_dkp_inline)
 async def constructor_choosing_cost(message: Message, state: FSMContext):
-    await message.answer(text="Пожалуйста подождите, идет проверка имени в базе данных")
-    college_name = utils.connectors.db_sql_buy_with_college(message.text.lower())
+    college_name = message.text.lower()
     await state.update_data(chosen_college_fio=college_name)
-    if college_name == "Некорректный USERNAME":
-        await message.answer("Некорректный USERNAME, укажите корректный в режиме редактирования")
     builder = InlineKeyboardBuilder()
     builder.add(types.InlineKeyboardButton(
         text=texts.BT_CONSTRUCTOR_4_COLLEGE_SELF,
@@ -266,7 +263,7 @@ async def constructor_choosing_cost222(callback: types.CallbackQuery, state: FSM
     await state.update_data(chosen_college_fio=callback.message.chat.first_name + " " + callback.message.chat.last_name)
     await state.update_data(
         chosen_college_dkps=callback.message.chat.first_name + " " + callback.message.chat.last_name)
-    await callback.message.edit_text(text=texts.MESSAGE_BT_CONSTRUCTOR_5_COST)
+    await callback.message.edit_text(text=texts.MESSAGE_HOW_MUCH_SOBS)
     await state.set_state(SetReport.choosing_dkp04)
 
 
@@ -319,8 +316,7 @@ async def constructor_choosing_cost222(message: Message, state: FSMContext):
 
 @router.message(SetReport.choosing_comission_cost1)
 async def constructor_choosing_cost222(message: Message, state: FSMContext):
-    await message.answer(text="Пожалуйста подождите, идет проверка имени в базе данных")
-    college_name = utils.connectors.db_sql_buy_with_college(message.text)
+    college_name = message.text
     await state.update_data(chosen_college_fio=college_name)
     if str(college_name).startswith('<'):
         await message.answer("Менеджера нет в базе, укажите корректные данные в режиме редактирования")
@@ -340,25 +336,45 @@ async def constructor_choosing_wire(callback: types.CallbackQuery, state: FSMCon
 
 @router.message(SetReport.choosing_dkp04)
 async def constructor_choosing_dkp4(message: Message, state: FSMContext):
-    await state.update_data(howmuchsobs=message.text.upper())
-    await message.answer(text=texts.MESSAGE_HOW_MUCH_COMISSION)
-    await state.set_state(SetReport.choosing_comment)
+    just = message.text.upper()
+    if just.isdigit():
+        await state.update_data(howmuchsobs=int(just))
+        await message.answer(text=texts.MESSAGE_HOW_MUCH_COMISSION)
+        await state.set_state(SetReport.choosing_comment)
+    else:
+        await message.answer(
+            text=texts.MESSAGE_ONLY_DIGITS,
+        )
+        await message.answer(
+            text=texts.MESSAGE_HOW_MUCH_SOBS,
+        )
+        await state.set_state(SetReport.choosing_dkp04)
 
 
 @router.message(SetReport.choosing_comment)
 async def constructor_choosing_wire(message: Message, state: FSMContext):
-    await state.update_data(howmuchcomissiob=message.text.upper())
-    kb = [
-        [types.KeyboardButton(text="Без комментариев")]
-    ]
-    keyboard = types.ReplyKeyboardMarkup(
-        keyboard=kb,
-        resize_keyboard=True,
-        one_time_keyboard=True,
+    just = message.text.upper()
+    if just.isdigit():
+        await state.update_data(howmuchcomissiob=int(just))
+        kb = [
+            [types.KeyboardButton(text="Без комментариев")]
+        ]
+        keyboard = types.ReplyKeyboardMarkup(
+            keyboard=kb,
+            resize_keyboard=True,
+            one_time_keyboard=True,
 
-    )
-    await message.answer(text="Комментарии", reply_markup=keyboard)
-    await state.set_state(SetReport.choosing_dkp06)
+        )
+        await message.answer(text="Комментарии", reply_markup=keyboard)
+        await state.set_state(SetReport.choosing_dkp06)
+    else:
+        await message.answer(
+            text=texts.MESSAGE_ONLY_DIGITS,
+        )
+        await message.answer(
+            text=texts.MESSAGE_HOW_MUCH_COMISSION,
+        )
+        await state.set_state(SetReport.choosing_comment)
 
 
 #
