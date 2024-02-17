@@ -50,7 +50,120 @@ async def editor_start_1_6(callback: types.CallbackQuery, state: FSMContext, dic
         callback_data=dict_editor['editor_start']['data'][9]
     ))
     data = await state.get_data()
-    text = f'''Предварительный отчет:\nТИП ОТЧЕТА: {data['chosen_type']}\nКОМИССИЯ ИЛИ НАША: {data['type_credit_our']}\nКРЕДИТ ИЛИ НАЛИЧНЫЕ?: {data['type_deal']}\nЦЕНА ДРОМ: {data['drom_cost']}\nМЕНЕДЖЕРСКАЯ СКИДКА: {data['dealer_discount']}\nСУММА НМ: {data['summa_nm']}\nСУММА СОБСТВЕННИКУ: ZAGLUSHKA\nСУММА СТОРГОВАЛ: {data['howmuchtorg']}\nС КЕМ ПРОДАЛ: {data['whosell']}\nКТО ОФОРМИЛ КРЕДИТ?: {data['whosellcredit']}\nДАТА: {data['date_raschet']}\nВИД РАСЧЕТА: {data['type_raschet']}\n\nVIN: {data['chosen_vin_number']}\nГос номер: {data['chosen_vin_gos_number']}\nМарка: {data['chosen_vin_marka']}\nМодель: {data['chosen_vin_model']}\nГод: {data['chosen_vin_year']}\nКомментарий: {data['chosen_comment']}\n\n\n{callback.message.chat.first_name + " " + callback.message.chat.last_name}
+    text = f'''Предварительный отчет:\nТИП ОТЧЕТА: {data['chosen_type']}\nКОМИССИЯ ИЛИ НАША: {data['type_credit_our']}\nКРЕДИТ ИЛИ НАЛИЧНЫЕ?: {data['type_deal']}\nЦЕНА ДРОМ: {data['drom_cost']}\nМЕНЕДЖЕРСКАЯ СКИДКА: {data['dealer_discount']}\nСУММА НМ: {data['summa_nm']}\nСУММА СОБСТВЕННИКУ: {data['summa_sob']}\nСУММА СТОРГОВАЛ: {data['howmuchtorg']}\nС КЕМ ПРОДАЛ: {data['whosell']}\nКТО ОФОРМИЛ КРЕДИТ?: {data['whosellcredit']}\nДАТА РАСЧЕТА: {data['date_raschet']}\nВИД РАСЧЕТА: {data['type_raschet']}\n\nVIN: {data['chosen_vin_number']}\nГос номер: {data['chosen_vin_gos_number']}\nМарка: {data['chosen_vin_marka']}\nМодель: {data['chosen_vin_model']}\nГод: {data['chosen_vin_year']}\nКомментарий: {data['chosen_comment']}\n\n\n{callback.message.chat.first_name + " " + callback.message.chat.last_name}
+            '''
+
+    await callback.message.answer(
+        text=text,
+    )
+    await callback.message.answer(
+        text="Какое поле хотите изменить?",
+        reply_markup=builder.as_markup()
+    )
+
+async def editor_start_1_6_credit(callback: types.CallbackQuery, state: FSMContext, dict_editor: dict = None):
+    builder = InlineKeyboardBuilder()
+    builder.add(types.InlineKeyboardButton(
+        text=dict_editor['editor_start']['text'][0],
+        callback_data=dict_editor['editor_start']['data'][0]
+    ))
+    builder.add(types.InlineKeyboardButton(
+        text=dict_editor['editor_start']['text'][1],
+        callback_data=dict_editor['editor_start']['data'][1]
+    ))
+    builder.add(types.InlineKeyboardButton(
+        text=dict_editor['editor_start']['text'][2],
+        callback_data=dict_editor['editor_start']['data'][2]
+    ))
+    builder.add(types.InlineKeyboardButton(
+        text=dict_editor['editor_start']['text'][3],
+        callback_data=dict_editor['editor_start']['data'][3]
+    ))
+    builder.row(types.InlineKeyboardButton(
+        text=dict_editor['editor_start']['text'][4],
+        callback_data=dict_editor['editor_start']['data'][4]
+    ))
+    builder.add(types.InlineKeyboardButton(
+        text=dict_editor['editor_start']['text'][5],
+        callback_data=dict_editor['editor_start']['data'][5]
+    ))
+    builder.add(types.InlineKeyboardButton(
+        text=dict_editor['editor_start']['text'][6],
+        callback_data=dict_editor['editor_start']['data'][6]
+    ))
+    builder.add(types.InlineKeyboardButton(
+        text=dict_editor['editor_start']['text'][7],
+        callback_data=dict_editor['editor_start']['data'][7]
+    ))
+    builder.row(types.InlineKeyboardButton(
+        text=dict_editor['editor_start']['text'][8],
+        callback_data=dict_editor['editor_start']['data'][8]
+    ))
+    builder.row(types.InlineKeyboardButton(
+        text=dict_editor['editor_start']['text'][9],
+        callback_data=dict_editor['editor_start']['data'][9]
+    ))
+    await state.update_data(date_raschet=None)
+    await state.update_data(type_raschet=None)
+    data = await state.get_data()
+    text = f'''Предварительный отчет:\nТИП ОТЧЕТА: {data['chosen_type']}\nКОМИССИЯ ИЛИ НАША: {data['type_credit_our']}\nКРЕДИТ ИЛИ НАЛИЧНЫЕ?: {data['type_deal']}\nЦЕНА ДРОМ: {data['drom_cost']}\nМЕНЕДЖЕРСКАЯ СКИДКА: {data['dealer_discount']}\nСУММА НМ: {data['summa_nm']}\nСУММА СОБСТВЕННИКУ: {data['summa_sob']}\nСУММА СТОРГОВАЛ: {data['howmuchtorg']}\nС КЕМ ПРОДАЛ: {data['whosell']}\nКТО ОФОРМЛЯЛ КРЕДИТ?: {data['whosellcredit']}\n\nVIN: {data['chosen_vin_number']}\nГос номер: {data['chosen_vin_gos_number']}\nМарка: {data['chosen_vin_marka']}\nМодель: {data['chosen_vin_model']}\nГод: {data['chosen_vin_year']}\nКомментарий: {data['chosen_comment']}\n\n\n{callback.message.chat.first_name + " " + callback.message.chat.last_name}
+            '''
+
+    await callback.message.answer(
+        text=text,
+    )
+    await callback.message.answer(
+        text="Какое поле хотите изменить?",
+        reply_markup=builder.as_markup()
+    )
+
+
+async def editor_start_1_6_dkp(callback: types.CallbackQuery, state: FSMContext, dict_editor: dict = None):
+    builder = InlineKeyboardBuilder()
+    builder.add(types.InlineKeyboardButton(
+        text=dict_editor['editor_start']['text'][0],
+        callback_data=dict_editor['editor_start']['data'][0]
+    ))
+    builder.add(types.InlineKeyboardButton(
+        text=dict_editor['editor_start']['text'][1],
+        callback_data=dict_editor['editor_start']['data'][1]
+    ))
+    builder.add(types.InlineKeyboardButton(
+        text=dict_editor['editor_start']['text'][2],
+        callback_data=dict_editor['editor_start']['data'][2]
+    ))
+    builder.add(types.InlineKeyboardButton(
+        text=dict_editor['editor_start']['text'][3],
+        callback_data=dict_editor['editor_start']['data'][3]
+    ))
+    builder.row(types.InlineKeyboardButton(
+        text=dict_editor['editor_start']['text'][4],
+        callback_data=dict_editor['editor_start']['data'][4]
+    ))
+    builder.add(types.InlineKeyboardButton(
+        text=dict_editor['editor_start']['text'][5],
+        callback_data=dict_editor['editor_start']['data'][5]
+    ))
+    builder.add(types.InlineKeyboardButton(
+        text=dict_editor['editor_start']['text'][6],
+        callback_data=dict_editor['editor_start']['data'][6]
+    ))
+    builder.add(types.InlineKeyboardButton(
+        text=dict_editor['editor_start']['text'][7],
+        callback_data=dict_editor['editor_start']['data'][7]
+    ))
+    builder.row(types.InlineKeyboardButton(
+        text=dict_editor['editor_start']['text'][8],
+        callback_data=dict_editor['editor_start']['data'][8]
+    ))
+    builder.row(types.InlineKeyboardButton(
+        text=dict_editor['editor_start']['text'][9],
+        callback_data=dict_editor['editor_start']['data'][9]
+    ))
+    await state.update_data(date_raschet=None)
+    await state.update_data(type_raschet=None)
+    data = await state.get_data()
+    text = f'''Предварительный отчет:\nТИП ОТЧЕТА: {data['chosen_type']}\nКОМИССИЯ ИЛИ НАША: {data['type_credit_our']}\nКРЕДИТ ИЛИ НАЛИЧНЫЕ?: {data['type_deal']}\nЦЕНА ДРОМ: {data['drom_cost']}\nМЕНЕДЖЕРСКАЯ СКИДКА: {data['dealer_discount']}\nСУММА НМ: {data['summa_nm']}\nСУММА СОБСТВЕННИКУ: {data['summa_sob']}\nСУММА СТОРГОВАЛ: {data['howmuchtorg']}\nС КЕМ ПРОДАЛ: {data['whosell']}\nКТО ПИСАЛ ДКП?: {data['whosellcredit']}\n\nVIN: {data['chosen_vin_number']}\nГос номер: {data['chosen_vin_gos_number']}\nМарка: {data['chosen_vin_marka']}\nМодель: {data['chosen_vin_model']}\nГод: {data['chosen_vin_year']}\nКомментарий: {data['chosen_comment']}\n\n\n{callback.message.chat.first_name + " " + callback.message.chat.last_name}
             '''
 
     await callback.message.answer(
@@ -103,6 +216,11 @@ async def editor_start_7_8(callback: types.CallbackQuery, state: FSMContext, dic
         text=dict_editor['editor_start']['text'][9],
         callback_data=dict_editor['editor_start']['data'][9]
     ))
+    await state.update_data(summa_nm=None)
+    await state.update_data(summa_sob=None)
+    await state.update_data(howmuchtorg=None)
+    await state.update_data(date_raschet=None)
+    await state.update_data(type_raschet=None)
     data = await state.get_data()
     text = f'''Предварительный отчет:\nТИП ОТЧЕТА: {data['chosen_type']}\nКОМИССИЯ ИЛИ НАША: {data['type_credit_our']}\nКРЕДИТ ИЛИ НАЛИЧНЫЕ?: {data['type_deal']}\nЦЕНА ДРОМ: {data['drom_cost']}\nМЕНЕДЖЕРСКАЯ СКИДКА: {data['dealer_discount']}\nС КЕМ ПРОДАЛ: {data['whosell']}\nКТО ОФОРМИЛ КРЕДИТ?: {data['whosellcredit']}\nVIN: {data['chosen_vin_number']}\nГос номер: {data['chosen_vin_gos_number']}\nМарка: {data['chosen_vin_marka']}\nМодель: {data['chosen_vin_model']}\nГод: {data['chosen_vin_year']}\nКомментарий: {data['chosen_comment']}\n\n\n{callback.message.chat.first_name + " " + callback.message.chat.last_name}
             '''
