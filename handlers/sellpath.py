@@ -361,9 +361,16 @@ async def main_menu_button2(message: Message, state: FSMContext):
 @router.message(SetReport.choosing_sell_data_car_gosnumber)
 async def main_menu_button2(message: Message, state: FSMContext):
     just = message.text.upper()
-    await state.update_data(chosen_vin_year=int(re.sub("[^0-9]", "", just)))
-    await message.answer(text="Укажите гоc номер")
-    await state.set_state(SetReport.choosing_sell_data_car_next)
+    if just.isdigit():
+        await state.update_data(chosen_vin_year=int(just))
+        await message.answer(text="Укажите гоc номер")
+        await state.set_state(SetReport.choosing_sell_data_car_next)
+    else:
+        await message.answer(
+            text=texts.MESSAGE_ONLY_DIGITS,
+        )
+        await message.answer(text="Укажите год")
+        await state.set_state(SetReport.choosing_sell_data_car_gosnumber)
 
 
 @router.message(SetReport.choosing_sell_data_car_next)
@@ -799,8 +806,22 @@ async def editor_drom_cost(callback: types.CallbackQuery, state: FSMContext):
 
 @router.message(SetReport.choosing_sell_editor_menu_drom_cost_edit_1)
 async def editor_drom_cost_edit(message: Message, state: FSMContext):
-    await utils.editor_sell.editor_drom_cost_edit(message, state)
-    await state.set_state(SetReport.choosing_sell_editor_start_1)
+    just = message.text.upper()
+    if just.isdigit():
+        await state.update_data(drom_cost=int(just))
+        builder = InlineKeyboardBuilder()
+        builder.add(types.InlineKeyboardButton(
+            text="ОК",
+            callback_data=texts.BT_CONSTRUCTOR_2_ATP)
+        )
+        data = await state.get_data()
+        await message.answer(text="Замена на " + str(data['drom_cost']), reply_markup=builder.as_markup())
+        await state.set_state(SetReport.choosing_sell_editor_start_1)
+    else:
+        await message.answer(
+            text=texts.MESSAGE_ONLY_DIGITS,
+        )
+        await state.set_state(SetReport.choosing_sell_editor_menu_drom_cost_edit_1)
 
 
 @router.callback_query(SetReport.choosing_sell_selector_1, F.data == "edit_menu_gosnumber")
@@ -847,8 +868,22 @@ async def editor_year(callback: types.CallbackQuery, state: FSMContext):
 
 @router.message(SetReport.choosing_sell_editor_year_edit_1)
 async def editor_year_edit(message: Message, state: FSMContext):
-    await utils.editor_sell.editor_year_edit(message, state)
-    await state.set_state(SetReport.choosing_sell_editor_start_1)
+    just = message.text.upper()
+    if just.isdigit():
+        await state.update_data(chosen_vin_year=int(just))
+        builder = InlineKeyboardBuilder()
+        builder.add(types.InlineKeyboardButton(
+            text="ОК",
+            callback_data=texts.BT_CONSTRUCTOR_2_ATP)
+        )
+        data = await state.get_data()
+        await message.answer(text="Замена на " + str(data['chosen_vin_year']), reply_markup=builder.as_markup())
+        await state.set_state(SetReport.choosing_sell_editor_start_1)
+    else:
+        await message.answer(
+            text=texts.MESSAGE_ONLY_DIGITS,
+        )
+        await state.set_state(SetReport.choosing_sell_editor_year_edit_1)
 
 
 @router.callback_query(SetReport.choosing_sell_selector_1, F.data == "edit_menu_vin")
@@ -1118,8 +1153,22 @@ async def editor_drom_cost(callback: types.CallbackQuery, state: FSMContext):
 
 @router.message(SetReport.choosing_sell_editor_menu_drom_cost_edit_2)
 async def editor_drom_cost_edit(message: Message, state: FSMContext):
-    await utils.editor_sell.editor_drom_cost_edit(message, state)
-    await state.set_state(SetReport.choosing_sell_editor_start_2)
+    just = message.text.upper()
+    if just.isdigit():
+        await state.update_data(drom_cost=int(just))
+        builder = InlineKeyboardBuilder()
+        builder.add(types.InlineKeyboardButton(
+            text="ОК",
+            callback_data=texts.BT_CONSTRUCTOR_2_ATP)
+        )
+        data = await state.get_data()
+        await message.answer(text="Замена на " + str(data['drom_cost']), reply_markup=builder.as_markup())
+        await state.set_state(SetReport.choosing_sell_editor_start_2)
+    else:
+        await message.answer(
+            text=texts.MESSAGE_ONLY_DIGITS,
+        )
+        await state.set_state(SetReport.choosing_sell_editor_menu_drom_cost_edit_2)
 
 
 @router.callback_query(SetReport.choosing_sell_selector_2, F.data == "edit_menu_gosnumber")
@@ -1166,8 +1215,22 @@ async def editor_year(callback: types.CallbackQuery, state: FSMContext):
 
 @router.message(SetReport.choosing_sell_editor_year_edit_2)
 async def editor_year_edit(message: Message, state: FSMContext):
-    await utils.editor_sell.editor_year_edit(message, state)
-    await state.set_state(SetReport.choosing_sell_editor_start_2)
+    just = message.text.upper()
+    if just.isdigit():
+        await state.update_data(chosen_vin_year=int(just))
+        builder = InlineKeyboardBuilder()
+        builder.add(types.InlineKeyboardButton(
+            text="ОК",
+            callback_data=texts.BT_CONSTRUCTOR_2_ATP)
+        )
+        data = await state.get_data()
+        await message.answer(text="Замена на " + str(data['chosen_vin_year']), reply_markup=builder.as_markup())
+        await state.set_state(SetReport.choosing_sell_editor_start_2)
+    else:
+        await message.answer(
+            text=texts.MESSAGE_ONLY_DIGITS,
+        )
+        await state.set_state(SetReport.choosing_sell_editor_year_edit_2)
 
 
 @router.callback_query(SetReport.choosing_sell_selector_2, F.data == "edit_menu_vin")
@@ -1317,8 +1380,22 @@ async def editor_drom_cost(callback: types.CallbackQuery, state: FSMContext):
 
 @router.message(SetReport.choosing_sell_editor_menu_drom_cost_edit_3)
 async def editor_drom_cost_edit(message: Message, state: FSMContext):
-    await utils.editor_sell.editor_drom_cost_edit(message, state)
-    await state.set_state(SetReport.choosing_sell_editor_start_3)
+    just = message.text.upper()
+    if just.isdigit():
+        await state.update_data(drom_cost=int(just))
+        builder = InlineKeyboardBuilder()
+        builder.add(types.InlineKeyboardButton(
+            text="ОК",
+            callback_data=texts.BT_CONSTRUCTOR_2_ATP)
+        )
+        data = await state.get_data()
+        await message.answer(text="Замена на " + str(data['drom_cost']), reply_markup=builder.as_markup())
+        await state.set_state(SetReport.choosing_sell_editor_start_3)
+    else:
+        await message.answer(
+            text=texts.MESSAGE_ONLY_DIGITS,
+        )
+        await state.set_state(SetReport.choosing_sell_editor_menu_drom_cost_edit_3)
 
 
 @router.callback_query(SetReport.choosing_sell_selector_3, F.data == "edit_menu_gosnumber")
@@ -1365,8 +1442,22 @@ async def editor_year(callback: types.CallbackQuery, state: FSMContext):
 
 @router.message(SetReport.choosing_sell_editor_year_edit_3)
 async def editor_year_edit(message: Message, state: FSMContext):
-    await utils.editor_sell.editor_year_edit(message, state)
-    await state.set_state(SetReport.choosing_sell_editor_start_3)
+    just = message.text.upper()
+    if just.isdigit():
+        await state.update_data(chosen_vin_year=int(just))
+        builder = InlineKeyboardBuilder()
+        builder.add(types.InlineKeyboardButton(
+            text="ОК",
+            callback_data=texts.BT_CONSTRUCTOR_2_ATP)
+        )
+        data = await state.get_data()
+        await message.answer(text="Замена на " + str(data['chosen_vin_year']), reply_markup=builder.as_markup())
+        await state.set_state(SetReport.choosing_sell_editor_start_3)
+    else:
+        await message.answer(
+            text=texts.MESSAGE_ONLY_DIGITS,
+        )
+        await state.set_state(SetReport.choosing_sell_editor_year_edit_3)
 
 
 @router.callback_query(SetReport.choosing_sell_selector_3, F.data == "edit_menu_vin")
@@ -1762,8 +1853,22 @@ async def editor_drom_cost(callback: types.CallbackQuery, state: FSMContext):
 
 @router.message(SetReport.choosing_sell_editor_menu_drom_cost_edit_4)
 async def editor_drom_cost_edit(message: Message, state: FSMContext):
-    await utils.editor_sell.editor_drom_cost_edit(message, state)
-    await state.set_state(SetReport.choosing_sell_editor_start_4)
+    just = message.text.upper()
+    if just.isdigit():
+        await state.update_data(drom_cost=int(just))
+        builder = InlineKeyboardBuilder()
+        builder.add(types.InlineKeyboardButton(
+            text="ОК",
+            callback_data=texts.BT_CONSTRUCTOR_2_ATP)
+        )
+        data = await state.get_data()
+        await message.answer(text="Замена на " + str(data['drom_cost']), reply_markup=builder.as_markup())
+        await state.set_state(SetReport.choosing_sell_editor_start_4)
+    else:
+        await message.answer(
+            text=texts.MESSAGE_ONLY_DIGITS,
+        )
+        await state.set_state(SetReport.choosing_sell_editor_menu_drom_cost_edit_4)
 
 
 @router.callback_query(SetReport.choosing_sell_selector_4, F.data == "edit_menu_gosnumber")
@@ -1810,8 +1915,22 @@ async def editor_year(callback: types.CallbackQuery, state: FSMContext):
 
 @router.message(SetReport.choosing_sell_editor_year_edit_4)
 async def editor_year_edit(message: Message, state: FSMContext):
-    await utils.editor_sell.editor_year_edit(message, state)
-    await state.set_state(SetReport.choosing_sell_editor_start_4)
+    just = message.text.upper()
+    if just.isdigit():
+        await state.update_data(chosen_vin_year=int(just))
+        builder = InlineKeyboardBuilder()
+        builder.add(types.InlineKeyboardButton(
+            text="ОК",
+            callback_data=texts.BT_CONSTRUCTOR_2_ATP)
+        )
+        data = await state.get_data()
+        await message.answer(text="Замена на " + str(data['chosen_vin_year']), reply_markup=builder.as_markup())
+        await state.set_state(SetReport.choosing_sell_editor_start_4)
+    else:
+        await message.answer(
+            text=texts.MESSAGE_ONLY_DIGITS,
+        )
+        await state.set_state(SetReport.choosing_sell_editor_year_edit_4)
 
 
 @router.callback_query(SetReport.choosing_sell_selector_4, F.data == "edit_menu_vin")
@@ -2078,8 +2197,22 @@ async def editor_drom_cost(callback: types.CallbackQuery, state: FSMContext):
 
 @router.message(SetReport.choosing_sell_editor_menu_drom_cost_edit_5)
 async def editor_drom_cost_edit(message: Message, state: FSMContext):
-    await utils.editor_sell.editor_drom_cost_edit(message, state)
-    await state.set_state(SetReport.choosing_sell_editor_start_5)
+    just = message.text.upper()
+    if just.isdigit():
+        await state.update_data(drom_cost=int(just))
+        builder = InlineKeyboardBuilder()
+        builder.add(types.InlineKeyboardButton(
+            text="ОК",
+            callback_data=texts.BT_CONSTRUCTOR_2_ATP)
+        )
+        data = await state.get_data()
+        await message.answer(text="Замена на " + str(data['drom_cost']), reply_markup=builder.as_markup())
+        await state.set_state(SetReport.choosing_sell_editor_start_5)
+    else:
+        await message.answer(
+            text=texts.MESSAGE_ONLY_DIGITS,
+        )
+        await state.set_state(SetReport.choosing_sell_editor_menu_drom_cost_edit_5)
 
 
 @router.callback_query(SetReport.choosing_sell_selector_5, F.data == "edit_menu_gosnumber")
@@ -2126,8 +2259,22 @@ async def editor_year(callback: types.CallbackQuery, state: FSMContext):
 
 @router.message(SetReport.choosing_sell_editor_year_edit_5)
 async def editor_year_edit(message: Message, state: FSMContext):
-    await utils.editor_sell.editor_year_edit(message, state)
-    await state.set_state(SetReport.choosing_sell_editor_start_5)
+    just = message.text.upper()
+    if just.isdigit():
+        await state.update_data(chosen_vin_year=int(just))
+        builder = InlineKeyboardBuilder()
+        builder.add(types.InlineKeyboardButton(
+            text="ОК",
+            callback_data=texts.BT_CONSTRUCTOR_2_ATP)
+        )
+        data = await state.get_data()
+        await message.answer(text="Замена на " + str(data['chosen_vin_year']), reply_markup=builder.as_markup())
+        await state.set_state(SetReport.choosing_sell_editor_start_5)
+    else:
+        await message.answer(
+            text=texts.MESSAGE_ONLY_DIGITS,
+        )
+        await state.set_state(SetReport.choosing_sell_editor_year_edit_5)
 
 
 @router.callback_query(SetReport.choosing_sell_selector_5, F.data == "edit_menu_vin")
@@ -2277,8 +2424,22 @@ async def editor_drom_cost(callback: types.CallbackQuery, state: FSMContext):
 
 @router.message(SetReport.choosing_sell_editor_menu_drom_cost_edit_6)
 async def editor_drom_cost_edit(message: Message, state: FSMContext):
-    await utils.editor_sell.editor_drom_cost_edit(message, state)
-    await state.set_state(SetReport.choosing_sell_editor_start_6)
+    just = message.text.upper()
+    if just.isdigit():
+        await state.update_data(drom_cost=int(just))
+        builder = InlineKeyboardBuilder()
+        builder.add(types.InlineKeyboardButton(
+            text="ОК",
+            callback_data=texts.BT_CONSTRUCTOR_2_ATP)
+        )
+        data = await state.get_data()
+        await message.answer(text="Замена на " + str(data['drom_cost']), reply_markup=builder.as_markup())
+        await state.set_state(SetReport.choosing_sell_editor_start_6)
+    else:
+        await message.answer(
+            text=texts.MESSAGE_ONLY_DIGITS,
+        )
+        await state.set_state(SetReport.choosing_sell_editor_menu_drom_cost_edit_6)
 
 
 @router.callback_query(SetReport.choosing_sell_selector_6, F.data == "edit_menu_gosnumber")
@@ -2325,8 +2486,22 @@ async def editor_year(callback: types.CallbackQuery, state: FSMContext):
 
 @router.message(SetReport.choosing_sell_editor_year_edit_6)
 async def editor_year_edit(message: Message, state: FSMContext):
-    await utils.editor_sell.editor_year_edit(message, state)
-    await state.set_state(SetReport.choosing_sell_editor_start_6)
+    just = message.text.upper()
+    if just.isdigit():
+        await state.update_data(chosen_vin_year=int(just))
+        builder = InlineKeyboardBuilder()
+        builder.add(types.InlineKeyboardButton(
+            text="ОК",
+            callback_data=texts.BT_CONSTRUCTOR_2_ATP)
+        )
+        data = await state.get_data()
+        await message.answer(text="Замена на " + str(data['chosen_vin_year']), reply_markup=builder.as_markup())
+        await state.set_state(SetReport.choosing_sell_editor_start_6)
+    else:
+        await message.answer(
+            text=texts.MESSAGE_ONLY_DIGITS,
+        )
+        await state.set_state(SetReport.choosing_sell_editor_year_edit_6)
 
 
 @router.callback_query(SetReport.choosing_sell_selector_6, F.data == "edit_menu_vin")
@@ -2752,8 +2927,22 @@ async def editor_drom_cost(callback: types.CallbackQuery, state: FSMContext):
 
 @router.message(SetReport.choosing_sell_editor_menu_drom_cost_edit_7)
 async def editor_drom_cost_edit(message: Message, state: FSMContext):
-    await utils.editor_sell.editor_drom_cost_edit(message, state)
-    await state.set_state(SetReport.choosing_sell_editor_start_7)
+    just = message.text.upper()
+    if just.isdigit():
+        await state.update_data(drom_cost=int(just))
+        builder = InlineKeyboardBuilder()
+        builder.add(types.InlineKeyboardButton(
+            text="ОК",
+            callback_data=texts.BT_CONSTRUCTOR_2_ATP)
+        )
+        data = await state.get_data()
+        await message.answer(text="Замена на " + str(data['drom_cost']), reply_markup=builder.as_markup())
+        await state.set_state(SetReport.choosing_sell_editor_start_7)
+    else:
+        await message.answer(
+            text=texts.MESSAGE_ONLY_DIGITS,
+        )
+        await state.set_state(SetReport.choosing_sell_editor_menu_drom_cost_edit_7)
 
 
 @router.callback_query(SetReport.choosing_sell_selector_7, F.data == "edit_menu_gosnumber")
@@ -2800,8 +2989,22 @@ async def editor_year(callback: types.CallbackQuery, state: FSMContext):
 
 @router.message(SetReport.choosing_sell_editor_year_edit_7)
 async def editor_year_edit(message: Message, state: FSMContext):
-    await utils.editor_sell.editor_year_edit(message, state)
-    await state.set_state(SetReport.choosing_sell_editor_start_7)
+    just = message.text.upper()
+    if just.isdigit():
+        await state.update_data(chosen_vin_year=int(just))
+        builder = InlineKeyboardBuilder()
+        builder.add(types.InlineKeyboardButton(
+            text="ОК",
+            callback_data=texts.BT_CONSTRUCTOR_2_ATP)
+        )
+        data = await state.get_data()
+        await message.answer(text="Замена на " + str(data['chosen_vin_year']), reply_markup=builder.as_markup())
+        await state.set_state(SetReport.choosing_sell_editor_start_7)
+    else:
+        await message.answer(
+            text=texts.MESSAGE_ONLY_DIGITS,
+        )
+        await state.set_state(SetReport.choosing_sell_editor_year_edit_7)
 
 
 @router.callback_query(SetReport.choosing_sell_selector_7, F.data == "edit_menu_vin")
@@ -3238,8 +3441,22 @@ async def editor_drom_cost(callback: types.CallbackQuery, state: FSMContext):
 
 @router.message(SetReport.choosing_sell_editor_menu_drom_cost_edit_8)
 async def editor_drom_cost_edit(message: Message, state: FSMContext):
-    await utils.editor_sell.editor_drom_cost_edit(message, state)
-    await state.set_state(SetReport.choosing_sell_editor_start_8)
+    just = message.text.upper()
+    if just.isdigit():
+        await state.update_data(drom_cost=int(just))
+        builder = InlineKeyboardBuilder()
+        builder.add(types.InlineKeyboardButton(
+            text="ОК",
+            callback_data=texts.BT_CONSTRUCTOR_2_ATP)
+        )
+        data = await state.get_data()
+        await message.answer(text="Замена на " + str(data['drom_cost']), reply_markup=builder.as_markup())
+        await state.set_state(SetReport.choosing_sell_editor_start_8)
+    else:
+        await message.answer(
+            text=texts.MESSAGE_ONLY_DIGITS,
+        )
+        await state.set_state(SetReport.choosing_sell_editor_menu_drom_cost_edit_8)
 
 
 @router.callback_query(SetReport.choosing_sell_selector_8, F.data == "edit_menu_gosnumber")
@@ -3286,8 +3503,22 @@ async def editor_year(callback: types.CallbackQuery, state: FSMContext):
 
 @router.message(SetReport.choosing_sell_editor_year_edit_8)
 async def editor_year_edit(message: Message, state: FSMContext):
-    await utils.editor_sell.editor_year_edit(message, state)
-    await state.set_state(SetReport.choosing_sell_editor_start_8)
+    just = message.text.upper()
+    if just.isdigit():
+        await state.update_data(chosen_vin_year=int(just))
+        builder = InlineKeyboardBuilder()
+        builder.add(types.InlineKeyboardButton(
+            text="ОК",
+            callback_data=texts.BT_CONSTRUCTOR_2_ATP)
+        )
+        data = await state.get_data()
+        await message.answer(text="Замена на " + str(data['chosen_vin_year']), reply_markup=builder.as_markup())
+        await state.set_state(SetReport.choosing_sell_editor_start_8)
+    else:
+        await message.answer(
+            text=texts.MESSAGE_ONLY_DIGITS,
+        )
+        await state.set_state(SetReport.choosing_sell_editor_year_edit_8)
 
 
 @router.callback_query(SetReport.choosing_sell_selector_8, F.data == "edit_menu_vin")

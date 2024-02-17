@@ -140,9 +140,17 @@ async def main_menu_button2(message: Message, state: FSMContext):
 
 @router.message(SetReport.choosing_data_car_gosnumber)
 async def main_menu_button2(message: Message, state: FSMContext):
-    await state.update_data(chosen_vin_year=message.text.upper())
-    await message.answer(text="Укажите гоc номер")
-    await state.set_state(SetReport.choosing_data_car_next)
+    just = message.text.upper()
+    if just.isdigit():
+        await state.update_data(chosen_vin_year=int(just))
+        await message.answer(text="Укажите гоc номер")
+        await state.set_state(SetReport.choosing_data_car_next)
+    else:
+        await message.answer(
+            text=texts.MESSAGE_ONLY_DIGITS,
+        )
+        await message.answer(text="Укажите год")
+        await state.set_state(SetReport.choosing_data_car_gosnumber)
 
 
 @router.message(SetReport.choosing_data_car_next)
@@ -431,7 +439,7 @@ async def editor_first_cost_first(callback: types.CallbackQuery, state: FSMConte
 @router.message(SetReport.choosing_buy_editor_first_cost)
 async def editor_first_cost(message: Message, state: FSMContext):
     await utils.editor_buy.editor_first_cost(message, state)
-    await state.set_state(SetReport.choosing_buy_editor_start)
+    # await state.set_state(SetReport.choosing_buy_editor_start)
 
 
 #
@@ -488,7 +496,7 @@ async def editor_first_year(callback: types.CallbackQuery, state: FSMContext):
 async def editor_first_vin_year(message: Message, state: FSMContext):
     await utils.editor_buy.editor_first_vin_year(message, state)
 
-    await state.set_state(SetReport.choosing_buy_editor_start)
+    # await state.set_state(SetReport.choosing_buy_editor_start)
 
 
 @router.callback_query(SetReport.choosing_buy_editor_first, F.data == "edit_menu_vin")

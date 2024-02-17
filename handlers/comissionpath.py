@@ -162,9 +162,18 @@ async def main_menu_button2(message: Message, state: FSMContext):
 
 @router.message(SetReport.choosing_comission_data_car_year)
 async def main_menu_button2(message: Message, state: FSMContext):
-    await state.update_data(chosen_vin_model=message.text.upper())
-    await message.answer(text="Укажите год")
-    await state.set_state(SetReport.choosing_comission_data_car_gosnumber)
+    just = message.text.upper()
+    if just.isdigit():
+        await state.update_data(chosen_vin_year=int(just))
+        await message.answer(text="Укажите гоc номер")
+        await state.set_state(SetReport.choosing_comission_data_car_gosnumber)
+    else:
+        await message.answer(
+            text=texts.MESSAGE_ONLY_DIGITS,
+        )
+        await message.answer(text="Укажите год")
+        await state.set_state(SetReport.choosing_comission_data_car_year)
+
 
 
 @router.message(SetReport.choosing_comission_data_car_gosnumber)
@@ -479,7 +488,7 @@ async def editor_first(callback: types.CallbackQuery, state: FSMContext):
 @router.message(SetReport.choosing_comission_editor_first_cost)
 async def editor_first_cost(message: Message, state: FSMContext):
     await utils.editor_comission.editor_first_cost(message, state)
-    await state.set_state(SetReport.choosing_comission_editor_start)
+    # await state.set_state(SetReport.choosing_comission_editor_start)
 
 
 #
@@ -536,7 +545,7 @@ async def editor_first_year(callback: types.CallbackQuery, state: FSMContext):
 async def editor_first_vin_year(message: Message, state: FSMContext):
     await utils.editor_comission.editor_first_vin_year(message, state)
 
-    await state.set_state(SetReport.choosing_comission_editor_start)
+    # await state.set_state(SetReport.choosing_comission_editor_start)
 
 
 @router.callback_query(SetReport.choosing_comission_editor_first, F.data == "edit_menu_vin")
