@@ -1,7 +1,11 @@
+import re
+
 from aiogram import types
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 from aiogram.utils.keyboard import InlineKeyboardBuilder
+
+
 from texts import texts
 import utils.editor_changer
 
@@ -94,12 +98,37 @@ async def editor_first_place(callback: types.CallbackQuery, state: FSMContext):
     await callback.message.answer(text="Замена на " + callback.data, reply_markup=builder.as_markup())
 
 
+# async def editor_first_howmuchsobs(callback: types.CallbackQuery, state: FSMContext):
+#     await utils.editor_changer.getter(callback, state, chosen_data="howmuchsobs")
+#
+#
+# async def editor_first_cost(message: Message, state: FSMContext):
+#     await utils.editor_changer.setter(message, state, chosen_data="howmuchsobs")
+
 async def editor_first_howmuchsobs(callback: types.CallbackQuery, state: FSMContext):
-    await utils.editor_changer.getter(callback, state, chosen_data="howmuchsobs")
+    data = await state.get_data()
+    msg2 = "В данный момент используется " + str(data['howmuchsobs']) + ", на какое значение хотите изменить?"
+    await callback.message.answer(text=msg2)
 
 
 async def editor_first_cost(message: Message, state: FSMContext):
-    await utils.editor_changer.setter(message, state, chosen_data="howmuchsobs")
+    from handlers.comissionpath import SetReport
+    just = message.text.upper()
+    if just.isdigit():
+        await state.update_data(howmuchsobs=int(just))
+        builder = InlineKeyboardBuilder()
+        builder.add(types.InlineKeyboardButton(
+            text="ОК",
+            callback_data=texts.BT_CONSTRUCTOR_2_ATP)
+        )
+        data = await state.get_data()
+        await message.answer(text="Замена на " + str(data['howmuchsobs']), reply_markup=builder.as_markup())
+        await state.set_state(SetReport.choosing_comission_editor_start)
+    else:
+        await message.answer(
+            text=texts.MESSAGE_ONLY_DIGITS,
+        )
+        # await editor_first_cost(message, state)
 
 
 async def editor_first_gosnumber(callback: types.CallbackQuery, state: FSMContext):
@@ -127,11 +156,31 @@ async def editor_first_vin_model(message: Message, state: FSMContext):
 
 
 async def editor_first_year(callback: types.CallbackQuery, state: FSMContext):
-    await utils.editor_changer.getter(callback, state, chosen_data="chosen_vin_year")
+    data = await state.get_data()
+    msg2 = "В данный момент используется " + str(data['chosen_vin_year']) + ", на какое значение хотите изменить?"
+    await callback.message.answer(text=msg2)
 
 
 async def editor_first_vin_year(message: Message, state: FSMContext):
-    await utils.editor_changer.setter(message, state, chosen_data="chosen_vin_year")
+    from handlers.comissionpath import SetReport
+    just = message.text.upper()
+    if just.isdigit():
+        await state.update_data(chosen_vin_year=int(just))
+        builder = InlineKeyboardBuilder()
+        builder.add(types.InlineKeyboardButton(
+            text="ОК",
+            callback_data=texts.BT_CONSTRUCTOR_2_ATP)
+        )
+        data = await state.get_data()
+        await message.answer(text="Замена на " + str(data['chosen_vin_year']), reply_markup=builder.as_markup())
+        await state.set_state(SetReport.choosing_comission_editor_start)
+    else:
+        await message.answer(
+            text=texts.MESSAGE_ONLY_DIGITS,
+        )
+        await message.answer(text="Укажите год")
+
+
 
 
 async def editor_first_menu_vin(callback: types.CallbackQuery, state: FSMContext):

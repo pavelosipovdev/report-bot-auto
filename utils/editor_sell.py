@@ -155,20 +155,36 @@ async def editor_first_place_edit(callback: types.CallbackQuery, state: FSMConte
 
 async def editor_drom_cost(callback: types.CallbackQuery, state: FSMContext):
     data = await state.get_data()
-    msg2 = "В данный момент используется " + data['drom_cost'] + ", на какое значение хотите изменить?"
+    msg2 = "В данный момент используется " + str(data['drom_cost']) + ", на какое значение хотите изменить?"
     await callback.message.answer(text=msg2)
 
 
 async def editor_drom_cost_edit(message: Message, state: FSMContext):
     just = message.text.upper()
-    await state.update_data(drom_cost=int(re.sub("[^0-9]", "", just)))
-    builder = InlineKeyboardBuilder()
-    builder.add(types.InlineKeyboardButton(
-        text="ОК",
-        callback_data=texts.BT_CONSTRUCTOR_2_ATP)
-    )
-    data = await state.get_data()
-    await message.answer(text="Замена на " + data['drom_cost'], reply_markup=builder.as_markup())
+    if just.isdigit():
+        await state.update_data(drom_cost=int(just))
+        builder = InlineKeyboardBuilder()
+        builder.add(types.InlineKeyboardButton(
+            text="ОК",
+            callback_data=texts.BT_CONSTRUCTOR_2_ATP)
+        )
+        data = await state.get_data()
+        await message.answer(text="Замена на " + str(data['drom_cost']), reply_markup=builder.as_markup())
+    else:
+        await message.answer(
+            text=texts.MESSAGE_ONLY_DIGITS,
+        )
+        # await editor_drom_cost_edit(message, state)
+
+    # just = message.text.upper()
+    # await state.update_data(drom_cost=int(re.sub("[^0-9]", "", just)))
+    # builder = InlineKeyboardBuilder()
+    # builder.add(types.InlineKeyboardButton(
+    #     text="ОК",
+    #     callback_data=texts.BT_CONSTRUCTOR_2_ATP)
+    # )
+    # data = await state.get_data()
+    # await message.answer(text="Замена на " + data['drom_cost'], reply_markup=builder.as_markup())
 
 
 async def editor_who_sell(callback: types.CallbackQuery, state: FSMContext):
@@ -258,20 +274,27 @@ async def editor_model_edit(message: Message, state: FSMContext):
 
 async def editor_year(callback: types.CallbackQuery, state: FSMContext):
     data = await state.get_data()
-    msg2 = "В данный момент используется " + data['chosen_vin_year'] + ", на какое значение хотите изменить?"
+    msg2 = "В данный момент используется " + str(data['chosen_vin_year']) + ", на какое значение хотите изменить?"
     await callback.message.answer(text=msg2)
 
 
 async def editor_year_edit(message: Message, state: FSMContext):
     just = message.text.upper()
-    await state.update_data(chosen_vin_year=int(re.sub("[^0-9]", "", just)))
-    builder = InlineKeyboardBuilder()
-    builder.add(types.InlineKeyboardButton(
-        text="ОК",
-        callback_data=texts.BT_CONSTRUCTOR_2_ATP)
-    )
-    data = await state.get_data()
-    await message.answer(text="Замена на " + data['chosen_vin_year'], reply_markup=builder.as_markup())
+    if just.isdigit():
+        await state.update_data(chosen_vin_year=int(just))
+        builder = InlineKeyboardBuilder()
+        builder.add(types.InlineKeyboardButton(
+            text="ОК",
+            callback_data=texts.BT_CONSTRUCTOR_2_ATP)
+        )
+        data = await state.get_data()
+        await message.answer(text="Замена на " + str(data['chosen_vin_year']), reply_markup=builder.as_markup())
+    else:
+        await message.answer(
+            text=texts.MESSAGE_ONLY_DIGITS,
+        )
+        # await editor_year_edit(message, state)
+
 
 
 async def editor_vin(callback: types.CallbackQuery, state: FSMContext):

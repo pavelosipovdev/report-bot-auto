@@ -1,6 +1,7 @@
 import datetime
 import json
 import logging
+import re
 
 import psycopg2
 import os
@@ -160,7 +161,8 @@ async def db_sql_sell_insert(callback=types.CallbackQuery, dict_report=None):
         sql_insert_tg_info_user = 'INSERT INTO bot_planeta_avto.sell_report(type_sell_report,type_credit_our,type_deal,drom_cost,dealer_discount,summa_nm,summa_sob,howmuchtorg,whosell,whosellcredit,date_raschet,type_of_calс,vin,gos_number,brand,model,years,comment_report,username_sell_report) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)'
         cur.execute(sql_insert_tg_info_user, (
             data['chosen_type'], data['type_credit_our'], data['type_deal'], data['drom_cost'],
-            data['dealer_discount'], data['summa_nm'], data['summa_sob'], data['howmuchtorg'], data['whosell'], data['whosellcredit'], data['date_raschet'], data['type_raschet'], data['chosen_vin_number'],
+            data['dealer_discount'], data['summa_nm'], data['summa_sob'], data['howmuchtorg'], data['whosell'],
+            data['whosellcredit'], data['date_raschet'], data['type_raschet'], data['chosen_vin_number'],
             data['chosen_vin_gos_number'], data['chosen_vin_marka'], data['chosen_vin_model'], data['chosen_vin_year'],
             data['chosen_comment'], callback.message.chat.first_name + " " + callback.message.chat.last_name,))
         logging.info(
@@ -194,7 +196,8 @@ async def db_sql_comission_insert(callback=types.CallbackQuery, dict_report=None
             data['howmuchsobs'], data['howmuchcomissiob'],
             data['chosen_vin_number'],
             data['chosen_vin_gos_number'], data['chosen_vin_marka'], data['chosen_vin_model'], data['chosen_vin_year'],
-            data['chosen_comment'], callback.message.chat.first_name + " " + callback.message.chat.last_name, data['typeraschet']))
+            data['chosen_comment'], callback.message.chat.first_name + " " + callback.message.chat.last_name,
+            data['typeraschet']))
         logging.info(
             "Success insert comission for " + callback.message.chat.first_name + " " + callback.message.chat.last_name)
     else:
@@ -250,7 +253,7 @@ def db_sql_type_of_calc_select(vin_dict):
     if conn.closed == 0:
         print(f'Успешное подключение к бд, статус {conn.closed}')
         print(vin_dict)
-        sql_select_type_of_calс_commission_report="select type_of_calс from bot_planeta_avto.commission_report where vin='{value_vin_tg}';"
+        sql_select_type_of_calс_commission_report = "select type_of_calс from bot_planeta_avto.commission_report where vin='{value_vin_tg}';"
         cur.execute(sql_select_type_of_calс_commission_report.format(value_vin_tg=vin_dict))
         select_type_of_calс = cur.fetchall()
         try:
@@ -280,3 +283,47 @@ async def date_normalizer(date_from_user):
     except Exception as e:
         print(e)
         return False
+
+    # Функция для замены слов
+
+
+def process_message(text):
+    # Словарь для замены слов, обозначающих тысячи
+    replacements = {
+        'ТЫСЯЧА': '000',
+        'ТЫСЯЧИ': '000',
+        'ТЫС': '000',
+        'К': '000',
+        'Т': '000',
+        'ТЫЩА': '000',
+        'ТЫЩИ': '000',
+        'МИЛЛИОН': '000000',
+        'МИЛИОН': '000000',
+        'МИЛЛИОНА': '000000',
+        'МИЛЛИОНОВ': '000000',
+        'ЛЯМ': '000000',
+        'КК': '000000',
+    }
+
+    # Подготовка текста: преобразование в верхний регистр
+    just = text.upper()
+
+    # Функция для замены слов
+    def replace(match):
+        # Извлекаем найденное значение
+        value = match.group(1)
+        # Извлекаем ключевое слово для замены
+        key_word = match.group(2)
+        # Возвращаем число с добавленными нулями, если ключевое слово найдено
+        return value + replacements.get(key_word, '')
+
+    # Паттерн для поиска чисел, за которыми следуют ключевые слова, обозначающие тысячи
+    pattern = r'(\d+)\s*(' + '|'.join(replacements.keys()) + ')'
+
+    # Заменяем найденные сочетания на числа с тремя нулями
+    just_transformed = re.sub(pattern, replace, just)
+
+    # Убираем все нечисловые символы и преобразуем в целое число
+    number = int(re.sub("[^0-9]", "", just_transformed))
+
+    return number

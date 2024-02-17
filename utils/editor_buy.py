@@ -6,6 +6,7 @@ from aiogram.types import Message
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 import utils.editor_changer
+
 from texts import texts
 
 
@@ -107,20 +108,28 @@ async def editor_first_place(callback: types.CallbackQuery, state: FSMContext):
 
 async def editor_first_cost_first(callback: types.CallbackQuery, state: FSMContext):
     data = await state.get_data()
-    msg2 = "В данный момент используется " + data['chosen_cost'] + ", на какое значение хотите изменить?"
+    msg2 = "В данный момент используется " + str(data['chosen_cost']) + ", на какое значение хотите изменить?"
     await callback.message.answer(text=msg2)
 
 
 async def editor_first_cost(message: Message, state: FSMContext):
+    from handlers.buypath import SetReport
     just = message.text.upper()
-    await state.update_data(drom_cost=int(re.sub("[^0-9]", "", just)))
-    builder = InlineKeyboardBuilder()
-    builder.add(types.InlineKeyboardButton(
-        text="ОК",
-        callback_data=texts.BT_CONSTRUCTOR_2_ATP)
-    )
-    data = await state.get_data()
-    await message.answer(text="Замена на " + data['chosen_cost'], reply_markup=builder.as_markup())
+    if just.isdigit():
+        await state.update_data(drom_cost=int(just))
+        builder = InlineKeyboardBuilder()
+        builder.add(types.InlineKeyboardButton(
+            text="ОК",
+            callback_data=texts.BT_CONSTRUCTOR_2_ATP)
+        )
+        data = await state.get_data()
+        await message.answer(text="Замена на " + str(data['chosen_cost']), reply_markup=builder.as_markup())
+        await state.set_state(SetReport.choosing_buy_editor_start)
+    else:
+        await message.answer(
+            text=texts.MESSAGE_ONLY_DIGITS,
+        )
+        # await editor_first_cost(message, state)
 
 
 async def editor_first_gosnumber(callback: types.CallbackQuery, state: FSMContext):
@@ -157,20 +166,29 @@ async def editor_first_vin_model(message: Message, state: FSMContext):
 
 async def editor_first_year(callback: types.CallbackQuery, state: FSMContext):
     data = await state.get_data()
-    msg2 = "В данный момент используется " + data['chosen_vin_year'] + ", на какое значение хотите изменить?"
+    msg2 = "В данный момент используется " + str(data['chosen_vin_year']) + ", на какое значение хотите изменить?"
     await callback.message.answer(text=msg2)
 
 
 async def editor_first_vin_year(message: Message, state: FSMContext):
+    from handlers.buypath import SetReport
     just = message.text.upper()
-    await state.update_data(chosen_vin_year=int(re.sub("[^0-9]", "", just)))
-    builder = InlineKeyboardBuilder()
-    builder.add(types.InlineKeyboardButton(
-        text="ОК",
-        callback_data=texts.BT_CONSTRUCTOR_2_ATP)
-    )
-    data = await state.get_data()
-    await message.answer(text="Замена на " + data['chosen_vin_year'], reply_markup=builder.as_markup())
+    if just.isdigit():
+        await state.update_data(chosen_vin_year=int(just))
+        builder = InlineKeyboardBuilder()
+        builder.add(types.InlineKeyboardButton(
+            text="ОК",
+            callback_data=texts.BT_CONSTRUCTOR_2_ATP)
+        )
+        data = await state.get_data()
+        await message.answer(text="Замена на " + str(data['chosen_vin_year']), reply_markup=builder.as_markup())
+        await state.set_state(SetReport.choosing_buy_editor_start)
+    else:
+        await message.answer(
+            text=texts.MESSAGE_ONLY_DIGITS,
+        )
+        # await editor_first_vin_year(message, state)
+
 
 
 async def editor_first_menu_vin(callback: types.CallbackQuery, state: FSMContext):
