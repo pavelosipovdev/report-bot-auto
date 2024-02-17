@@ -740,7 +740,7 @@ async def constructor_choosing_wire12(message: Message, state: FSMContext):
         callback_data="edit_menu_finish"
     ))
     data = await state.get_data()
-    text = f'''Предварительный отчет:\nТИП ОТЧЕТА: {data['chosen_type']}\nКОМИССИЯ ИЛИ НАША: {data['type_credit_our']}\nКРЕДИТ ИЛИ НАЛИЧНЫЕ?: {data['type_deal']}\nЦЕНА ДРОМ: {data['drom_cost']}\nМЕНЕДЖЕРСКАЯ СКИДКА: {data['dealer_discount']}\nСУММА НМ: {data['summa_nm']}\nСУММА СОБСТВЕННИКУ: ZAGLUSHKA\nСУММА СТОРГОВАЛ: {data['howmuchtorg']}\nС КЕМ ПРОДАЛ: {data['whosell']}\nКТО ОФОРМИЛ КРЕДИТ?: {data['whosellcredit']}\nДАТА: {data['date_raschet']}\nВИД РАСЧЕТА: {data['type_raschet']}\n\nVIN: {data['chosen_vin_number']}\nГос номер: {data['chosen_vin_gos_number']}\nМарка: {data['chosen_vin_marka']}\nМодель: {data['chosen_vin_model']}\nГод: {data['chosen_vin_year']}\nКомментарий: {data['chosen_comment']}\n\n\n{message.chat.first_name + " " + message.chat.last_name}
+    text = f'''Предварительный отчет:\nТИП ОТЧЕТА: {data['chosen_type']}\nКОМИССИЯ ИЛИ НАША: {data['type_credit_our']}\nКРЕДИТ ИЛИ НАЛИЧНЫЕ?: {data['type_deal']}\nЦЕНА ДРОМ: {data['drom_cost']}\nМЕНЕДЖЕРСКАЯ СКИДКА: {data['dealer_discount']}\nСУММА НМ: {data['summa_nm']}\nСУММА СОБСТВЕННИКУ: {data['summa_sob']}\nСУММА СТОРГОВАЛ: {data['howmuchtorg']}\nС КЕМ ПРОДАЛ: {data['whosell']}\nКТО ОФОРМИЛ КРЕДИТ?: {data['whosellcredit']}\nVIN: {data['chosen_vin_number']}\nГос номер: {data['chosen_vin_gos_number']}\nМарка: {data['chosen_vin_marka']}\nМодель: {data['chosen_vin_model']}\nГод: {data['chosen_vin_year']}\nКомментарий: {data['chosen_comment']}\n\n\n{message.chat.first_name + " " + message.chat.last_name}
             '''
 
     await message.answer(
@@ -751,6 +751,8 @@ async def constructor_choosing_wire12(message: Message, state: FSMContext):
 @router.callback_query(SetReport.choosing_sell_editor_start_1, F.data == "edit_menu_finish")
 async def constructor_choosing_awa_our_credit44(callback: types.CallbackQuery, state: FSMContext):
     await callback.message.answer("Подождите, идет выгрузка отчета")
+    await state.update_data(date_raschet=None)
+    await state.update_data(type_raschet=None)
     data = await state.get_data()
     await utils.connectors.db_sql_sell_insert(callback, data)
     await callback.message.answer(
@@ -770,7 +772,7 @@ async def constructor_editor_start(callback: types.CallbackQuery, state: FSMCont
                                  "edit_menu_model", "edit_menu_year", "edit_menu_vin", "edit_menu_comment",
                                  "edit_menu_finish"]}}
 
-    await utils.editor_sell.editor_start_1_6(callback, state, dict_editor)
+    await utils.editor_sell.editor_start_1_6_credit(callback, state, dict_editor)
     await state.set_state(SetReport.choosing_sell_selector_1)
 
 
@@ -949,34 +951,48 @@ async def sell_choosing_comissiya_creditcomission14(message: Message, state: FSM
     new_date = await utils.connectors.date_normalizer(date_raschet)
     if new_date:
         await state.update_data(date_raschet=new_date)
-        builder = InlineKeyboardBuilder()
-        builder.add(types.InlineKeyboardButton(
-            text=texts.BT_YES,
-            callback_data=texts.BT_YES)
-        )
-        builder.add(types.InlineKeyboardButton(
-            text=texts.BT_NO,
-            callback_data=texts.BT_NO)
-        )
+        # builder = InlineKeyboardBuilder()
+        # builder.add(types.InlineKeyboardButton(
+        #     text=texts.BT_YES,
+        #     callback_data=texts.BT_YES)
+        # )
+        # builder.add(types.InlineKeyboardButton(
+        #     text=texts.BT_NO,
+        #     callback_data=texts.BT_NO)
+        # )
+        # data = await state.get_data()
+        # vin_number = data['chosen_vin_number']
+        # await message.answer(text="Пожалуйста подождите, идет проверка в базе данных")
+        # type_of_calc = utils.connectors.db_sql_type_of_calc_select(vin_number)
+        # await message.answer(
+        #     text=texts.MESSAGE_TYPE_RASCHETA_WAS + type_of_calc, reply_markup=builder.as_markup()
+        # )
         data = await state.get_data()
         vin_number = data['chosen_vin_number']
         await message.answer(text="Пожалуйста подождите, идет проверка в базе данных")
         type_of_calc = utils.connectors.db_sql_type_of_calc_select(vin_number)
-        await message.answer(
-            text=texts.MESSAGE_TYPE_RASCHETA_WAS + type_of_calc, reply_markup=builder.as_markup()
-        )
-        await state.set_state(SetReport.choosing_comissiya_credit15)
-    else:
+        await state.update_data(type_raschet=str(type_of_calc))
         builder = InlineKeyboardBuilder()
         builder.add(types.InlineKeyboardButton(
-            text=texts.BT_YES,
-            callback_data=texts.BT_YES)
+            text="ВСЕ ОК",
+            callback_data="callback_ostav")
         )
+        builder.add(types.InlineKeyboardButton(
+            text="РЕДАКТИРОВАТЬ",
+            callback_data="callback_edit")
+        )
+        data = await state.get_data()
         await message.answer(
-            text="ДАТА НЕКОРРЕКТНА, ПОПРОБУЙТЕ ИЗМЕНИТЬ В РЕЖИМЕ РЕДАКТИРОВАНИЯ", reply_markup=builder.as_markup()
-
+            text="ВИД РАСЧЕТА " + "\"" + data['type_raschet'] + "\"", reply_markup=builder.as_markup()
         )
-        await state.set_state(SetReport.choosing_comissiya_credit13)
+        await state.set_state(SetReport.choosing_comissiya_credit16)
+    else:
+        await message.answer(
+            text="ДАТА НЕКОРРЕКТНА, ПОПРОБУЙТЕ ЕЩЕ РАЗ")
+        await message.answer(
+            text=texts.MESSAGE_DATE_RASCHET,
+        )
+        await state.set_state(SetReport.choosing_comissiya_credit14)
 
 
 # @router.message(SetReport.choosing_comissiya_credit14)
@@ -1000,27 +1016,27 @@ async def sell_choosing_comissiya_creditcomission14(message: Message, state: FSM
 #     await state.set_state(SetReport.choosing_comissiya_credit15)
 
 
-@router.callback_query(SetReport.choosing_comissiya_credit15)
-async def sell_choosing_comissiya_creditcomission15(callback: types.CallbackQuery, state: FSMContext):
-    data = await state.get_data()
-    vin_number = data['chosen_vin_number']
-    await callback.message.answer(text="Пожалуйста подождите, идет проверка в базе данных")
-    type_of_calc = utils.connectors.db_sql_type_of_calc_select(vin_number)
-    await state.update_data(type_raschet=str(type_of_calc))
-    builder = InlineKeyboardBuilder()
-    builder.add(types.InlineKeyboardButton(
-        text="ВСЕ ОК",
-        callback_data="callback_ostav")
-    )
-    builder.add(types.InlineKeyboardButton(
-        text="РЕДАКТИРОВАТЬ",
-        callback_data="callback_edit")
-    )
-    data = await state.get_data()
-    await callback.message.answer(
-        text="ВИД РАСЧЕТА " + data['type_raschet'], reply_markup=builder.as_markup()
-    )
-    await state.set_state(SetReport.choosing_comissiya_credit16)
+# @router.callback_query(SetReport.choosing_comissiya_credit15)
+# async def sell_choosing_comissiya_creditcomission15(callback: types.CallbackQuery, state: FSMContext):
+#     data = await state.get_data()
+#     vin_number = data['chosen_vin_number']
+#     await callback.message.answer(text="Пожалуйста подождите, идет проверка в базе данных")
+#     type_of_calc = utils.connectors.db_sql_type_of_calc_select(vin_number)
+#     await state.update_data(type_raschet=str(type_of_calc))
+#     builder = InlineKeyboardBuilder()
+#     builder.add(types.InlineKeyboardButton(
+#         text="ВСЕ ОК",
+#         callback_data="callback_ostav")
+#     )
+#     builder.add(types.InlineKeyboardButton(
+#         text="РЕДАКТИРОВАТЬ",
+#         callback_data="callback_edit")
+#     )
+#     data = await state.get_data()
+#     await callback.message.answer(
+#         text="ВИД РАСЧЕТА " + data['type_raschet'], reply_markup=builder.as_markup()
+#     )
+#     await state.set_state(SetReport.choosing_comissiya_credit16)
 
 
 @router.callback_query(SetReport.choosing_comissiya_credit16, F.data == "callback_edit")
@@ -1087,7 +1103,7 @@ async def constructor_choosing_wire12(message: Message, state: FSMContext):
         callback_data="edit_menu_finish"
     ))
     data = await state.get_data()
-    text = f'''Предварительный отчет:\nТИП ОТЧЕТА: {data['chosen_type']}\nКОМИССИЯ ИЛИ НАША: {data['type_credit_our']}\nКРЕДИТ ИЛИ НАЛИЧНЫЕ?: {data['type_deal']}\nЦЕНА ДРОМ: {data['drom_cost']}\nМЕНЕДЖЕРСКАЯ СКИДКА: {data['dealer_discount']}\nСУММА НМ: {data['summa_nm']}\nСУММА СОБСТВЕННИКУ: ZAGLUSHKA\nСУММА СТОРГОВАЛ: {data['howmuchtorg']}\nС КЕМ ПРОДАЛ: {data['whosell']}\nКТО ОФОРМИЛ КРЕДИТ?: {data['whosellcredit']}\nДАТА: {data['date_raschet']}\nВИД РАСЧЕТА: {data['type_raschet']}\n\nVIN: {data['chosen_vin_number']}\nГос номер: {data['chosen_vin_gos_number']}\nМарка: {data['chosen_vin_marka']}\nМодель: {data['chosen_vin_model']}\nГод: {data['chosen_vin_year']}\nКомментарий: {data['chosen_comment']}\n\n\n{message.chat.first_name + " " + message.chat.last_name}
+    text = f'''Предварительный отчет:\nТИП ОТЧЕТА: {data['chosen_type']}\nКОМИССИЯ ИЛИ НАША: {data['type_credit_our']}\nКРЕДИТ ИЛИ НАЛИЧНЫЕ?: {data['type_deal']}\nЦЕНА ДРОМ: {data['drom_cost']}\nМЕНЕДЖЕРСКАЯ СКИДКА: {data['dealer_discount']}\nСУММА НМ: {data['summa_nm']}\nСУММА СОБСТВЕННИКУ: {data['summa_sob']}\nСУММА СТОРГОВАЛ: {data['howmuchtorg']}\nС КЕМ ПРОДАЛ: {data['whosell']}\nКТО ОФОРМИЛ КРЕДИТ?: {data['whosellcredit']}\nДАТА РАСЧЕТА: {data['date_raschet']}\nВИД РАСЧЕТА: {data['type_raschet']}\n\nVIN: {data['chosen_vin_number']}\nГос номер: {data['chosen_vin_gos_number']}\nМарка: {data['chosen_vin_marka']}\nМодель: {data['chosen_vin_model']}\nГод: {data['chosen_vin_year']}\nКомментарий: {data['chosen_comment']}\n\n\n{message.chat.first_name + " " + message.chat.last_name}
             '''
 
     await message.answer(
@@ -1314,7 +1330,7 @@ async def constructor_choosing_wire12(message: Message, state: FSMContext):
         callback_data="edit_menu_finish"
     ))
     data = await state.get_data()
-    text = f'''Предварительный отчет:\nТИП ОТЧЕТА: {data['chosen_type']}\nКОМИССИЯ ИЛИ НАША: {data['type_credit_our']}\nКРЕДИТ ИЛИ НАЛИЧНЫЕ?: {data['type_deal']}\nЦЕНА ДРОМ: {data['drom_cost']}\nМЕНЕДЖЕРСКАЯ СКИДКА: {data['dealer_discount']}\nСУММА НМ: {data['summa_nm']}\nСУММА СОБСТВЕННИКУ: \nСУММА СТОРГОВАЛ: {data['howmuchtorg']}\nС КЕМ ПРОДАЛ: {data['whosell']}\nКТО ОФОРМИЛ КРЕДИТ?: {data['whosellcredit']}\nДАТА: {data['date_raschet']}\nВИД РАСЧЕТА: {data['type_raschet']}\n\nVIN: {data['chosen_vin_number']}\nГос номер: {data['chosen_vin_gos_number']}\nМарка: {data['chosen_vin_marka']}\nМодель: {data['chosen_vin_model']}\nГод: {data['chosen_vin_year']}\nКомментарий: {data['chosen_comment']}\n\n\n{message.chat.first_name + " " + message.chat.last_name}
+    text = f'''Предварительный отчет:\nТИП ОТЧЕТА: {data['chosen_type']}\nКОМИССИЯ ИЛИ НАША: {data['type_credit_our']}\nКРЕДИТ ИЛИ НАЛИЧНЫЕ?: {data['type_deal']}\nЦЕНА ДРОМ: {data['drom_cost']}\nМЕНЕДЖЕРСКАЯ СКИДКА: {data['dealer_discount']}\nСУММА НМ: {data['summa_nm']}\nСУММА СОБСТВЕННИКУ: {data['summa_sob']}\nСУММА СТОРГОВАЛ: {data['howmuchtorg']}\nС КЕМ ПРОДАЛ: {data['whosell']}\nКТО ОФОРМИЛ КРЕДИТ?: {data['whosellcredit']}\nДАТА РАСЧЕТА: {data['date_raschet']}\nВИД РАСЧЕТА: {data['type_raschet']}\n\nVIN: {data['chosen_vin_number']}\nГос номер: {data['chosen_vin_gos_number']}\nМарка: {data['chosen_vin_marka']}\nМодель: {data['chosen_vin_model']}\nГод: {data['chosen_vin_year']}\nКомментарий: {data['chosen_comment']}\n\n\n{message.chat.first_name + " " + message.chat.last_name}
             '''
 
     await message.answer(
@@ -1672,7 +1688,7 @@ async def sell_choosing_comissiya_cash_comission9(callback: types.CallbackQuery,
         switch_inline_query_current_chat='find_b5 ')
     )
     await callback.message.answer(
-        text=texts.MESSAGE_SELL_WITH_CREDIT + "\nВведите первые символы фамилии коллеги",
+        text=texts.MESSAGE_SELL_WITH_DKP + "\nВведите первые символы фамилии коллеги",
         reply_markup=builder.as_markup()
     )
     await state.set_state(SetReport.choosing_comissiya_cash101)
@@ -1720,7 +1736,7 @@ async def sell_choosing_comissiya_cash_comission10(message: Message, state: FSMC
         switch_inline_query_current_chat='find_b6 ')
     )
     await message.answer(
-        text=texts.MESSAGE_SELL_WITH_CREDIT + "\nВведите первые символы фамилии коллеги",
+        text=texts.MESSAGE_SELL_WITH_DKP + "\nВведите первые символы фамилии коллеги",
         reply_markup=builder.as_markup()
     )
     await state.set_state(SetReport.choosing_comissiya_cash11)
@@ -1787,7 +1803,7 @@ async def constructor_choosing_wire12(message: Message, state: FSMContext):
         callback_data="edit_menu_finish"
     ))
     data = await state.get_data()
-    text = f'''Предварительный отчет:\nТИП ОТЧЕТА: {data['chosen_type']}\nКОМИССИЯ ИЛИ НАША: {data['type_credit_our']}\nКРЕДИТ ИЛИ НАЛИЧНЫЕ?: {data['type_deal']}\nЦЕНА ДРОМ: {data['drom_cost']}\nМЕНЕДЖЕРСКАЯ СКИДКА: {data['dealer_discount']}\nСУММА НМ: {data['summa_nm']}\nСУММА СОБСТВЕННИКУ: ZAGLUSHKA\nСУММА СТОРГОВАЛ: {data['howmuchtorg']}\nС КЕМ ПРОДАЛ: {data['whosell']}\nКТО ОФОРМИЛ КРЕДИТ?: {data['whosellcredit']}\nДАТА: {data['date_raschet']}\nВИД РАСЧЕТА: {data['type_raschet']}\n\nVIN: {data['chosen_vin_number']}\nГос номер: {data['chosen_vin_gos_number']}\nМарка: {data['chosen_vin_marka']}\nМодель: {data['chosen_vin_model']}\nГод: {data['chosen_vin_year']}\nКомментарий: {data['chosen_comment']}\n\n\n{message.chat.first_name + " " + message.chat.last_name}
+    text = f'''Предварительный отчет:\nТИП ОТЧЕТА: {data['chosen_type']}\nКОМИССИЯ ИЛИ НАША: {data['type_credit_our']}\nКРЕДИТ ИЛИ НАЛИЧНЫЕ?: {data['type_deal']}\nЦЕНА ДРОМ: {data['drom_cost']}\nМЕНЕДЖЕРСКАЯ СКИДКА: {data['dealer_discount']}\nСУММА НМ: {data['summa_nm']}\nСУММА СОБСТВЕННИКУ: {data['summa_sob']}\nСУММА СТОРГОВАЛ: {data['howmuchtorg']}\nС КЕМ ПРОДАЛ: {data['whosell']}\nКТО ПИСАЛ ДКП?: {data['whosellcredit']}\n\nVIN: {data['chosen_vin_number']}\nГос номер: {data['chosen_vin_gos_number']}\nМарка: {data['chosen_vin_marka']}\nМодель: {data['chosen_vin_model']}\nГод: {data['chosen_vin_year']}\nКомментарий: {data['chosen_comment']}\n\n\n{message.chat.first_name + " " + message.chat.last_name}
             '''
 
     await message.answer(
@@ -1809,7 +1825,7 @@ async def constructor_choosing_awa_our_credit44(callback: types.CallbackQuery, s
 @router.callback_query(SetReport.choosing_sell_editor_start_4)
 async def constructor_editor_start(callback: types.CallbackQuery, state: FSMContext):
     dict_editor = {'editor_start':
-                       {'text': ["C кем продал", "Кто оформил кредит", "Цена дром", "Гос номер", "Марка", "Модель",
+                       {'text': ["C кем продал", "Кто писал дкп", "Цена дром", "Гос номер", "Марка", "Модель",
                                  "Год", "VIN",
                                  "Комментарий", "Все ок"],
                         'data': ["edit_menu_who_sell", "edit_menu_who_credit", "edit_menu_drom_cost",
@@ -1817,7 +1833,7 @@ async def constructor_editor_start(callback: types.CallbackQuery, state: FSMCont
                                  "edit_menu_model", "edit_menu_year", "edit_menu_vin", "edit_menu_comment",
                                  "edit_menu_finish"]}}
 
-    await utils.editor_sell.editor_start_1_6(callback, state, dict_editor)
+    await utils.editor_sell.editor_start_1_6_dkp(callback, state, dict_editor)
     await state.set_state(SetReport.choosing_sell_selector_4)
 
 
@@ -1982,7 +1998,7 @@ async def editor_first_menu_comment(callback: types.CallbackQuery, state: FSMCon
 #     await state.clear()
 
 
-@router.callback_query(SetReport.choosing_comissiya_cash13, F.data == texts.BT_YES)
+@router.callback_query(SetReport.choosing_comissiya_cash13)
 async def sell_choosing_comissiya_cash_comission13(callback: types.CallbackQuery, state: FSMContext):
     await callback.message.answer(
         text=texts.MESSAGE_DATE_RASCHET,
@@ -1996,34 +2012,48 @@ async def sell_choosing_comissiya_creditcomission14(message: Message, state: FSM
     new_date = await utils.connectors.date_normalizer(date_raschet)
     if new_date:
         await state.update_data(date_raschet=new_date)
-        builder = InlineKeyboardBuilder()
-        builder.add(types.InlineKeyboardButton(
-            text=texts.BT_YES,
-            callback_data=texts.BT_YES)
-        )
-        builder.add(types.InlineKeyboardButton(
-            text=texts.BT_NO,
-            callback_data=texts.BT_NO)
-        )
+        # builder = InlineKeyboardBuilder()
+        # builder.add(types.InlineKeyboardButton(
+        #     text=texts.BT_YES,
+        #     callback_data=texts.BT_YES)
+        # )
+        # builder.add(types.InlineKeyboardButton(
+        #     text=texts.BT_NO,
+        #     callback_data=texts.BT_NO)
+        # )
+        # data = await state.get_data()
+        # vin_number = data['chosen_vin_number']
+        # await message.answer(text="Пожалуйста подождите, идет проверка в базе данных")
+        # type_of_calc = utils.connectors.db_sql_type_of_calc_select(vin_number)
+        # await message.answer(
+        #     text=texts.MESSAGE_TYPE_RASCHETA_WAS + type_of_calc, reply_markup=builder.as_markup()
+        # )
         data = await state.get_data()
         vin_number = data['chosen_vin_number']
         await message.answer(text="Пожалуйста подождите, идет проверка в базе данных")
         type_of_calc = utils.connectors.db_sql_type_of_calc_select(vin_number)
-        await message.answer(
-            text=texts.MESSAGE_TYPE_RASCHETA_WAS + type_of_calc, reply_markup=builder.as_markup()
-        )
-        await state.set_state(SetReport.choosing_comissiya_cash15)
-    else:
+        await state.update_data(type_raschet=str(type_of_calc))
         builder = InlineKeyboardBuilder()
         builder.add(types.InlineKeyboardButton(
-            text=texts.BT_YES,
-            callback_data=texts.BT_YES)
+            text="ВСЕ ОК",
+            callback_data="callback_ostav")
         )
+        builder.add(types.InlineKeyboardButton(
+            text="РЕДАКТИРОВАТЬ",
+            callback_data="callback_edit")
+        )
+        data = await state.get_data()
         await message.answer(
-            text="ДАТА НЕКОРРЕКТНА, ПОПРОБУЙТЕ ИЗМЕНИТЬ В РЕЖИМЕ РЕДАКТИРОВАНИЯ", reply_markup=builder.as_markup()
-
+            text="ВИД РАСЧЕТА " + "\"" + data['type_raschet'] + "\"", reply_markup=builder.as_markup()
         )
-        await state.set_state(SetReport.choosing_comissiya_cash15)
+        await state.set_state(SetReport.choosing_comissiya_cash16)
+    else:
+        await message.answer(
+            text="ДАТА НЕКОРРЕКТНА, ПОПРОБУЙТЕ ЕЩЕ РАЗ")
+        await message.answer(
+            text=texts.MESSAGE_DATE_RASCHET,
+        )
+        await state.set_state(SetReport.choosing_comissiya_cash14)
 
 
 # @router.message(SetReport.choosing_comissiya_cash14)
@@ -2131,7 +2161,7 @@ async def constructor_choosing_wire12(message: Message, state: FSMContext):
         callback_data="edit_menu_finish"
     ))
     data = await state.get_data()
-    text = f'''Предварительный отчет:\nТИП ОТЧЕТА: {data['chosen_type']}\nКОМИССИЯ ИЛИ НАША: {data['type_credit_our']}\nКРЕДИТ ИЛИ НАЛИЧНЫЕ?: {data['type_deal']}\nЦЕНА ДРОМ: {data['drom_cost']}\nМЕНЕДЖЕРСКАЯ СКИДКА: {data['dealer_discount']}\nСУММА НМ: {data['summa_nm']}\nСУММА СОБСТВЕННИКУ: ZAGLUSHKA\nСУММА СТОРГОВАЛ: {data['howmuchtorg']}\nС КЕМ ПРОДАЛ: {data['whosell']}\nКТО ОФОРМИЛ КРЕДИТ?: {data['whosellcredit']}\nДАТА: {data['date_raschet']}\nВИД РАСЧЕТА: {data['type_raschet']}\n\nVIN: {data['chosen_vin_number']}\nГос номер: {data['chosen_vin_gos_number']}\nМарка: {data['chosen_vin_marka']}\nМодель: {data['chosen_vin_model']}\nГод: {data['chosen_vin_year']}\nКомментарий: {data['chosen_comment']}\n\n\n{message.chat.first_name + " " + message.chat.last_name}
+    text = f'''Предварительный отчет:\nТИП ОТЧЕТА: {data['chosen_type']}\nКОМИССИЯ ИЛИ НАША: {data['type_credit_our']}\nКРЕДИТ ИЛИ НАЛИЧНЫЕ?: {data['type_deal']}\nЦЕНА ДРОМ: {data['drom_cost']}\nМЕНЕДЖЕРСКАЯ СКИДКА: {data['dealer_discount']}\nСУММА НМ: {data['summa_nm']}\nСУММА СОБСТВЕННИКУ: {data['summa_sob']}\nСУММА СТОРГОВАЛ: {data['howmuchtorg']}\nС КЕМ ПРОДАЛ: {data['whosell']}\nКТО ОФОРМИЛ КРЕДИТ?: {data['whosellcredit']}\nДАТА РАСЧЕТА: {data['date_raschet']}\nВИД РАСЧЕТА: {data['type_raschet']}\n\nVIN: {data['chosen_vin_number']}\nГос номер: {data['chosen_vin_gos_number']}\nМарка: {data['chosen_vin_marka']}\nМодель: {data['chosen_vin_model']}\nГод: {data['chosen_vin_year']}\nКомментарий: {data['chosen_comment']}\n\n\n{message.chat.first_name + " " + message.chat.last_name}
             '''
 
     await message.answer(
@@ -2358,7 +2388,7 @@ async def constructor_choosing_wire12(message: Message, state: FSMContext):
         callback_data="edit_menu_finish"
     ))
     data = await state.get_data()
-    text = f'''Предварительный отчет:\nТИП ОТЧЕТА: {data['chosen_type']}\nКОМИССИЯ ИЛИ НАША: {data['type_credit_our']}\nКРЕДИТ ИЛИ НАЛИЧНЫЕ?: {data['type_deal']}\nЦЕНА ДРОМ: {data['drom_cost']}\nМЕНЕДЖЕРСКАЯ СКИДКА: {data['dealer_discount']}\nСУММА НМ: {data['summa_nm']}\nСУММА СОБСТВЕННИКУ: {data['summa_sob']}\nСУММА СТОРГОВАЛ: {data['howmuchtorg']}\nС КЕМ ПРОДАЛ: {data['whosell']}\nКТО ОФОРМИЛ КРЕДИТ?: {data['whosellcredit']}\nДАТА: {data['date_raschet']}\nВИД РАСЧЕТА: {data['type_raschet']}\n\nVIN: {data['chosen_vin_number']}\nГос номер: {data['chosen_vin_gos_number']}\nМарка: {data['chosen_vin_marka']}\nМодель: {data['chosen_vin_model']}\nГод: {data['chosen_vin_year']}\nКомментарий: {data['chosen_comment']}\n\n\n{message.chat.first_name + " " + message.chat.last_name}
+    text = f'''Предварительный отчет:\nТИП ОТЧЕТА: {data['chosen_type']}\nКОМИССИЯ ИЛИ НАША: {data['type_credit_our']}\nКРЕДИТ ИЛИ НАЛИЧНЫЕ?: {data['type_deal']}\nЦЕНА ДРОМ: {data['drom_cost']}\nМЕНЕДЖЕРСКАЯ СКИДКА: {data['dealer_discount']}\nСУММА НМ: {data['summa_nm']}\nСУММА СОБСТВЕННИКУ: {data['summa_sob']}\nСУММА СТОРГОВАЛ: {data['howmuchtorg']}\nС КЕМ ПРОДАЛ: {data['whosell']}\nКТО ОФОРМИЛ КРЕДИТ?: {data['whosellcredit']}\nДАТА РАСЧЕТА: {data['date_raschet']}\nВИД РАСЧЕТА: {data['type_raschet']}\n\nVIN: {data['chosen_vin_number']}\nГос номер: {data['chosen_vin_gos_number']}\nМарка: {data['chosen_vin_marka']}\nМодель: {data['chosen_vin_model']}\nГод: {data['chosen_vin_year']}\nКомментарий: {data['chosen_comment']}\n\n\n{message.chat.first_name + " " + message.chat.last_name}
             '''
 
     await message.answer(
@@ -2872,6 +2902,11 @@ async def constructor_choosing_wire12(message: Message, state: FSMContext):
 @router.callback_query(SetReport.choosing_sell_editor_start_7, F.data == "edit_menu_finish")
 async def constructor_choosing_awa_our_credit44(callback: types.CallbackQuery, state: FSMContext):
     await callback.message.answer("Подождите, идет выгрузка отчета")
+    await state.update_data(summa_nm=None)
+    await state.update_data(summa_sob=None)
+    await state.update_data(howmuchtorg=None)
+    await state.update_data(date_raschet=None)
+    await state.update_data(type_raschet=None)
     data = await state.get_data()
     await utils.connectors.db_sql_sell_insert(callback, data)
     await callback.message.answer(
@@ -3137,7 +3172,7 @@ async def sell_choosing_comissiya_cash_comission8(message: Message, state: FSMCo
         await state.set_state(SetReport.choosing_our_cash3)
 
 
-@router.callback_query(SetReport.choosing_our_cash, F.data == "САМ")
+@router.callback_query(SetReport.choosing_our_cash45, F.data == "САМ")
 async def sell_choosing_comissiya_cash_comission9(callback: types.CallbackQuery, state: FSMContext):
     await state.update_data(whosell=callback.message.chat.first_name + callback.message.chat.last_name)
     builder = InlineKeyboardBuilder()
@@ -3196,7 +3231,7 @@ async def sell_choosing_comissiya_cash_comission10(message: Message, state: FSMC
         switch_inline_query_current_chat='find_b10 ')
     )
     await message.answer(
-        text=texts.MESSAGE_SELL_WITH_CREDIT + "\nВведите первые символы фамилии коллеги",
+        text=texts.MESSAGE_SELL_WITH_DKP + "\nВведите первые символы фамилии коллеги",
         reply_markup=builder.as_markup()
     )
     await state.set_state(SetReport.choosing_our_cash452)
@@ -3386,6 +3421,11 @@ async def constructor_choosing_wire12(message: Message, state: FSMContext):
 @router.callback_query(SetReport.choosing_sell_editor_start_8, F.data == "edit_menu_finish")
 async def constructor_choosing_awa_our_credit44(callback: types.CallbackQuery, state: FSMContext):
     await callback.message.answer("Подождите, идет выгрузка отчета")
+    await state.update_data(summa_nm=None)
+    await state.update_data(summa_sob=None)
+    await state.update_data(howmuchtorg=None)
+    await state.update_data(date_raschet=None)
+    await state.update_data(type_raschet=None)
     data = await state.get_data()
     await utils.connectors.db_sql_sell_insert(callback, data)
     await callback.message.answer(
