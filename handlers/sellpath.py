@@ -596,7 +596,7 @@ async def sell_choosing_comissiya_creditcomission8(message: Message, state: FSMC
         )
         builder.add(types.InlineKeyboardButton(
             text="Нажмите, чтобы ввести фамилию",
-            switch_inline_query_current_chat='find_b4 ')
+            switch_inline_query_current_chat='find_b1 ')
         )
         await message.answer(
             text=texts.MESSAGE_SELL_WITH + "\nВведите первые символы фамилии коллеги", reply_markup=builder.as_markup()
@@ -670,7 +670,7 @@ async def sell_choosing_our_credit5(message: Message, state: FSMContext):
     )
     builder.add(types.InlineKeyboardButton(
         text="Ввести фамилию",
-        switch_inline_query_current_chat='find_b3 ')
+        switch_inline_query_current_chat='find_b2 ')
     )
     await message.answer(
         text=texts.MESSAGE_SELL_WITH_CREDIT + "\nВведите первые символы фамилии коллеги",
@@ -1659,7 +1659,7 @@ async def sell_choosing_comissiya_cash_comission8(message: Message, state: FSMCo
         )
         builder.add(types.InlineKeyboardButton(
             text="Нажмите, чтобы ввести фамилию",
-            switch_inline_query_current_chat='find_b6 ')
+            switch_inline_query_current_chat='find_b3 ')
         )
         await message.answer(
             text=texts.MESSAGE_SELL_WITH + "\nВведите первые символы фамилии коллеги", reply_markup=builder.as_markup()
@@ -1685,7 +1685,7 @@ async def sell_choosing_comissiya_cash_comission9(callback: types.CallbackQuery,
     )
     builder.add(types.InlineKeyboardButton(
         text="Нажмите, чтобы ввести фамилию",
-        switch_inline_query_current_chat='find_b5 ')
+        switch_inline_query_current_chat='find_b4 ')
     )
     await callback.message.answer(
         text=texts.MESSAGE_SELL_WITH_DKP + "\nВведите первые символы фамилии коллеги",
@@ -1733,7 +1733,7 @@ async def sell_choosing_comissiya_cash_comission10(message: Message, state: FSMC
     )
     builder.add(types.InlineKeyboardButton(
         text="Нажмите, чтобы ввести фамилию",
-        switch_inline_query_current_chat='find_b6 ')
+        switch_inline_query_current_chat='find_b4 ')
     )
     await message.answer(
         text=texts.MESSAGE_SELL_WITH_DKP + "\nВведите первые символы фамилии коллеги",
@@ -1814,6 +1814,8 @@ async def constructor_choosing_wire12(message: Message, state: FSMContext):
 @router.callback_query(SetReport.choosing_sell_editor_start_4, F.data == "edit_menu_finish")
 async def constructor_choosing_awa_our_credit44(callback: types.CallbackQuery, state: FSMContext):
     await callback.message.answer("Подождите, идет выгрузка отчета")
+    await state.update_data(date_raschet=None)
+    await state.update_data(type_raschet=None)
     data = await state.get_data()
     await utils.connectors.db_sql_sell_insert(callback, data)
     await callback.message.answer(
@@ -2643,7 +2645,7 @@ async def sell_choosing_comissiya_cash_comission8(message: Message, state: FSMCo
         )
         builder.add(types.InlineKeyboardButton(
             text="Нажмите, чтобы ввести фамилию",
-            switch_inline_query_current_chat='find_b7 ')
+            switch_inline_query_current_chat='find_b5 ')
         )
         await message.answer(
             text=texts.MESSAGE_SELL_WITH + "\nВведите первые символы фамилии коллеги", reply_markup=builder.as_markup()
@@ -2669,7 +2671,7 @@ async def sell_choosing_comissiya_cash_comission9(callback: types.CallbackQuery,
     )
     builder.add(types.InlineKeyboardButton(
         text="Нажмите, чтобы ввести фамилию",
-        switch_inline_query_current_chat='find_b8 ')
+        switch_inline_query_current_chat='find_b6 ')
     )
     await callback.message.answer(
         text=texts.MESSAGE_SELL_WITH_CREDIT + "\nВведите первые символы фамилии коллеги",
@@ -2711,9 +2713,9 @@ async def sell_choosing_comissiya_cash_comission101(callback: types.CallbackQuer
 
 
 @router.message(SetReport.choosing_our_credit45)
-@router.inline_query(lambda query: query.query.startswith("find_b7 "))
+@router.inline_query(lambda query: query.query.startswith("find_b5 "))
 async def find_colleges(inline_query: types.InlineQuery, state: FSMContext):
-    await utils.inliner.find_colleges(inline_query, state, "find_b7 ")
+    await utils.inliner.find_colleges(inline_query, state, "find_b5 ")
     await state.set_state(SetReport.choosing_our_credit451)
 
 
@@ -2731,7 +2733,7 @@ async def sell_choosing_comissiya_cash_comission10(message: Message, state: FSMC
     )
     builder.add(types.InlineKeyboardButton(
         text="Нажмите, чтобы ввести фамилию",
-        switch_inline_query_current_chat='find_b8 ')
+        switch_inline_query_current_chat='find_b6 ')
     )
     await message.answer(
         text=texts.MESSAGE_SELL_WITH_CREDIT + "\nВведите первые символы фамилии коллеги",
@@ -2741,9 +2743,9 @@ async def sell_choosing_comissiya_cash_comission10(message: Message, state: FSMC
 
 
 @router.message(SetReport.choosing_our_credit452)
-@router.inline_query(lambda query: query.query.startswith("find_b8 "))
+@router.inline_query(lambda query: query.query.startswith("find_b6 "))
 async def find_colleges(inline_query: types.InlineQuery, state: FSMContext):
-    await utils.inliner.find_colleges(inline_query, state, "find_b8 ")
+    await utils.inliner.find_colleges(inline_query, state, "find_b6 ")
     await state.set_state(SetReport.choosing_our_credit453)
 
 
