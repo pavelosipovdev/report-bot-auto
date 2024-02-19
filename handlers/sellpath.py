@@ -679,6 +679,24 @@ async def sell_choosing_our_credit5(message: Message, state: FSMContext):
     await state.set_state(SetReport.choosing_comissiya_credit11)
 
 
+@router.callback_query(SetReport.choosing_comissiya_credit11, F.data == "САМ")
+async def sell_choosing_comissiya_creditcomission101(callback: types.CallbackQuery, state: FSMContext):
+    await state.update_data(whosellcredit=callback.message.chat.first_name + callback.message.chat.last_name)
+    builder = InlineKeyboardBuilder()
+    builder.add(types.InlineKeyboardButton(
+        text=texts.BT_YES,
+        callback_data=texts.BT_YES)
+    )
+    builder.add(types.InlineKeyboardButton(
+        text=texts.BT_NO,
+        callback_data=texts.BT_NO)
+    )
+    await callback.message.answer(
+        text=texts.MESSAGE_CAll_SOBS, reply_markup=builder.as_markup()
+    )
+    await state.set_state(SetReport.choosing_comissiya_credit13)
+
+
 @router.message(SetReport.choosing_comissiya_credit11)
 @router.inline_query(lambda query: query.query.startswith("find_b2 "))
 async def find_colleges(inline_query: types.InlineQuery, state: FSMContext):
@@ -1742,6 +1760,24 @@ async def sell_choosing_comissiya_cash_comission10(message: Message, state: FSMC
     await state.set_state(SetReport.choosing_comissiya_cash11)
 
 
+@router.callback_query(SetReport.choosing_comissiya_cash11, F.data == "САМ")
+async def sell_choosing_comissiya_creditcomission101(callback: types.CallbackQuery, state: FSMContext):
+    await state.update_data(whosellcredit=callback.message.chat.first_name + callback.message.chat.last_name)
+    builder = InlineKeyboardBuilder()
+    builder.add(types.InlineKeyboardButton(
+        text=texts.BT_YES,
+        callback_data=texts.BT_YES)
+    )
+    builder.add(types.InlineKeyboardButton(
+        text=texts.BT_NO,
+        callback_data=texts.BT_NO)
+    )
+    await callback.message.answer(
+        text=texts.MESSAGE_CAll_SOBS, reply_markup=builder.as_markup()
+    )
+    await state.set_state(SetReport.choosing_comissiya_cash13)
+
+
 @router.message(SetReport.choosing_comissiya_cash11)
 @router.inline_query(lambda query: query.query.startswith("find_b4 "))
 async def find_colleges(inline_query: types.InlineQuery, state: FSMContext):
@@ -2742,6 +2778,22 @@ async def sell_choosing_comissiya_cash_comission10(message: Message, state: FSMC
     await state.set_state(SetReport.choosing_our_credit452)
 
 
+@router.callback_query(SetReport.choosing_our_credit452, F.data == "САМ")
+async def sell_choosing_comissiya_creditcomission101(callback: types.CallbackQuery, state: FSMContext):
+    await state.update_data(whosellcredit=callback.message.chat.first_name + callback.message.chat.last_name)
+    kb = [
+        [types.KeyboardButton(text="Без комментариев")]
+    ]
+    keyboard = types.ReplyKeyboardMarkup(
+        keyboard=kb,
+        resize_keyboard=True,
+        one_time_keyboard=True,
+
+    )
+    await callback.message.answer(text="Комментарии", reply_markup=keyboard)
+    await state.set_state(SetReport.choosing_sell_editor_7)
+
+
 @router.message(SetReport.choosing_our_credit452)
 @router.inline_query(lambda query: query.query.startswith("find_b6 "))
 async def find_colleges(inline_query: types.InlineQuery, state: FSMContext):
@@ -3237,6 +3289,22 @@ async def sell_choosing_comissiya_cash_comission10(message: Message, state: FSMC
         reply_markup=builder.as_markup()
     )
     await state.set_state(SetReport.choosing_our_cash452)
+
+
+@router.callback_query(SetReport.choosing_our_cash452, F.data == "САМ")
+async def sell_choosing_comissiya_creditcomission101(callback: types.CallbackQuery, state: FSMContext):
+    await state.update_data(whosellcredit=callback.message.chat.first_name + callback.message.chat.last_name)
+    kb = [
+        [types.KeyboardButton(text="Без комментариев")]
+    ]
+    keyboard = types.ReplyKeyboardMarkup(
+        keyboard=kb,
+        resize_keyboard=True,
+        one_time_keyboard=True,
+
+    )
+    await callback.message.answer(text="Комментарии", reply_markup=keyboard)
+    await state.set_state(SetReport.choosing_sell_editor_8)
 
 
 @router.message(SetReport.choosing_our_cash452)
