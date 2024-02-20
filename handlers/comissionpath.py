@@ -103,7 +103,7 @@ async def main_menu_bt_constructor_2_comission(callback: types.CallbackQuery, st
         callback_data=texts.BT_CONSTRUCTOR_2_GETOUT)
     )
 
-    await callback.message.answer(text=texts.MESSAGE_BT_CONSTRUCTOR_1_SELL, reply_markup=builder.as_markup())
+    await callback.message.answer(text=texts.MESSAGE_BT_CONSTRUCTOR_1_COMISSION, reply_markup=builder.as_markup())
     await state.set_state(SetReport.choosing_comission_buyer)
     await callback.message.delete()
 
@@ -162,25 +162,31 @@ async def main_menu_button2(message: Message, state: FSMContext):
 
 @router.message(SetReport.choosing_comission_data_car_year)
 async def main_menu_button2(message: Message, state: FSMContext):
+    await state.update_data(chosen_vin_model=message.text.upper())
+    await message.answer(text="Укажите год")
+    await state.set_state(SetReport.choosing_comission_data_car_gosnumber)
+
+
+@router.message(SetReport.choosing_comission_data_car_gosnumber)
+async def main_menu_button2(message: Message, state: FSMContext):
     just = message.text.upper()
     if just.isdigit():
         await state.update_data(chosen_vin_year=int(just))
         await message.answer(text="Укажите гоc номер")
-        await state.set_state(SetReport.choosing_comission_data_car_gosnumber)
+        await state.set_state(SetReport.choosing_comission_data_car_next)
     else:
         await message.answer(
             text=texts.MESSAGE_ONLY_DIGITS,
         )
         await message.answer(text="Укажите год")
-        await state.set_state(SetReport.choosing_comission_data_car_year)
+        await state.set_state(SetReport.choosing_comission_data_car_gosnumber)
 
 
-
-@router.message(SetReport.choosing_comission_data_car_gosnumber)
-async def main_menu_button2(message: Message, state: FSMContext):
-    await state.update_data(chosen_vin_year=message.text.upper())
-    await message.answer(text="Укажите гоc номер")
-    await state.set_state(SetReport.choosing_comission_data_car_next)
+# @router.message(SetReport.choosing_comission_data_car_gosnumber)
+# async def main_menu_button2(message: Message, state: FSMContext):
+#     await state.update_data(chosen_vin_year=message.text.upper())
+#     await message.answer(text="Укажите гоc номер")
+#     await state.set_state(SetReport.choosing_comission_data_car_next)
 
 
 @router.message(SetReport.choosing_comission_data_car_next)
@@ -193,9 +199,9 @@ async def main_menu_button2(message: Message, state: FSMContext):
     )
     data = await state.get_data()
     text = f'''Вы указали:
-    Год {data['chosen_vin_year'].upper()}
-    Гос номер {data['chosen_vin_gos_number'].upper()}
-    VIN {data['chosen_vin_number'].upper()}
+    Год {str(data['chosen_vin_year']).upper()}
+    Гос номер {str(data['chosen_vin_gos_number']).upper()}
+    VIN {str(data['chosen_vin_number']).upper()}
     Марка {data['chosen_vin_marka'].upper()}
     Модель {data['chosen_vin_model'].upper()}
     '''
