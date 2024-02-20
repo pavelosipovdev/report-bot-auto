@@ -173,3 +173,4 @@ templates/dict_collegues.txt
 templates/dict_collegues_backup.txt
 bot_log.log
 qodana.yaml
+utils/connectors.py

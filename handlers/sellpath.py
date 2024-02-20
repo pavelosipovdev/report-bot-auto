@@ -383,9 +383,9 @@ async def main_menu_button2(message: Message, state: FSMContext):
     )
     data = await state.get_data()
     text = f'''Вы указали:
-    Год {data['chosen_vin_year'].upper()}
-    Гос номер {data['chosen_vin_gos_number'].upper()}
-    VIN {data['chosen_vin_number'].upper()}
+    Год {str(data['chosen_vin_year']).upper()}
+    Гос номер {str(data['chosen_vin_gos_number']).upper()}
+    VIN {str(data['chosen_vin_number']).upper()}
     Марка {data['chosen_vin_marka'].upper()}
     Модель {data['chosen_vin_model'].upper()}
     '''
