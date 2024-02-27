@@ -10,10 +10,15 @@ from texts import texts
 
 
 async def constructor_choosing_electro(message: Message, state: FSMContext, bot: Bot):
+    global this_year
     builder = InlineKeyboardBuilder()
     builder.add(types.InlineKeyboardButton(
         text=texts.BT_NEXT,
         callback_data=texts.BT_NEXT)
+    )
+    builder.add(types.InlineKeyboardButton(
+        text=texts.BT_EDIT,
+        callback_data=texts.BT_EDIT)
     )
     await bot.download(
         message.photo[-1],
@@ -32,17 +37,60 @@ async def constructor_choosing_electro(message: Message, state: FSMContext, bot:
         if len(k) == 14 and str(k[13]).isdigit():
             electro_vin = str(k).upper()
             print(electro_vin)
+
+    # 46 - year [25],  47 - year [26]
+    print(len(doka))
     print(doka[6], doka[8], doka[10], doka[26])
-    msg2 = f'''В базу внесено:
-    Год {str(doka[26]).upper()}
-    VIN {str(doka[6]).upper()}
-    Марка {str(doka[8]).upper()}
-    Модель {str(doka[10]).upper()}
-    '''
-    await message.answer(text=msg2, reply_markup=builder.as_markup())
-    await state.update_data(chosen_vin_gos_number="NONE", chosen_vin_number=str(doka[6]).upper(),
-                            chosen_vin_marka=str(doka[8]).upper(), chosen_vin_model=str(doka[10]).upper(),
-                            chosen_vin_year=str(doka[25]).upper())
+    if len(doka) == 47:
+        msg2 = f'''В базу внесено:
+        Год {str(doka[26]).upper()}
+        VIN {str(doka[6]).upper()}
+        Марка {str(doka[8]).upper()}
+        Модель {str(doka[10]).upper()}
+        '''
+        await message.answer(text=msg2, reply_markup=builder.as_markup())
+        await state.update_data(chosen_vin_gos_number="NONE", chosen_vin_number=str(doka[6]).upper(),
+                                chosen_vin_marka=str(doka[8]).upper(), chosen_vin_model=str(doka[10]).upper(),
+                                chosen_vin_year=str(doka[26]).upper())
+    elif len(doka) == 46:
+        msg2 = f'''В базу внесено:
+        Год {str(doka[25]).upper()}
+        VIN {str(doka[6]).upper()}
+        Марка {str(doka[8]).upper()}
+        Модель {str(doka[10]).upper()}
+        '''
+        await message.answer(text=msg2, reply_markup=builder.as_markup())
+        await state.update_data(chosen_vin_gos_number="NONE", chosen_vin_number=str(doka[6]).upper(),
+                                chosen_vin_marka=str(doka[8]).upper(), chosen_vin_model=str(doka[10]).upper(),
+                                chosen_vin_year=str(doka[25]).upper())
+    else:
+        for i in doka:
+            if i.isdigit() and len(
+                    i) == 4:  # Проверка, что i является числом и имеет длину 4 символа (предполагая, что год состоит из 4 цифр)
+                this_year = int(i)  # Преобразование года в целое число
+                # Далее можно добавить необходимую логику для обработки года
+                print(f"Найден год: {this_year}")
+                break
+        vin_number_sts = doka[6]
+        marka_sts = doka[8]
+        model_sts = doka[8]
+        if str(doka[4]).upper() == "ИДЕНТИФИКАЦИОННЫЙ":
+            vin_number_sts = doka[5]
+        if str(doka[7]).upper() == "МАРКА":
+            marka_sts = doka[8]
+        if str(doka[9]).upper() == "КОММЕРЧЕСКОЕ":
+            model_sts = doka[10]
+
+        msg2 = f'''В базу внесено:
+        Год {str(this_year)}
+        VIN {str(vin_number_sts).upper()}
+        Марка {str(marka_sts).upper()}
+        Модель {str(model_sts).upper()}
+        '''
+        await message.answer(text=msg2, reply_markup=builder.as_markup())
+        await state.update_data(chosen_vin_gos_number="NONE", chosen_vin_number=str(vin_number_sts).upper(),
+                                chosen_vin_marka=str(marka_sts).upper(), chosen_vin_model=str(model_sts).upper(),
+                                chosen_vin_year=str(this_year))
 
 
 async def constructor_choosing_vin(message: Message, state: FSMContext, bot: Bot):
@@ -50,6 +98,10 @@ async def constructor_choosing_vin(message: Message, state: FSMContext, bot: Bot
     builder.add(types.InlineKeyboardButton(
         text=texts.BT_NEXT,
         callback_data=texts.BT_NEXT)
+    )
+    builder.add(types.InlineKeyboardButton(
+        text=texts.BT_EDIT,
+        callback_data=texts.BT_EDIT)
     )
     await bot.download(
         message.photo[-1],
@@ -89,6 +141,7 @@ async def constructor_choosing_vin(message: Message, state: FSMContext, bot: Bot
                             chosen_vin_year=str(doka[
                                                     0]).upper())
     await message.answer(text=msg2, reply_markup=builder.as_markup())
+
 
 async def constructor_choosing_japan(message: Message, state: FSMContext, bot: Bot):
     builder = InlineKeyboardBuilder()

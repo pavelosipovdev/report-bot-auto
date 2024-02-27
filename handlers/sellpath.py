@@ -381,6 +381,10 @@ async def main_menu_button2(message: Message, state: FSMContext):
         text=texts.BT_NEXT,
         callback_data=texts.BT_NEXT)
     )
+    builder.add(types.InlineKeyboardButton(
+        text=texts.BT_EDIT,
+        callback_data=texts.BT_EDIT)
+    )
     data = await state.get_data()
     text = f'''Вы указали:
     Год {str(data['chosen_vin_year']).upper()}
@@ -405,6 +409,12 @@ async def constructor_choosing_electro(message: Message, state: FSMContext, bot:
     await state.set_state(SetReport.choosing_comissiya_our)
 
 
+@router.callback_query(SetReport.choosing_comissiya_our, F.data == texts.BT_EDIT)
+async def main_menu_button2(callback: types.CallbackQuery, state: FSMContext):
+    await callback.message.answer(text="Укажите VIN")
+    await state.set_state(SetReport.choosing_sell_data_car_marka)
+
+
 # async def set_next_state(callback_data: str, state: FSMContext):
 #     if callback_data == "some_condition":
 #         await state.set_state("some_state")
@@ -412,7 +422,7 @@ async def constructor_choosing_electro(message: Message, state: FSMContext, bot:
 #         await state.set_state("another_state")
 
 
-@router.callback_query(SetReport.choosing_comissiya_our)
+@router.callback_query(SetReport.choosing_comissiya_our, F.data == texts.BT_SAVE)
 async def main_menu_bt_constructor_1_sell(callback: types.CallbackQuery, state: FSMContext):
     await state.update_data(choosing_buyer3=callback.data)
     builder = InlineKeyboardBuilder()
