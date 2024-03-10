@@ -242,6 +242,73 @@ def db_sql_price_owner_select(vin_dict):
     conn.close()
 
 
+def db_sql_vin_buy_owner_select(vin_dict):
+    conn = psycopg2.connect(user=os.getenv('SQL_USER'),
+                            password=os.getenv('SQL_PASSWORD'),
+                            host=os.getenv('SQL_HOST'),
+                            port=os.getenv('SQL_PORT'),
+                            database=os.getenv('SQL_DATABASE')
+                            )
+    cur = conn.cursor()
+    if conn.closed == 0:
+        print(f'Успешное подключение к бд, статус {conn.closed}')
+        print("select vin from bot_planeta_avto.purchase_report pr \
+                            where pr.vin='{value_vin_tg}' \
+                            ;")
+        sql_select_vin_all = "select vin from bot_planeta_avto.purchase_report pr \
+                            where pr.vin='{value_vin_tg}' \
+                            ;"
+        cur.execute(sql_select_vin_all.format(value_vin_tg=vin_dict))
+        select_vin_all = cur.fetchall()
+        print("select_vin_all=  " + str(select_vin_all))
+        try:
+            select_vin = select_vin_all[0][0]
+            print(select_vin)
+            logging.info(
+                "Success select select_vin for ")
+            return str(select_vin)
+        except Exception as e:
+            print("An error has occurred:", e)
+            return "UNKNOWN"
+    else:
+        print(f'База недоступна, статус {conn.closed}')
+        logging.error(f'База недоступна, статус {conn.closed}')
+
+    conn.commit()
+    conn.close()
+
+
+def db_sql_vin_comission_owner_select(vin_dict):
+    conn = psycopg2.connect(user=os.getenv('SQL_USER'),
+                            password=os.getenv('SQL_PASSWORD'),
+                            host=os.getenv('SQL_HOST'),
+                            port=os.getenv('SQL_PORT'),
+                            database=os.getenv('SQL_DATABASE')
+                            )
+    cur = conn.cursor()
+    if conn.closed == 0:
+        print(f'Успешное подключение к бд, статус {conn.closed}')
+        sql_select_vin_all = "select vin from bot_planeta_avto.commission_report cr where cr.vin='{value_vin_tg}';"
+        cur.execute(sql_select_vin_all.format(value_vin_tg=vin_dict))
+        select_vin_all = cur.fetchall()
+        print("select_vin_all=  " + str(select_vin_all))
+        try:
+            select_vin = select_vin_all[0][0]
+            print(select_vin)
+            logging.info(
+                "Success select select_vin for ")
+            return str(select_vin)
+        except Exception as e:
+            print("An error has occurred:", e)
+            return "UNKNOWN"
+    else:
+        print(f'База недоступна, статус {conn.closed}')
+        logging.error(f'База недоступна, статус {conn.closed}')
+
+    conn.commit()
+    conn.close()
+
+
 def db_sql_type_of_calc_select(vin_dict):
     conn = psycopg2.connect(user=os.getenv('SQL_USER'),
                             password=os.getenv('SQL_PASSWORD'),
@@ -262,6 +329,74 @@ def db_sql_type_of_calc_select(vin_dict):
             logging.info(
                 "Success select type_of_calc for ")
             return str(type_of_calс)
+        except Exception as e:
+            print("An error has occurred:", e)
+            # await callback.message.answer(
+            #     text="Вин номер не найдет, проверьте его корректность")
+            return "UNKNOWN"
+    else:
+        print(f'База недоступна, статус {conn.closed}')
+        logging.error(f'База недоступна, статус {conn.closed}')
+        # await callback.message.answer(
+        #     text="База недоступна, свяжитесь с администратором>")
+    conn.commit()
+    conn.close()
+
+
+def db_sql_buy_editor_select(vin_dict):
+    conn = psycopg2.connect(user=os.getenv('SQL_USER'),
+                            password=os.getenv('SQL_PASSWORD'),
+                            host=os.getenv('SQL_HOST'),
+                            port=os.getenv('SQL_PORT'),
+                            database=os.getenv('SQL_DATABASE')
+                            )
+    cur = conn.cursor()
+    if conn.closed == 0:
+        print(f'Успешное подключение к бд, статус {conn.closed}')
+        print(vin_dict)
+        sql_select_buy_editor_report = "select * from bot_planeta_avto.purchase_report where vin='{value_vin_tg}';"
+        cur.execute(sql_select_buy_editor_report.format(value_vin_tg=vin_dict))
+        select_buy_editor = cur.fetchall()
+        try:
+            buy_editor = select_buy_editor[0]
+            print(buy_editor)
+            logging.info(
+                "Success select buy_editor_buy for ")
+            return buy_editor
+        except Exception as e:
+            print("An error has occurred:", e)
+            # await callback.message.answer(
+            #     text="Вин номер не найдет, проверьте его корректность")
+            return "UNKNOWN"
+    else:
+        print(f'База недоступна, статус {conn.closed}')
+        logging.error(f'База недоступна, статус {conn.closed}')
+        # await callback.message.answer(
+        #     text="База недоступна, свяжитесь с администратором>")
+    conn.commit()
+    conn.close()
+
+
+def db_sql_comission_editor_select(vin_dict):
+    conn = psycopg2.connect(user=os.getenv('SQL_USER'),
+                            password=os.getenv('SQL_PASSWORD'),
+                            host=os.getenv('SQL_HOST'),
+                            port=os.getenv('SQL_PORT'),
+                            database=os.getenv('SQL_DATABASE')
+                            )
+    cur = conn.cursor()
+    if conn.closed == 0:
+        print(f'Успешное подключение к бд, статус {conn.closed}')
+        print(vin_dict)
+        sql_select_comission_editor_report = "select * from bot_planeta_avto.commission_report where vin='{value_vin_tg}';"
+        cur.execute(sql_select_comission_editor_report.format(value_vin_tg=vin_dict))
+        select_comission_editor = cur.fetchall()
+        try:
+            comission_editor = select_comission_editor[0]
+            print(comission_editor)
+            logging.info(
+                "Success select buy_editor_buy for ")
+            return comission_editor
         except Exception as e:
             print("An error has occurred:", e)
             # await callback.message.answer(
