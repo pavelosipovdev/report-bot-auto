@@ -81,14 +81,15 @@ async def cmd_start(message: types.Message):
         text=texts.BT_CONSTRUCTOR_2_COMISSION,
         callback_data="bt_constructor_2_comission")
     )
-    builder.row(types.InlineKeyboardButton(
-        text="РЕДАКТИРОВАНИЕ В БАЗЕ",
-        callback_data="start_editor")
-    )
+    # builder.row(types.InlineKeyboardButton(
+    #     text="РЕДАКТИРОВАНИЕ В БАЗЕ",
+    #     callback_data="start_editor")
+    # )
     keyboard_to_delete = types.ReplyKeyboardRemove()
     await message.answer(text="Пожалуйста подождите, идет проверка баз данных", reply_markup=markup)
     await utils.connectors.db_sql_start(message.chat.username, message.chat.first_name, message.chat.last_name, bot)
-    logging.info("Success login for " + message.chat.first_name + " " + message.chat.last_name + " " + message.chat.username)
+    logging.info(
+        "Success login for " + message.chat.first_name + " " + message.chat.last_name + " " + message.chat.username)
     await bot.send_message(os.getenv('ERROR_CHAT_ID'),
                            "Success login for " + message.chat.first_name + " " + message.chat.last_name)
     await message.answer(text=texts.MESSAGE_MAIN_MENU, reply_markup=builder.as_markup())
