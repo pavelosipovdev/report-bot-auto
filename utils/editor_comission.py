@@ -126,14 +126,7 @@ async def editor_first(callback: types.CallbackQuery, state: FSMContext):
         text=texts.BT_CONSTRUCTOR_2_PLANETA,
         callback_data=texts.BT_CONSTRUCTOR_2_PLANETA)
     )
-    builder.row(types.InlineKeyboardButton(
-        text=texts.BT_CONSTRUCTOR_2_ALIEN,
-        callback_data=texts.BT_CONSTRUCTOR_2_ALIEN)
-    )
-    builder.add(types.InlineKeyboardButton(
-        text=texts.BT_CONSTRUCTOR_2_GETOUT,
-        callback_data=texts.BT_CONSTRUCTOR_2_GETOUT)
-    )
+
     data = await state.get_data()
     msg2 = "В данный момент используется " + data['chosen_place'] + ", на какое значение хотите изменить?"
     await callback.message.answer(text=msg2, reply_markup=builder.as_markup())
