@@ -324,6 +324,7 @@ class SetReport(StatesGroup):
     choosing_our_cash7 = State()
     choosing_our_cash8 = State()
     choosing_our_cash9 = State()
+    choosing_critical_finish = State()
 
 
 # ============================================
@@ -346,6 +347,13 @@ async def main_menu_bt_constructor_1_sell(callback: types.CallbackQuery, state: 
     await state.set_state(SetReport.choosing_sell_data_car_start)
 
 
+@router.message(SetReport.choosing_critical_finish)
+async def main_menu_choosing_critical_finish(message: Message, state: FSMContext):
+    current_state = await state.get_state()
+    print(f"PRINTER_LOGGER {message.chat.username} на стейте {current_state}")
+    await message.answer(
+        text="Произошла ошибка. Нажмите на /start для составления нового отчета.")
+    await message.answer(text="/start")
 # =============================
 @router.callback_query(SetReport.choosing_sell_data_car_start, F.data == texts.BT_COMISSION)
 async def main_menu_bt_constructor_1_sell(callback: types.CallbackQuery, state: FSMContext):
@@ -1270,10 +1278,10 @@ async def sell_choosing_comissiya_creditcomission9(callback: types.CallbackQuery
     print(f"PRINTER_LOGGER {callback.message.chat.username} на стейте {current_state}")
     await state.update_data(whosell="-")
     builder = InlineKeyboardBuilder()
-    builder.add(types.InlineKeyboardButton(
-        text="САМ",
-        callback_data="САМ")
-    )
+    # builder.add(types.InlineKeyboardButton(
+    #     text="САМ",
+    #     callback_data="САМ")
+    # )
     builder.add(types.InlineKeyboardButton(
         text="Нажмите, чтобы ввести фамилию",
         switch_inline_query_current_chat='find_b2 ')
@@ -1324,10 +1332,10 @@ async def sell_choosing_our_credit5(message: Message, state: FSMContext):
     # if college_name == "Некорректный USERNAME":
     #     await message.answer("Некорректный USERNAME, укажите корректный в режиме редактирования")
     builder = InlineKeyboardBuilder()
-    builder.add(types.InlineKeyboardButton(
-        text="САМ",
-        callback_data="САМ")
-    )
+    # builder.add(types.InlineKeyboardButton(
+    #     text="САМ",
+    #     callback_data="САМ")
+    # )
     builder.add(types.InlineKeyboardButton(
         text="Ввести фамилию",
         switch_inline_query_current_chat='find_b2 ')
@@ -1441,8 +1449,8 @@ async def constructor_choosing_awa_our_credit44(callback: types.CallbackQuery, s
     current_state = await state.get_state()
     print(f"PRINTER_LOGGER {callback.message.chat.username} на стейте {current_state}")
     await callback.message.answer("Подождите, идет выгрузка отчета")
-    await state.update_data(date_raschet="-")
-    await state.update_data(type_raschet="-")
+    await state.update_data(date_raschet=None)
+    await state.update_data(type_raschet=None)
     data = await state.get_data()
     await utils.connectors.db_sql_sell_insert(callback, data)
     await callback.message.answer(
@@ -1673,10 +1681,41 @@ async def editor_first_menu_comment(callback: types.CallbackQuery, state: FSMCon
 async def sell_choosing_comissiya_creditcomission13(callback: types.CallbackQuery, state: FSMContext):
     current_state = await state.get_state()
     print(f"PRINTER_LOGGER {callback.message.chat.username} на стейте {current_state}")
+    builder = InlineKeyboardBuilder()
+    builder.add(types.InlineKeyboardButton(
+        text="Отложить",
+        callback_data="Отложить")
+    )
     await callback.message.answer(
-        text=texts.MESSAGE_DATE_RASCHET,
+        text=texts.MESSAGE_DATE_RASCHET, reply_markup=builder.as_markup()
     )
     await state.set_state(SetReport.choosing_comissiya_credit14)
+
+
+@router.callback_query(SetReport.choosing_comissiya_credit14, F.data == "Отложить")
+async def sell_choosing_comissiya_comissiya_credit14(callback: types.CallbackQuery, state: FSMContext):
+    current_state = await state.get_state()
+    print(f"PRINTER_LOGGER {callback.message.chat.username} на стейте {current_state}")
+    await state.update_data(date_raschet=None)
+    data = await state.get_data()
+    vin_number = data['chosen_vin_number']
+    await callback.message.answer(text="Пожалуйста подождите, идет проверка в базе данных")
+    type_of_calc = utils.connectors.db_sql_type_of_calc_select(vin_number)
+    await state.update_data(type_raschet=str(type_of_calc))
+    builder = InlineKeyboardBuilder()
+    builder.add(types.InlineKeyboardButton(
+        text="ВСЕ ОК",
+        callback_data="callback_ostav")
+    )
+    builder.add(types.InlineKeyboardButton(
+        text="РЕДАКТИРОВАТЬ",
+        callback_data="callback_edit")
+    )
+    data = await state.get_data()
+    await callback.message.answer(
+        text="ВИД РАСЧЕТА " + "\"" + data['type_raschet'] + "\"", reply_markup=builder.as_markup()
+    )
+    await state.set_state(SetReport.choosing_comissiya_credit16)
 
 
 @router.message(SetReport.choosing_comissiya_credit14)
@@ -1687,22 +1726,6 @@ async def sell_choosing_comissiya_creditcomission14(message: Message, state: FSM
     new_date = await utils.connectors.date_normalizer(date_raschet)
     if new_date:
         await state.update_data(date_raschet=new_date)
-        # builder = InlineKeyboardBuilder()
-        # builder.add(types.InlineKeyboardButton(
-        #     text=texts.BT_YES,
-        #     callback_data=texts.BT_YES)
-        # )
-        # builder.add(types.InlineKeyboardButton(
-        #     text=texts.BT_NO,
-        #     callback_data=texts.BT_NO)
-        # )
-        # data = await state.get_data()
-        # vin_number = data['chosen_vin_number']
-        # await message.answer(text="Пожалуйста подождите, идет проверка в базе данных")
-        # type_of_calc = utils.connectors.db_sql_type_of_calc_select(vin_number)
-        # await message.answer(
-        #     text=texts.MESSAGE_TYPE_RASCHETA_WAS + type_of_calc, reply_markup=builder.as_markup()
-        # )
         data = await state.get_data()
         vin_number = data['chosen_vin_number']
         await message.answer(text="Пожалуйста подождите, идет проверка в базе данных")
@@ -1729,50 +1752,6 @@ async def sell_choosing_comissiya_creditcomission14(message: Message, state: FSM
             text=texts.MESSAGE_DATE_RASCHET,
         )
         await state.set_state(SetReport.choosing_comissiya_credit14)
-
-
-# @router.message(SetReport.choosing_comissiya_credit14)
-# async def sell_choosing_comissiya_creditcomission14(message: Message, state: FSMContext):
-#     date_raschet = message.text.lower()
-#     new_date = await utils.connectors.date_normalizer(date_raschet)
-#     if
-#     await state.update_data(date_raschet=message.text.lower())
-#     builder = InlineKeyboardBuilder()
-#     builder.add(types.InlineKeyboardButton(
-#         text=texts.BT_YES,
-#         callback_data=texts.BT_YES)
-#     )
-#     builder.add(types.InlineKeyboardButton(
-#         text=texts.BT_NO,
-#         callback_data=texts.BT_NO)
-#     )
-#     await message.answer(
-#         text=texts.MESSAGE_TYPE_RASCHETA_WAS, reply_markup=builder.as_markup()
-#     )
-#     await state.set_state(SetReport.choosing_comissiya_credit15)
-
-
-# @router.callback_query(SetReport.choosing_comissiya_credit15)
-# async def sell_choosing_comissiya_creditcomission15(callback: types.CallbackQuery, state: FSMContext):
-#     data = await state.get_data()
-#     vin_number = data['chosen_vin_number']
-#     await callback.message.answer(text="Пожалуйста подождите, идет проверка в базе данных")
-#     type_of_calc = utils.connectors.db_sql_type_of_calc_select(vin_number)
-#     await state.update_data(type_raschet=str(type_of_calc))
-#     builder = InlineKeyboardBuilder()
-#     builder.add(types.InlineKeyboardButton(
-#         text="ВСЕ ОК",
-#         callback_data="callback_ostav")
-#     )
-#     builder.add(types.InlineKeyboardButton(
-#         text="РЕДАКТИРОВАТЬ",
-#         callback_data="callback_edit")
-#     )
-#     data = await state.get_data()
-#     await callback.message.answer(
-#         text="ВИД РАСЧЕТА " + data['type_raschet'], reply_markup=builder.as_markup()
-#     )
-#     await state.set_state(SetReport.choosing_comissiya_credit16)
 
 
 @router.callback_query(SetReport.choosing_comissiya_credit16, F.data == "callback_edit")
@@ -2805,8 +2784,8 @@ async def constructor_choosing_awa_our_credit44(callback: types.CallbackQuery, s
     current_state = await state.get_state()
     print(f"PRINTER_LOGGER {callback.message.chat.username} на стейте {current_state}")
     await callback.message.answer("Подождите, идет выгрузка отчета")
-    await state.update_data(date_raschet="-")
-    await state.update_data(type_raschet="-")
+    await state.update_data(date_raschet=None)
+    await state.update_data(type_raschet=None)
     data = await state.get_data()
     await utils.connectors.db_sql_sell_insert(callback, data)
     await callback.message.answer(
@@ -3093,10 +3072,42 @@ async def editor_first_menu_comment(callback: types.CallbackQuery, state: FSMCon
 async def sell_choosing_comissiya_cash_comission13(callback: types.CallbackQuery, state: FSMContext):
     current_state = await state.get_state()
     print(f"PRINTER_LOGGER {callback.message.chat.username} на стейте {current_state}")
+
+    builder = InlineKeyboardBuilder()
+    builder.add(types.InlineKeyboardButton(
+        text="Отложить",
+        callback_data="Отложить")
+    )
     await callback.message.answer(
-        text=texts.MESSAGE_DATE_RASCHET,
+        text=texts.MESSAGE_DATE_RASCHET, reply_markup=builder.as_markup()
     )
     await state.set_state(SetReport.choosing_comissiya_cash14)
+
+
+@router.callback_query(SetReport.choosing_comissiya_cash14, F.data == "Отложить")
+async def sell_choosing_comissiya_comissiya_cash14(callback: types.CallbackQuery, state: FSMContext):
+    current_state = await state.get_state()
+    print(f"PRINTER_LOGGER {callback.message.chat.username} на стейте {current_state}")
+    await state.update_data(date_raschet=None)
+    data = await state.get_data()
+    vin_number = data['chosen_vin_number']
+    await callback.message.answer(text="Пожалуйста подождите, идет проверка в базе данных")
+    type_of_calc = utils.connectors.db_sql_type_of_calc_select(vin_number)
+    await state.update_data(type_raschet=str(type_of_calc))
+    builder = InlineKeyboardBuilder()
+    builder.add(types.InlineKeyboardButton(
+        text="ВСЕ ОК",
+        callback_data="callback_ostav")
+    )
+    builder.add(types.InlineKeyboardButton(
+        text="РЕДАКТИРОВАТЬ",
+        callback_data="callback_edit")
+    )
+    data = await state.get_data()
+    await callback.message.answer(
+        text="ВИД РАСЧЕТА " + "\"" + data['type_raschet'] + "\"", reply_markup=builder.as_markup()
+    )
+    await state.set_state(SetReport.choosing_comissiya_cash16)
 
 
 @router.message(SetReport.choosing_comissiya_cash14)
@@ -3107,22 +3118,6 @@ async def sell_choosing_comissiya_creditcomission14(message: Message, state: FSM
     new_date = await utils.connectors.date_normalizer(date_raschet)
     if new_date:
         await state.update_data(date_raschet=new_date)
-        # builder = InlineKeyboardBuilder()
-        # builder.add(types.InlineKeyboardButton(
-        #     text=texts.BT_YES,
-        #     callback_data=texts.BT_YES)
-        # )
-        # builder.add(types.InlineKeyboardButton(
-        #     text=texts.BT_NO,
-        #     callback_data=texts.BT_NO)
-        # )
-        # data = await state.get_data()
-        # vin_number = data['chosen_vin_number']
-        # await message.answer(text="Пожалуйста подождите, идет проверка в базе данных")
-        # type_of_calc = utils.connectors.db_sql_type_of_calc_select(vin_number)
-        # await message.answer(
-        #     text=texts.MESSAGE_TYPE_RASCHETA_WAS + type_of_calc, reply_markup=builder.as_markup()
-        # )
         data = await state.get_data()
         vin_number = data['chosen_vin_number']
         await message.answer(text="Пожалуйста подождите, идет проверка в базе данных")
@@ -3150,23 +3145,6 @@ async def sell_choosing_comissiya_creditcomission14(message: Message, state: FSM
         )
         await state.set_state(SetReport.choosing_comissiya_cash14)
 
-
-# @router.message(SetReport.choosing_comissiya_cash14)
-# async def sell_choosing_comissiya_cash_comission14(message: Message, state: FSMContext):
-#     await state.update_data(date_raschet=message.text.lower())
-#     builder = InlineKeyboardBuilder()
-#     builder.add(types.InlineKeyboardButton(
-#         text=texts.BT_YES,
-#         callback_data=texts.BT_YES)
-#     )
-#     builder.add(types.InlineKeyboardButton(
-#         text=texts.BT_NO,
-#         callback_data=texts.BT_NO)
-#     )
-#     await message.answer(
-#         text=texts.MESSAGE_TYPE_RASCHETA_WAS, reply_markup=builder.as_markup()
-#     )
-#     await state.set_state(SetReport.choosing_comissiya_cash15)
 
 
 @router.callback_query(SetReport.choosing_comissiya_cash15)
@@ -3930,28 +3908,7 @@ async def sell_choosing_our_credit2(message: Message, state: FSMContext):
     just = message.text.upper()
     if just.isdigit():
         await state.update_data(dealer_discount=int(just))
-        await message.answer(
-            text=texts.MESSAGE_SELL_TORG,
-        )
-        await state.set_state(SetReport.choosing_our_credit3)
-    else:
-        await message.answer(
-            text=texts.MESSAGE_ONLY_DIGITS,
-        )
-        await message.answer(
-            text=texts.MESSAGE_SELL_DISCOUNT,
-        )
-        await state.set_state(SetReport.choosing_our_credit2)
-
-
-# ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-@router.message(SetReport.choosing_our_credit3)
-async def sell_choosing_comissiya_cash_comission8(message: Message, state: FSMContext):
-    current_state = await state.get_state()
-    print(f"PRINTER_LOGGER {message.chat.username} на стейте {current_state}")
-    just = message.text.upper()
-    if just.isdigit():
-        await state.update_data(howmuchtorg=int(just))
+        builder = InlineKeyboardBuilder()
         builder = InlineKeyboardBuilder()
         builder.add(types.InlineKeyboardButton(
             text="САМ",
@@ -3970,9 +3927,40 @@ async def sell_choosing_comissiya_cash_comission8(message: Message, state: FSMCo
             text=texts.MESSAGE_ONLY_DIGITS,
         )
         await message.answer(
-            text=texts.MESSAGE_SELL_TORG,
+            text=texts.MESSAGE_SELL_DISCOUNT,
         )
-        await state.set_state(SetReport.choosing_our_credit3)
+        await state.set_state(SetReport.choosing_our_credit2)
+
+
+# ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# @router.message(SetReport.choosing_our_credit3)
+# async def sell_choosing_comissiya_cash_comission8(message: Message, state: FSMContext):
+#     current_state = await state.get_state()
+#     print(f"PRINTER_LOGGER {message.chat.username} на стейте {current_state}")
+#     just = message.text.upper()
+#     if just.isdigit():
+#         await state.update_data(howmuchtorg=int(just))
+#         builder = InlineKeyboardBuilder()
+#         builder.add(types.InlineKeyboardButton(
+#             text="САМ",
+#             callback_data="САМ")
+#         )
+#         builder.add(types.InlineKeyboardButton(
+#             text="Нажмите, чтобы ввести фамилию",
+#             switch_inline_query_current_chat='find_b5 ')
+#         )
+#         await message.answer(
+#             text=texts.MESSAGE_SELL_WITH + "\nВведите первые символы фамилии коллеги", reply_markup=builder.as_markup()
+#         )
+#         await state.set_state(SetReport.choosing_our_credit45)
+#     else:
+#         await message.answer(
+#             text=texts.MESSAGE_ONLY_DIGITS,
+#         )
+#         await message.answer(
+#             text=texts.MESSAGE_SELL_TORG,
+#         )
+#         await state.set_state(SetReport.choosing_our_credit3)
 
 
 @router.callback_query(SetReport.choosing_our_credit45, F.data == "САМ")
@@ -3981,10 +3969,10 @@ async def sell_choosing_comissiya_cash_comission9(callback: types.CallbackQuery,
     print(f"PRINTER_LOGGER {callback.message.chat.username} на стейте {current_state}")
     await state.update_data(whosell="-")
     builder = InlineKeyboardBuilder()
-    builder.add(types.InlineKeyboardButton(
-        text="САМ",
-        callback_data="САМ")
-    )
+    # builder.add(types.InlineKeyboardButton(
+    #     text="САМ",
+    #     callback_data="САМ")
+    # )
     builder.add(types.InlineKeyboardButton(
         text="Нажмите, чтобы ввести фамилию",
         switch_inline_query_current_chat='find_b6 ')
@@ -4049,10 +4037,10 @@ async def sell_choosing_comissiya_cash_comission10(message: Message, state: FSMC
     # if college_name == "Некорректный USERNAME":
     #     await message.answer("Некорректный USERNAME, укажите корректный в режиме редактирования")
     builder = InlineKeyboardBuilder()
-    builder.add(types.InlineKeyboardButton(
-        text="САМ",
-        callback_data="САМ")
-    )
+    # builder.add(types.InlineKeyboardButton(
+    #     text="САМ",
+    #     callback_data="САМ")
+    # )
     builder.add(types.InlineKeyboardButton(
         text="Нажмите, чтобы ввести фамилию",
         switch_inline_query_current_chat='find_b6 ')
@@ -4254,11 +4242,11 @@ async def constructor_choosing_awa_our_credit44(callback: types.CallbackQuery, s
     current_state = await state.get_state()
     print(f"PRINTER_LOGGER {callback.message.chat.username} на стейте {current_state}")
     await callback.message.answer("Подождите, идет выгрузка отчета")
-    await state.update_data(summa_nm="-")
-    await state.update_data(summa_sob="-")
-    await state.update_data(howmuchtorg="-")
-    await state.update_data(date_raschet="-")
-    await state.update_data(type_raschet="-")
+    await state.update_data(summa_nm=None)
+    await state.update_data(summa_sob=None)
+    await state.update_data(howmuchtorg=None)
+    await state.update_data(date_raschet=None)
+    await state.update_data(type_raschet=None)
     data = await state.get_data()
     await utils.connectors.db_sql_sell_insert(callback, data)
     await callback.message.answer(
@@ -4585,28 +4573,6 @@ async def sell_choosing_our_credit3(message: Message, state: FSMContext):
     just = message.text.upper()
     if just.isdigit():
         await state.update_data(dealer_discount=int(just))
-        await message.answer(
-            text=texts.MESSAGE_SELL_TORG,
-        )
-        await state.set_state(SetReport.choosing_our_cash3)
-    else:
-        await message.answer(
-            text=texts.MESSAGE_ONLY_DIGITS,
-        )
-        await message.answer(
-            text=texts.MESSAGE_SELL_DISCOUNT,
-        )
-        await state.set_state(SetReport.choosing_our_cash2)
-
-
-# ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-@router.message(SetReport.choosing_our_cash3)
-async def sell_choosing_comissiya_cash_comission8(message: Message, state: FSMContext):
-    current_state = await state.get_state()
-    print(f"PRINTER_LOGGER {message.chat.username} на стейте {current_state}")
-    just = message.text.upper()
-    if just.isdigit():
-        await state.update_data(howmuchtorg=int(just))
         builder = InlineKeyboardBuilder()
         builder.add(types.InlineKeyboardButton(
             text="САМ",
@@ -4625,9 +4591,40 @@ async def sell_choosing_comissiya_cash_comission8(message: Message, state: FSMCo
             text=texts.MESSAGE_ONLY_DIGITS,
         )
         await message.answer(
-            text=texts.MESSAGE_SELL_TORG,
+            text=texts.MESSAGE_SELL_DISCOUNT,
         )
-        await state.set_state(SetReport.choosing_our_cash3)
+        await state.set_state(SetReport.choosing_our_cash2)
+
+
+# ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# @router.message(SetReport.choosing_our_cash3)
+# async def sell_choosing_comissiya_cash_comission8(message: Message, state: FSMContext):
+#     current_state = await state.get_state()
+#     print(f"PRINTER_LOGGER {message.chat.username} на стейте {current_state}")
+#     just = message.text.upper()
+#     if just.isdigit():
+#         await state.update_data(howmuchtorg=int(just))
+#         builder = InlineKeyboardBuilder()
+#         builder.add(types.InlineKeyboardButton(
+#             text="САМ",
+#             callback_data="САМ")
+#         )
+#         builder.add(types.InlineKeyboardButton(
+#             text="Нажмите, чтобы ввести фамилию",
+#             switch_inline_query_current_chat='find_b9 ')
+#         )
+#         await message.answer(
+#             text=texts.MESSAGE_SELL_WITH + "\nВведите первые символы фамилии коллеги", reply_markup=builder.as_markup()
+#         )
+#         await state.set_state(SetReport.choosing_our_cash45)
+#     else:
+#         await message.answer(
+#             text=texts.MESSAGE_ONLY_DIGITS,
+#         )
+#         await message.answer(
+#             text=texts.MESSAGE_SELL_TORG,
+#         )
+#         await state.set_state(SetReport.choosing_our_cash3)
 
 
 @router.callback_query(SetReport.choosing_our_cash45, F.data == "САМ")
@@ -4636,10 +4633,10 @@ async def sell_choosing_comissiya_cash_comission9(callback: types.CallbackQuery,
     print(f"PRINTER_LOGGER {callback.message.chat.username} на стейте {current_state}")
     await state.update_data(whosell="-")
     builder = InlineKeyboardBuilder()
-    builder.add(types.InlineKeyboardButton(
-        text="САМ",
-        callback_data="САМ")
-    )
+    # builder.add(types.InlineKeyboardButton(
+    #     text="САМ",
+    #     callback_data="САМ")
+    # )
     builder.add(types.InlineKeyboardButton(
         text="Нажмите, чтобы ввести фамилию",
         switch_inline_query_current_chat='find_b10 ')
@@ -4673,7 +4670,7 @@ async def sell_choosing_comissiya_cash_comission101(callback: types.CallbackQuer
 @router.inline_query(lambda query: query.query.startswith("find_b9 "))
 async def find_colleges(inline_query: types.InlineQuery, state: FSMContext):
     current_state = await state.get_state()
-    print(f"PRINTER_LOGGER {message.chat.username} на стейте {current_state}")
+    print(f"PRINTER_LOGGER  на стейте {current_state}")
     await utils.inliner.find_colleges(inline_query, state, "find_b9 ")
     await state.set_state(SetReport.choosing_our_cash451)
 
@@ -4725,7 +4722,7 @@ async def sell_choosing_comissiya_creditcomission101(callback: types.CallbackQue
 @router.inline_query(lambda query: query.query.startswith("find_b10 "))
 async def find_colleges(inline_query: types.InlineQuery, state: FSMContext):
     current_state = await state.get_state()
-    print(f"PRINTER_LOGGER {message.chat.username} на стейте {current_state}")
+    print(f"PRINTER_LOGGER  на стейте {current_state}")
     await utils.inliner.find_colleges(inline_query, state, "find_b10 ")
     await state.set_state(SetReport.choosing_our_cash453)
 
@@ -4915,11 +4912,11 @@ async def constructor_choosing_awa_our_credit44(callback: types.CallbackQuery, s
     current_state = await state.get_state()
     print(f"PRINTER_LOGGER {callback.message.chat.username} на стейте {current_state}")
     await callback.message.answer("Подождите, идет выгрузка отчета")
-    await state.update_data(summa_nm="-")
-    await state.update_data(summa_sob="-")
-    await state.update_data(howmuchtorg="-")
-    await state.update_data(date_raschet="-")
-    await state.update_data(type_raschet="-")
+    await state.update_data(summa_nm=None)
+    await state.update_data(summa_sob=None)
+    await state.update_data(howmuchtorg=None)
+    await state.update_data(date_raschet=None)
+    await state.update_data(type_raschet=None)
     data = await state.get_data()
     await utils.connectors.db_sql_sell_insert(callback, data)
     await callback.message.answer(
@@ -4995,7 +4992,7 @@ async def editor_who_credit(callback: types.CallbackQuery, state: FSMContext):
 @router.inline_query(lambda query: query.query.startswith("find_s14 "))
 async def find_colleges(inline_query: types.InlineQuery, state: FSMContext):
     current_state = await state.get_state()
-    print(f"PRINTER_LOGGER {message.chat.username} на стейте {current_state}")
+    print(f"PRINTER_LOGGER  на стейте {current_state}")
     await utils.inliner.find_colleges(inline_query, state, "find_s14 ")
     await state.set_state(SetReport.choosing_sell_editor_menu_who_credit_edit_8)
 

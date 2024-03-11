@@ -8,6 +8,7 @@ import os
 from aiogram import types
 from aiogram import Bot
 from aiogram.types import Message
+from aiogram.utils.markdown import hlink
 
 
 def get_data_from_template():
@@ -117,6 +118,7 @@ async def db_sql_buy_insert(callback=types.CallbackQuery, dict_report=None):
     if dict_report is None:
         dict_report = {}
     data = dict_report
+
     print(data)
     conn = psycopg2.connect(user=os.getenv('SQL_USER'),
                             password=os.getenv('SQL_PASSWORD'),
@@ -144,9 +146,41 @@ async def db_sql_buy_insert(callback=types.CallbackQuery, dict_report=None):
     conn.close()
 
 
+# async def db_sql_sell_insert(callback=types.CallbackQuery, dict_report=None):
+#     if dict_report is None:
+#         dict_report = {}
+#     data = dict_report
+#     print(data)
+#     conn = psycopg2.connect(user=os.getenv('SQL_USER'),
+#                             password=os.getenv('SQL_PASSWORD'),
+#                             host=os.getenv('SQL_HOST'),
+#                             port=os.getenv('SQL_PORT'),
+#                             database=os.getenv('SQL_DATABASE')
+#                             )
+#     cur = conn.cursor()
+#     if conn.closed == 0:
+#         print(f'Успешное подключение к бд, статус {conn.closed}')
+#         sql_insert_tg_info_user = 'INSERT INTO bot_planeta_avto_test.sell_report(type_sell_report,type_credit_our,type_deal,drom_cost,dealer_discount,summa_nm,summa_sob,howmuchtorg,whosell,whosellcredit,date_raschet,type_of_calс,vin,gos_number,brand,model,years,comment_report,username_sell_report) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)'
+#         cur.execute(sql_insert_tg_info_user, (
+#             data['chosen_type'], data['type_credit_our'], data['type_deal'], data['drom_cost'],
+#             data['dealer_discount'], data['summa_nm'], data['summa_sob'], data['howmuchtorg'], data['whosell'],
+#             data['whosellcredit'], data['date_raschet'], data['type_raschet'], data['chosen_vin_number'],
+#             data['chosen_vin_gos_number'], data['chosen_vin_marka'], data['chosen_vin_model'], data['chosen_vin_year'],
+#             data['chosen_comment'], callback.message.chat.first_name + " " + callback.message.chat.last_name,))
+#         logging.info(
+#             "Success insert sell for " + callback.message.chat.first_name + " " + callback.message.chat.last_name)
+#     else:
+#         print(f'База недоступна, статус {conn.closed}')
+#         logging.error(f'База недоступна, статус {conn.closed}')
+#         await callback.message.answer(
+#             text="База недоступна, свяжитесь с администратором>")
+#     conn.commit()
+#     conn.close()
+
 async def db_sql_sell_insert(callback=types.CallbackQuery, dict_report=None):
     if dict_report is None:
         dict_report = {}
+    htext = hlink('Техподдержкой', 'https://web.telegram.org/k/#@planeta_auto_support_bot')
     data = dict_report
     print(data)
     conn = psycopg2.connect(user=os.getenv('SQL_USER'),
@@ -158,20 +192,25 @@ async def db_sql_sell_insert(callback=types.CallbackQuery, dict_report=None):
     cur = conn.cursor()
     if conn.closed == 0:
         print(f'Успешное подключение к бд, статус {conn.closed}')
-        sql_insert_tg_info_user = 'INSERT INTO bot_planeta_avto.sell_report(type_sell_report,type_credit_our,type_deal,drom_cost,dealer_discount,summa_nm,summa_sob,howmuchtorg,whosell,whosellcredit,date_raschet,type_of_calс,vin,gos_number,brand,model,years,comment_report,username_sell_report) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)'
-        cur.execute(sql_insert_tg_info_user, (
-            data['chosen_type'], data['type_credit_our'], data['type_deal'], data['drom_cost'],
-            data['dealer_discount'], data['summa_nm'], data['summa_sob'], data['howmuchtorg'], data['whosell'],
-            data['whosellcredit'], data['date_raschet'], data['type_raschet'], data['chosen_vin_number'],
-            data['chosen_vin_gos_number'], data['chosen_vin_marka'], data['chosen_vin_model'], data['chosen_vin_year'],
-            data['chosen_comment'], callback.message.chat.first_name + " " + callback.message.chat.last_name,))
-        logging.info(
-            "Success insert sell for " + callback.message.chat.first_name + " " + callback.message.chat.last_name)
+        try:
+            sql_insert_tg_info_user = 'INSERT INTO bot_planeta_avto.sell_report(type_sell_report,type_credit_our,type_deal,drom_cost,dealer_discount,summa_sob,howmuchtorg,whosell,whosellcredit,date_raschet,type_of_calс,vin,gos_number,brand,model,years,comment_report,username_sell_report) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)'
+            cur.execute(sql_insert_tg_info_user, (
+                data['chosen_type'], data['type_credit_our'], data['type_deal'], data['drom_cost'],
+                data['dealer_discount'], data['summa_sob'], data['howmuchtorg'], data['whosell'],
+                data['whosellcredit'], data['date_raschet'], data['type_raschet'], data['chosen_vin_number'],
+                data['chosen_vin_gos_number'], data['chosen_vin_marka'], data['chosen_vin_model'], data['chosen_vin_year'],
+                data['chosen_comment'], callback.message.chat.first_name + " " + callback.message.chat.last_name,))
+            logging.info(
+                "Success insert sell for " + callback.message.chat.first_name + " " + callback.message.chat.last_name)
+        except Exception as e:
+            print(f'База недоступна, статус {conn.closed}')
+            await callback.message.answer(
+                text=f"База недоступна, свяжитесь с {htext}" + f"\nПередайте эти сведения {e}", parse_mode="HTML")
     else:
         print(f'База недоступна, статус {conn.closed}')
         logging.error(f'База недоступна, статус {conn.closed}')
         await callback.message.answer(
-            text="База недоступна, свяжитесь с администратором>")
+            text=f"База недоступна, свяжитесь с {htext}", parse_mode="HTML")
     conn.commit()
     conn.close()
 

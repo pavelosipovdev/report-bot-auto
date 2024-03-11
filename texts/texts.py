@@ -193,7 +193,7 @@ CONSTRUCTOR_4_OUR_CASH_OLD_TEXT = '''
 Кто купил:'''
 
 MESSAGE_BT_CONSTRUCTOR_1_SELL = "УКАЖИТЕ СПОСОБ ПОКУПКИ АВТО"
-MESSAGE_BT_CONSTRUCTOR_1_COMISSION = "УКАЖИТЕ ПЛОЩАДКУ ВЫКУПА АВТО"
+MESSAGE_BT_CONSTRUCTOR_1_COMISSION = "УКАЖИТЕ ПЛОЩАДКУ ПОСТАНОВКИ НА КОМИССИЮ"
 MESSAGE_BT_CONSTRUCTOR_1_BUY = "УКАЖИТЕ ПЛОЩАДКУ ПОКУПКИ АВТО"
 BT_CONSTRUCTOR_2_ATP = "АТП"
 BT_CONSTRUCTOR_2_ABAKAN = "АБАКАН"

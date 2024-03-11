@@ -103,14 +103,6 @@ async def main_menu_bt_constructor_2_comission(callback: types.CallbackQuery, st
         text=texts.BT_CONSTRUCTOR_2_PLANETA,
         callback_data=texts.BT_CONSTRUCTOR_2_PLANETA)
     )
-    builder.row(types.InlineKeyboardButton(
-        text=texts.BT_CONSTRUCTOR_2_ALIEN,
-        callback_data=texts.BT_CONSTRUCTOR_2_ALIEN)
-    )
-    builder.add(types.InlineKeyboardButton(
-        text=texts.BT_CONSTRUCTOR_2_GETOUT,
-        callback_data=texts.BT_CONSTRUCTOR_2_GETOUT)
-    )
 
     await callback.message.answer(text=texts.MESSAGE_BT_CONSTRUCTOR_1_COMISSION, reply_markup=builder.as_markup())
     await state.set_state(SetReport.choosing_comission_buyer)
