@@ -209,6 +209,7 @@ MESSAGE_BT_CONSTRUCTOR_3_MANUAL_MARKA = "ВВЕДИТЕ МАРКУ"
 MESSAGE_BT_CONSTRUCTOR_3_MANUAL_YEAR = "ВВЕДИТЕ ГОД АВТОМОБИЛЯ"
 
 MESSAGE_BT_CONSTRUCTOR_4_COLLEGE = "КУПИЛ ОДИН ИЛИ С КОЛЛЕГОЙ?"
+MESSAGE_BT_CONSTRUCTOR_4_COLLEGE_COM = "ПОСТАВИЛ НА КОМИССИЮ ОДИН ИЛИ С КОЛЛЕГОЙ?"
 BT_CONSTRUCTOR_4_COLLEGE_SELF = "САМ"
 BT_CONSTRUCTOR_4_COLLEGE_COLLEGE = "С КОЛЛЕГОЙ"
 BT_CONSTRUCTOR_4_COLLEGE_SELL_COLLEGE = "ПРОДАЛ С КОЛЛЕГОЙ"

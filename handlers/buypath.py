@@ -191,35 +191,6 @@ async def main_menu_button2(message: Message, state: FSMContext):
     await state.set_state(SetReport.choosing_self_college)
 
 
-# @router.message(SetReport.choosing_vin, F.photo)
-# async def constructor_choosing_vin(message: Message, state: FSMContext, bot: Bot):
-#     await utils.downloader.constructor_choosing_vin_checker(message, state, bot)
-#     asyncio.create_task(choosing_vin_printer_buy(message, state))
-#     # await state.set_state(SetReport.choosing_vin_printer)
-#
-#
-# @router.message(SetReport.choosing_vin_printer)
-# async def choosing_vin_printer_buy(message: Message, state: FSMContext):
-#     builder = InlineKeyboardBuilder()
-#     builder.add(types.InlineKeyboardButton(
-#         text=texts.BT_NEXT,
-#         callback_data=texts.BT_NEXT)
-#     )
-#     builder.add(types.InlineKeyboardButton(
-#         text=texts.BT_EDIT,
-#         callback_data=texts.BT_EDIT)
-#     )
-#     data = await state.get_data()
-#     text = f'''Вы указали:
-#     Год: {str(data['chosen_vin_year']).upper()}
-#     Гос номер: {str(data['chosen_vin_gos_number']).upper()}
-#     VIN: {str(data['chosen_vin_number']).upper()}
-#     Марка: {data['chosen_vin_marka'].upper()}
-#     Модель: {data['chosen_vin_model'].upper()}
-#     '''
-#     await message.answer(text=text, reply_markup=builder.as_markup())
-#     await state.set_state(SetReport.choosing_self_college)
-
 @router.message(SetReport.choosing_vin, F.photo)
 async def constructor_choosing_vin(message: Message, state: FSMContext, bot: Bot):
     await utils.downloader.constructor_choosing_vin(message, state, bot)
@@ -400,7 +371,7 @@ async def constructor_choosing_cost(message: Message, state: FSMContext):
 @router.callback_query(SetReport.choosing_cost_inline, F.data == texts.BT_CONSTRUCTOR_4_COLLEGE_SELF)
 async def constructor_choosing_cost222(callback: types.CallbackQuery, state: FSMContext):
     await state.update_data(
-        chosen_college_fio_dkp="-")
+        chosen_college_fio_dkp=callback.message.chat.first_name + " " + callback.message.chat.last_name)
     await callback.message.edit_text(text=texts.MESSAGE_BT_CONSTRUCTOR_5_COST)
     await state.set_state(SetReport.choosing_wire)
 
