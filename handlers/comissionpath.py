@@ -323,7 +323,7 @@ async def editor_first_menu_comment(callback: types.CallbackQuery, state: FSMCon
         callback_data=texts.BT_CONSTRUCTOR_4_COLLEGE_COLLEGE)
     )
 
-    await callback.message.edit_text(text=texts.MESSAGE_BT_CONSTRUCTOR_4_COLLEGE, reply_markup=builder.as_markup())
+    await callback.message.edit_text(text=texts.MESSAGE_BT_CONSTRUCTOR_4_COLLEGE_COM, reply_markup=builder.as_markup())
     await state.set_state(SetReport.choosing_comission_self_college_dkp)
 
 
@@ -349,7 +349,7 @@ async def constructor_choosing_dkp(callback: types.CallbackQuery, state: FSMCont
         callback_data=texts.BT_CONSTRUCTOR_4_COLLEGE_COLLEGE)
     )
 
-    await callback.message.edit_text(text=texts.MESSAGE_BT_CONSTRUCTOR_4_COLLEGE, reply_markup=builder.as_markup())
+    await callback.message.edit_text(text=texts.MESSAGE_BT_CONSTRUCTOR_4_COLLEGE_COM, reply_markup=builder.as_markup())
     await state.set_state(SetReport.choosing_comission_self_college_dkp)
 
 
@@ -393,7 +393,7 @@ async def constructor_choosing_cost(message: Message, state: FSMContext):
 async def constructor_choosing_cost222(callback: types.CallbackQuery, state: FSMContext):
     await state.update_data(chosen_college_fio="-")
     await state.update_data(
-        chosen_college_dkps="-")
+        chosen_college_dkps=callback.message.chat.first_name + " " + callback.message.chat.last_name)
     await callback.message.edit_text(text=texts.MESSAGE_HOW_MUCH_SOBS)
     await state.set_state(SetReport.choosing_dkp04)
 
@@ -460,7 +460,7 @@ async def constructor_choosing_cost222(message: Message, state: FSMContext):
 async def constructor_choosing_wire(callback: types.CallbackQuery, state: FSMContext):
     await state.update_data(
         chosen_college_fio_dkp="-")
-    await state.update_data(chosen_college_dkps="-")
+    await state.update_data(chosen_college_dkps=callback.message.chat.first_name + " " + callback.message.chat.last_name)
     await callback.message.edit_text(text=texts.MESSAGE_HOW_MUCH_SOBS)
     await state.set_state(SetReport.choosing_dkp04)
 
@@ -557,7 +557,7 @@ async def constructor_choosing_wire12(callback: types.CallbackQuery, state: FSMC
         callback_data=texts.BT_EDIT)
     )
     data = await state.get_data()
-    text = f'''Предварительный отчет:\nТип отчета: {data['chosen_type']}\nГде принял комиссию: {data['chosen_place']}\nФИО Коллеги: {data['chosen_college_fio']}\nКто писал АГ: {data['chosen_college_dkps']}\nСколько собственнику: {data['howmuchsobs']}\nРазмер комиссии: {data['howmuchcomissiob']}\n\nВид расчета: {data['typeraschet']}\nVIN: {data['chosen_vin_number']}\nГос номер: {data['chosen_vin_gos_number']}\nМарка: {data['chosen_vin_marka']}\nМодель: {data['chosen_vin_model']}\nГод: {data['chosen_vin_year']}\nКомментарии: {data['chosen_comment']}\n\nИнициатор: {callback.message.chat.first_name + " " + callback.message.chat.last_name}
+    text = f'''Предварительный отчет:\nТип отчета: {data['chosen_type']}\nГде принял на комиссию: {data['chosen_place']}\nФИО Коллеги: {data['chosen_college_fio']}\nКто писал АГ: {data['chosen_college_dkps']}\nСколько собственнику: {data['howmuchsobs']}\nРазмер комиссии: {data['howmuchcomissiob']}\n\nВид расчета: {data['typeraschet']}\nVIN: {data['chosen_vin_number']}\nГос номер: {data['chosen_vin_gos_number']}\nМарка: {data['chosen_vin_marka']}\nМодель: {data['chosen_vin_model']}\nГод: {data['chosen_vin_year']}\nКомментарии: {data['chosen_comment']}\n\nИнициатор: {callback.message.chat.first_name + " " + callback.message.chat.last_name}
         '''
 
     await callback.message.answer(
@@ -579,7 +579,7 @@ async def constructor_choosing_awa_our_credit44(callback: types.CallbackQuery, s
 @router.callback_query(SetReport.choosing_comission_editor_start)
 async def constructor_editor_start(callback: types.CallbackQuery, state: FSMContext):
     dict_editor = {'editor_start':
-                       {'text': ["ФИО Коллеги", "Кто писал АГ", "Где принял комиссию", "Сколько собственнику",
+                       {'text': ["ФИО Коллеги", "Кто писал АГ", "Где принял на комиссию", "Сколько собственнику",
                                  "Гос номер", "Марка", "Модель", "Год", "VIN",
                                  "Комментарий", "Все ок"],
                         'data': ["edit_menu_who_buy", "edit_menu_who_dkp", "edit_menu_where", "edit_menu_howmuchsobs",

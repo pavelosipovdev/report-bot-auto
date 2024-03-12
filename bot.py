@@ -12,7 +12,7 @@ import utils.connectors
 from aiogram.filters import Command
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from dotenv import load_dotenv
-from aiogram import Bot, Dispatcher, types
+from aiogram import Bot, Dispatcher, types, F
 
 from handlers.sellpath import router
 from handlers.buypath import router
@@ -81,11 +81,6 @@ async def cmd_start(message: types.Message):
         text=texts.BT_CONSTRUCTOR_2_COMISSION,
         callback_data="bt_constructor_2_comission")
     )
-    # builder.row(types.InlineKeyboardButton(
-    #     text="РЕДАКТИРОВАНИЕ В БАЗЕ",
-    #     callback_data="start_editor")
-    # )
-    keyboard_to_delete = types.ReplyKeyboardRemove()
     await message.answer(text="Пожалуйста подождите, идет проверка баз данных", reply_markup=markup)
     await utils.connectors.db_sql_start(message.chat.username, message.chat.first_name, message.chat.last_name, bot)
     logging.info(
@@ -93,6 +88,31 @@ async def cmd_start(message: types.Message):
     await bot.send_message(os.getenv('ERROR_CHAT_ID'),
                            "Success login for " + message.chat.first_name + " " + message.chat.last_name)
     await message.answer(text=texts.MESSAGE_MAIN_MENU, reply_markup=builder.as_markup())
+
+
+@dp.callback_query(F.data == "start_from_critical")
+async def cmd_start(callback: types.callback_query):
+    markup = types.ReplyKeyboardRemove()
+    builder = InlineKeyboardBuilder()
+    builder.add(types.InlineKeyboardButton(
+        text=texts.BT_CONSTRUCTOR_1_SELL,
+        callback_data=texts.BT_CONSTRUCTOR_1_SELL)
+    )
+    builder.add(types.InlineKeyboardButton(
+        text=texts.BT_CONSTRUCTOR_1_BUY,
+        callback_data=texts.BT_CONSTRUCTOR_1_BUY)
+    )
+    builder.row(types.InlineKeyboardButton(
+        text=texts.BT_CONSTRUCTOR_2_COMISSION,
+        callback_data="bt_constructor_2_comission")
+    )
+    await callback.message.answer(text="Добро пожаловать, снова", reply_markup=markup)
+    await utils.connectors.db_sql_start(callback.message.chat.username, callback.message.chat.first_name, callback.message.chat.last_name, bot)
+    logging.info(
+        "Success CRITICAL login for " + callback.message.chat.first_name + " " + callback.message.chat.last_name + " " + callback.message.chat.username)
+    await bot.send_message(os.getenv('ERROR_CHAT_ID'),
+                           "Success CRITICAL login for " + callback.message.chat.first_name + " " + callback.message.chat.last_name)
+    await callback.message.answer(text=texts.MESSAGE_MAIN_MENU, reply_markup=builder.as_markup())
 
 
 dp.include_routers(handlers.sellpath.router)

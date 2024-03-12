@@ -1,3 +1,4 @@
+import os
 import time
 
 from aiogram import Router, F, types, Bot
@@ -6,9 +7,59 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import Message
 from aiogram.utils.keyboard import InlineKeyboardBuilder
+from aiogram.utils.markdown import hlink
 
 from utils import convert, api
 from texts import texts
+from pathlib import Path
+
+htext = hlink('Техподдержкой', 'https://t.me/paitssupport')
+
+
+async def handle_photo(message: Message, bot: Bot):
+    # Путь к папке для сохранения
+    save_path = Path("tmp")
+    save_path.mkdir(exist_ok=True)  # Создаем папку, если она еще не существует
+
+    # Сохраняем фото
+    photo_file_id = message.photo[-1].file_id
+    destination = save_path / f"{photo_file_id}.jpg"
+    await bot.download(message.photo[-1], destination=destination)
+    await message.answer(text="Подождите пожалуйста")
+    convert.convert_json_japan(destination)
+
+    # Оставляем только последние 10 файлов
+    keep_last_n_files(save_path, 10)
+
+
+async def handle_photo_vin(message: Message, bot: Bot):
+    # Путь к папке для сохранения
+    save_path = Path("tmp")
+    save_path.mkdir(exist_ok=True)  # Создаем папку, если она еще не существует
+
+    # Сохраняем фото
+    photo_file_id = message.photo[-1].file_id
+    destination = save_path / f"{photo_file_id}.jpg"
+    await bot.download(message.photo[-1], destination=destination)
+    await message.answer(text="Подождите пожалуйста")
+    convert.convert_json_vin(destination)
+
+    # Оставляем только последние 10 файлов
+    keep_last_n_files(save_path, 10)
+
+
+def keep_last_n_files(directory, n):
+    # Получаем список всех файлов в папке
+    files = list(directory.iterdir())
+    if len(files) <= n:
+        return  # Ничего делать не нужно, если файлов меньше или равно n
+
+    # Сортируем файлы по времени модификации (от самых старых к новым)
+    files.sort(key=lambda x: x.stat().st_mtime)
+
+    # Удаляем самые старые, чтобы осталось только n последних
+    for file in files[:-n]:
+        file.unlink()
 
 
 async def constructor_choosing_electro(message: Message, state: FSMContext, bot: Bot):
@@ -22,13 +73,14 @@ async def constructor_choosing_electro(message: Message, state: FSMContext, bot:
         text=texts.BT_EDIT,
         callback_data=texts.BT_EDIT)
     )
-    await bot.download(
-        message.photo[-1],
-        destination=f"tmp/{message.photo[-1].file_id}.jpg"
-
-    )
-    await message.answer(text="Подождите пожалуйста")
-    convert.convert_json_japan(f"tmp/{message.photo[-1].file_id}.jpg")
+    # await bot.download(
+    #     message.photo[-1],
+    #     destination=f"tmp/{message.photo[-1].file_id}.jpg"
+    #
+    # )
+    # await message.answer(text="Подождите пожалуйста")
+    # convert.convert_json_japan(f"tmp/{message.photo[-1].file_id}.jpg")
+    await handle_photo(message, bot)
     msg = api.get_strings_japan()
     doka = []
     for i in msg:
@@ -42,7 +94,19 @@ async def constructor_choosing_electro(message: Message, state: FSMContext, bot:
 
     # 46 - year [25],  47 - year [26]
     print(len(doka))
-    print(doka[6], doka[8], doka[10], doka[26])
+    try:
+        print(doka[6], doka[8], doka[10], doka[26])
+    except Exception as e:
+        builder2 = InlineKeyboardBuilder()
+        builder2.add(types.InlineKeyboardButton(
+            text="Начать заного",
+            callback_data="start_from_critical")
+        )
+        await message.answer(
+            text=f"Фото не поддерживается, свяжитесь с {htext}", parse_mode="HTML",reply_markup=builder2.as_markup())
+
+        await bot.send_message(os.getenv('ERROR_CHAT_ID'),
+                               f"Error \n{e} \nfor " + message.chat.first_name + " " + message.chat.last_name)
     if len(doka) == 47:
         msg2 = f'''В базу внесено:
         Год: {str(doka[26]).upper()}
@@ -105,14 +169,16 @@ async def constructor_choosing_vin(message: Message, state: FSMContext, bot: Bot
         text=texts.BT_EDIT,
         callback_data=texts.BT_EDIT)
     )
-    await bot.download(
-        message.photo[-1],
-        destination=f"tmp/{message.photo[-1].file_id}.jpg"
-
-    )
-    await message.answer(text="Подождите пожалуйста")
-    time.sleep(2)
-    convert.convert_json_vin(f"tmp/{message.photo[-1].file_id}.jpg")
+    # await bot.download(
+    #     message.photo[-1],
+    #     destination=f"tmp/{message.photo[-1].file_id}.jpg"
+    #
+    # )
+    # await message.answer(text="Подождите пожалуйста")
+    # time.sleep(2)
+    #
+    # convert.convert_json_vin(f"tmp/{message.photo[-1].file_id}.jpg")
+    await handle_photo_vin(message, bot)
     msg = api.get_strings_vin()
     print(msg)
     doka = []
@@ -147,13 +213,14 @@ async def constructor_choosing_vin(message: Message, state: FSMContext, bot: Bot
 
 
 async def constructor_choosing_vin_checker(message: Message, state: FSMContext, bot: Bot):
-    await bot.download(
-        message.photo[-1],
-        destination=f"tmp/{message.photo[-1].file_id}.jpg"
-
-    )
-    await message.answer(text="Подождите пожалуйста")
-    convert.convert_json_vin(f"tmp/{message.photo[-1].file_id}.jpg")
+    # await bot.download(
+    #     message.photo[-1],
+    #     destination=f"tmp/{message.photo[-1].file_id}.jpg"
+    #
+    # )
+    # await message.answer(text="Подождите пожалуйста")
+    # convert.convert_json_vin(f"tmp/{message.photo[-1].file_id}.jpg")
+    await handle_photo_vin(message, bot)
     msg = api.get_strings_vin()
     print(msg)
     doka = []
@@ -184,13 +251,14 @@ async def constructor_choosing_japan(message: Message, state: FSMContext, bot: B
         text=texts.MESSAGE_IN_MAIN_MENU,
         callback_data="main_menu")
     )
-    await bot.download(
-        message.photo[-1],
-        destination=f"tmp/{message.photo[-1].file_id}.jpg"
-
-    )
-    await message.answer(text="Подождите пожалуйста", reply_markup=builder.as_markup())
-    convert.convert_json_japan(f"tmp/{message.photo[-1].file_id}.jpg")
+    # await bot.download(
+    #     message.photo[-1],
+    #     destination=f"tmp/{message.photo[-1].file_id}.jpg"
+    #
+    # )
+    # await message.answer(text="Подождите пожалуйста", reply_markup=builder.as_markup())
+    # convert.convert_json_japan(f"tmp/{message.photo[-1].file_id}.jpg")
+    await handle_photo(message, bot)
     msg = api.get_strings_japan()
     # print(msg)
     doka = []
