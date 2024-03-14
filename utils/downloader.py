@@ -20,13 +20,13 @@ async def handle_photo(message: Message, bot: Bot):
     # Путь к папке для сохранения
     save_path = Path("tmp")
     save_path.mkdir(exist_ok=True)  # Создаем папку, если она еще не существует
-
+    await message.answer(text="Подождите пожалуйста")
     # Сохраняем фото
     photo_file_id = message.photo[-1].file_id
     destination = save_path / f"{photo_file_id}.jpg"
     await bot.download(message.photo[-1], destination=destination)
-    await message.answer(text="Подождите пожалуйста")
-    convert.convert_json_japan(destination)
+
+
 
     # Оставляем только последние 10 файлов
     keep_last_n_files(save_path, 10)
@@ -99,7 +99,7 @@ async def constructor_choosing_electro(message: Message, state: FSMContext, bot:
     except Exception as e:
         builder2 = InlineKeyboardBuilder()
         builder2.add(types.InlineKeyboardButton(
-            text="Начать заного",
+            text="Начать заново",
             callback_data="start_from_critical")
         )
         await message.answer(
@@ -169,15 +169,6 @@ async def constructor_choosing_vin(message: Message, state: FSMContext, bot: Bot
         text=texts.BT_EDIT,
         callback_data=texts.BT_EDIT)
     )
-    # await bot.download(
-    #     message.photo[-1],
-    #     destination=f"tmp/{message.photo[-1].file_id}.jpg"
-    #
-    # )
-    # await message.answer(text="Подождите пожалуйста")
-    # time.sleep(2)
-    #
-    # convert.convert_json_vin(f"tmp/{message.photo[-1].file_id}.jpg")
     await handle_photo_vin(message, bot)
     msg = api.get_strings_vin()
     print(msg)
