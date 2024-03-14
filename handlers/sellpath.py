@@ -354,6 +354,8 @@ async def main_menu_choosing_critical_finish(message: Message, state: FSMContext
     await message.answer(
         text="Произошла ошибка. Нажмите на /start для составления нового отчета.")
     await message.answer(text="/start")
+
+
 # =============================
 @router.callback_query(SetReport.choosing_sell_data_car_start, F.data == texts.BT_COMISSION)
 async def main_menu_bt_constructor_1_sell(callback: types.CallbackQuery, state: FSMContext):
@@ -412,7 +414,7 @@ async def main_menu_button2(message: Message, state: FSMContext):
     await state.update_data(chosen_vin_number=message.text.upper())
     vin_number = message.text.upper()
     print(vin_number + " choosing_sell_comission_data_car_marka")
-    summas = utils.connectors.db_sql_vin_comission_owner_select(vin_number)
+    summas =  await utils.connectors.db_sql_vin_comission_owner_select(vin_number, message)
     if summas != "UNKNOWN":
         await message.answer(text="Укажите марку", reply_markup=keyboard_to_delete)
         await state.set_state(SetReport.choosing_sell_comission_data_car_model)
@@ -423,7 +425,7 @@ async def main_menu_button2(message: Message, state: FSMContext):
             callback_data="Изменить данные")
         )
         await state.set_state(SetReport.choosing_vin_editor_start_sell_comission)
-        await message.answer(text="Автомобиль с этим  VIN отсутствует в базе, попробуйте заного")
+        await message.answer(text="Автомобиль с этим  VIN отсутствует в базе, попробуйте заново")
 
 
 @router.message(SetReport.choosing_sell_comission_data_car_model)
@@ -620,7 +622,7 @@ async def constructor_choosing_dkp(callback: types.CallbackQuery, state: FSMCont
     data = await state.get_data()
     vin_number = data['chosen_vin_number']
     print(vin_number + " choosing_sell_comission_vin")
-    summas = utils.connectors.db_sql_vin_comission_owner_select(vin_number)
+    summas = await utils.connectors.db_sql_vin_comission_owner_select(vin_number, callback)
     if summas != "UNKNOWN":
         builder = InlineKeyboardBuilder()
         builder.add(types.InlineKeyboardButton(
@@ -682,7 +684,7 @@ async def main_menu_bt_constructor_1_sell(callback: types.CallbackQuery, state: 
     data = await state.get_data()
     vin_number = data['chosen_vin_number']
     print(vin_number + " choosing_sell_comission_vin")
-    summas = utils.connectors.db_sql_vin_comission_owner_select(vin_number)
+    summas = await utils.connectors.db_sql_vin_comission_owner_select(vin_number, callback)
     if summas != "UNKNOWN":
         builder = InlineKeyboardBuilder()
         builder.add(types.InlineKeyboardButton(
@@ -765,7 +767,7 @@ async def main_menu_button2(message: Message, state: FSMContext):
     await state.update_data(chosen_vin_number=message.text.upper())
     vin_number = message.text.upper()
     print(vin_number + " choosing_sell_our_data_car_marka")
-    summas = utils.connectors.db_sql_vin_buy_owner_select(vin_number)
+    summas = await utils.connectors.db_sql_vin_buy_owner_select(vin_number, message)
     if summas != "UNKNOWN":
         await message.answer(text="Укажите марку", reply_markup=keyboard_to_delete)
         await state.set_state(SetReport.choosing_sell_our_data_car_model)
@@ -776,7 +778,7 @@ async def main_menu_button2(message: Message, state: FSMContext):
             callback_data="Изменить данные")
         )
         await state.set_state(SetReport.choosing_vin_editor_start_sell_comission)
-        await message.answer(text="Автомобиль с этим  VIN отсутствует в базе, попробуйте заного")
+        await message.answer(text="Автомобиль с этим  VIN отсутствует в базе, попробуйте заново")
 
 
 @router.message(SetReport.choosing_sell_our_data_car_model)
@@ -973,7 +975,7 @@ async def constructor_choosing_dkp(callback: types.CallbackQuery, state: FSMCont
     data = await state.get_data()
     vin_number = data['chosen_vin_number']
     print(vin_number + " choosing_sell_owner_vin")
-    summas = utils.connectors.db_sql_vin_buy_owner_select(vin_number)
+    summas = await utils.connectors.db_sql_vin_buy_owner_select(vin_number, callback)
     if summas != "UNKNOWN":
         builder = InlineKeyboardBuilder()
         builder.add(types.InlineKeyboardButton(
@@ -1033,7 +1035,7 @@ async def main_menu_bt_constructor_1_sell(callback: types.CallbackQuery, state: 
     data = await state.get_data()
     vin_number = data['chosen_vin_number']
     print(vin_number + " choosing_sell_owner_vin")
-    summas = utils.connectors.db_sql_vin_buy_owner_select(vin_number)
+    summas = await utils.connectors.db_sql_vin_buy_owner_select(vin_number, callback)
     if summas != "UNKNOWN":
         builder = InlineKeyboardBuilder()
         builder.add(types.InlineKeyboardButton(
@@ -1145,7 +1147,7 @@ async def sell_choosing_comissiya_credit_comission3(message: Message, state: FSM
         vin_number = data['chosen_vin_number']
         print(vin_number + " XXXX")
         await message.answer(text="Пожалуйста подождите, идет проверка в базе данных")
-        summas = utils.connectors.db_sql_price_owner_select(vin_number)
+        summas = await utils.connectors.db_sql_price_owner_select(vin_number, message)
         await message.answer(
             text="СУММА СОБСТВЕННИКУ " + str(summas), reply_markup=builder.as_markup()
         )
@@ -1189,7 +1191,7 @@ async def sell_choosing_comissiya_creditcomission5(message: Message, state: FSMC
     vin_number = data['chosen_vin_number']
     print(vin_number + " XXXX")
     await message.answer(text="Пожалуйста подождите, идет проверка в базе данных")
-    summas = utils.connectors.db_sql_price_owner_select(vin_number)
+    summas = await utils.connectors.db_sql_price_owner_select(vin_number, message)
     await message.answer(
         text="СУММА СОБСТВЕННИКУ " + str(summas), reply_markup=builder.as_markup()
     )
@@ -1242,7 +1244,7 @@ async def sell_choosing_comissiya_creditcomission6(callback: types.CallbackQuery
     print(f"PRINTER_LOGGER {callback.message.chat.username} на стейте {current_state}")
     data = await state.get_data()
     vin_number = data['chosen_vin_number']
-    just = utils.connectors.db_sql_price_owner_select(vin_number)
+    just = utils.connectors.db_sql_price_owner_select(vin_number, callback)
     await state.update_data(summa_sob=int(re.sub("[^0-9]", "", str(just))))
     builder = InlineKeyboardBuilder()
     builder.add(types.InlineKeyboardButton(
@@ -1719,7 +1721,7 @@ async def sell_choosing_comissiya_comissiya_credit14(callback: types.CallbackQue
     data = await state.get_data()
     vin_number = data['chosen_vin_number']
     await callback.message.answer(text="Пожалуйста подождите, идет проверка в базе данных")
-    type_of_calc = utils.connectors.db_sql_type_of_calc_select(vin_number)
+    type_of_calc = utils.connectors.db_sql_type_of_calc_select(vin_number, callback)
     await state.update_data(type_raschet=str(type_of_calc))
     builder = InlineKeyboardBuilder()
     builder.add(types.InlineKeyboardButton(
@@ -1748,7 +1750,7 @@ async def sell_choosing_comissiya_creditcomission14(message: Message, state: FSM
         data = await state.get_data()
         vin_number = data['chosen_vin_number']
         await message.answer(text="Пожалуйста подождите, идет проверка в базе данных")
-        type_of_calc = utils.connectors.db_sql_type_of_calc_select(vin_number)
+        type_of_calc = utils.connectors.db_sql_type_of_calc_select(vin_number, message)
         await state.update_data(type_raschet=str(type_of_calc))
         builder = InlineKeyboardBuilder()
         builder.add(types.InlineKeyboardButton(
@@ -2503,7 +2505,7 @@ async def sell_choosing_comissiya_cash_comission3(message: Message, state: FSMCo
         data = await state.get_data()
         vin_number = data['chosen_vin_number']
         await message.answer(text="Пожалуйста подождите, идет проверка в базе данных")
-        summas = utils.connectors.db_sql_price_owner_select(vin_number)
+        summas = await utils.connectors.db_sql_price_owner_select(vin_number, message)
         await message.answer(
             text="СУММА СОБСТВЕННИКУ " + str(summas), reply_markup=builder.as_markup()
         )
@@ -2547,7 +2549,7 @@ async def sell_choosing_comissiya_cash_comission5(message: Message, state: FSMCo
     data = await state.get_data()
     vin_number = data['chosen_vin_number']
     await message.answer(text="Пожалуйста подождите, идет проверка в базе данных")
-    summas = utils.connectors.db_sql_price_owner_select(vin_number)
+    summas = await utils.connectors.db_sql_price_owner_select(vin_number, message)
     await message.answer(
         text="СУММА СОБСТВЕННИКУ " + str(summas), reply_markup=builder.as_markup()
     )
@@ -2601,7 +2603,7 @@ async def sell_choosing_comissiya_cash_comission6(callback: types.CallbackQuery,
     print(f"PRINTER_LOGGER {callback.message.chat.username} на стейте {current_state}")
     data = await state.get_data()
     vin_number = data['chosen_vin_number']
-    just = utils.connectors.db_sql_price_owner_select(vin_number)
+    just = utils.connectors.db_sql_price_owner_select(vin_number, callback)
     await state.update_data(summa_sob=int(re.sub("[^0-9]", "", str(just))))
     builder = InlineKeyboardBuilder()
     builder.add(types.InlineKeyboardButton(
@@ -3135,7 +3137,7 @@ async def sell_choosing_comissiya_comissiya_cash14(callback: types.CallbackQuery
     data = await state.get_data()
     vin_number = data['chosen_vin_number']
     await callback.message.answer(text="Пожалуйста подождите, идет проверка в базе данных")
-    type_of_calc = utils.connectors.db_sql_type_of_calc_select(vin_number)
+    type_of_calc = utils.connectors.db_sql_type_of_calc_select(vin_number, callback)
     await state.update_data(type_raschet=str(type_of_calc))
     builder = InlineKeyboardBuilder()
     builder.add(types.InlineKeyboardButton(
@@ -3164,7 +3166,7 @@ async def sell_choosing_comissiya_creditcomission14(message: Message, state: FSM
         data = await state.get_data()
         vin_number = data['chosen_vin_number']
         await message.answer(text="Пожалуйста подождите, идет проверка в базе данных")
-        type_of_calc = utils.connectors.db_sql_type_of_calc_select(vin_number)
+        type_of_calc = utils.connectors.db_sql_type_of_calc_select(vin_number, message)
         await state.update_data(type_raschet=str(type_of_calc))
         builder = InlineKeyboardBuilder()
         builder.add(types.InlineKeyboardButton(
@@ -3189,7 +3191,6 @@ async def sell_choosing_comissiya_creditcomission14(message: Message, state: FSM
         await state.set_state(SetReport.choosing_comissiya_cash14)
 
 
-
 @router.callback_query(SetReport.choosing_comissiya_cash15)
 async def sell_choosing_comissiya_cash_comission15(callback: types.CallbackQuery, state: FSMContext):
     current_state = await state.get_state()
@@ -3197,7 +3198,7 @@ async def sell_choosing_comissiya_cash_comission15(callback: types.CallbackQuery
     data = await state.get_data()
     vin_number = data['chosen_vin_number']
     await callback.message.answer(text="Пожалуйста подождите, идет проверка в базе данных")
-    type_of_calc = utils.connectors.db_sql_type_of_calc_select(vin_number)
+    type_of_calc = utils.connectors.db_sql_type_of_calc_select(vin_number, callback)
     await state.update_data(type_raschet=str(type_of_calc))
     builder = InlineKeyboardBuilder()
     builder.add(types.InlineKeyboardButton(
@@ -4681,10 +4682,10 @@ async def sell_choosing_comissiya_cash_comission9(callback: types.CallbackQuery,
     print(f"PRINTER_LOGGER {callback.message.chat.username} на стейте {current_state}")
     await state.update_data(whosell="-")
     builder = InlineKeyboardBuilder()
-    # builder.add(types.InlineKeyboardButton(
-    #     text="САМ",
-    #     callback_data="САМ")
-    # )
+    builder.add(types.InlineKeyboardButton(
+        text="САМ",
+        callback_data="САМ")
+    )
     builder.add(types.InlineKeyboardButton(
         text="Нажмите, чтобы ввести фамилию",
         switch_inline_query_current_chat='find_b10 ')

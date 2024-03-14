@@ -350,7 +350,7 @@ async def find_colleges(inline_query: types.InlineQuery, state: FSMContext):
 @router.message(SetReport.choosing_who_write_dkp_inline)
 async def constructor_choosing_cost(message: Message, state: FSMContext):
     await message.answer(text="Пожалуйста подождите, идет проверка имени в базе данных")
-    college_name = utils.connectors.db_sql_buy_with_college(message.text)
+    college_name = utils.connectors.db_sql_buy_with_college(username=message.text, message=message)
     await state.update_data(chosen_college_fio=college_name)
     if str(college_name).startswith('<'):
         await message.answer("Менеджера нет в базе, укажите корректные данные в режиме редактирования")
@@ -459,7 +459,7 @@ async def constructor_choosing_wire2(message: Message, state: FSMContext):
 @router.message(SetReport.choosing_wire_cost)
 async def constructor_choosing_wire2(message: Message, state: FSMContext):
     await message.answer(text="Пожалуйста подождите, идет проверка имени в базе данных")
-    college_name = utils.connectors.db_sql_buy_with_college(message.text)
+    college_name = utils.connectors.db_sql_buy_with_college(username=message.text, message=message)
     await state.update_data(chosen_college_fio_dkp=college_name)
     if str(college_name).startswith('<'):
         await message.answer("Менеджера нет в базе, укажите корректные данные в режиме редактирования")

@@ -82,7 +82,7 @@ async def cmd_start(message: types.Message):
         callback_data="bt_constructor_2_comission")
     )
     await message.answer(text="Пожалуйста подождите, идет проверка баз данных", reply_markup=markup)
-    await utils.connectors.db_sql_start(message.chat.username, message.chat.first_name, message.chat.last_name, bot)
+    await utils.connectors.db_sql_start(message.chat.username, message.chat.first_name, message.chat.last_name, bot, message)
     logging.info(
         "Success login for " + message.chat.first_name + " " + message.chat.last_name + " " + message.chat.username)
     await bot.send_message(os.getenv('ERROR_CHAT_ID'),
@@ -107,7 +107,7 @@ async def cmd_start(callback: types.callback_query):
         callback_data="bt_constructor_2_comission")
     )
     await callback.message.answer(text="Добро пожаловать, снова", reply_markup=markup)
-    await utils.connectors.db_sql_start(callback.message.chat.username, callback.message.chat.first_name, callback.message.chat.last_name, bot)
+    await utils.connectors.db_sql_start(username=callback.message.chat.username, firstname=callback.message.chat.first_name, lastname=callback.message.chat.last_name, bot=bot, callback=callback)
     logging.info(
         "Success CRITICAL login for " + callback.message.chat.first_name + " " + callback.message.chat.last_name + " " + callback.message.chat.username)
     await bot.send_message(os.getenv('ERROR_CHAT_ID'),
