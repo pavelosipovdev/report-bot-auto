@@ -125,6 +125,38 @@ class SetReport(StatesGroup):
     choosing_sell_editor_first_cost_6 = State()
     choosing_sell_editor_first_cost_7 = State()
     choosing_sell_editor_first_cost_8 = State()
+    choosing_sell_editor_menu_dealer_discount_edit_1 = State()
+    choosing_sell_editor_menu_dealer_discount_edit_2 = State()
+    choosing_sell_editor_menu_dealer_discount_edit_3 = State()
+    choosing_sell_editor_menu_dealer_discount_edit_4 = State()
+    choosing_sell_editor_menu_dealer_discount_edit_5 = State()
+    choosing_sell_editor_menu_dealer_discount_edit_6 = State()
+    choosing_sell_editor_menu_dealer_discount_edit_7 = State()
+    choosing_sell_editor_menu_dealer_discount_edit_8 = State()
+    choosing_sell_editor_menu_summa_sob_edit_1 = State()
+    choosing_sell_editor_menu_summa_sob_edit_2 = State()
+    choosing_sell_editor_menu_summa_sob_edit_3 = State()
+    choosing_sell_editor_menu_summa_sob_edit_4 = State()
+    choosing_sell_editor_menu_summa_sob_edit_5 = State()
+    choosing_sell_editor_menu_summa_sob_edit_6 = State()
+    choosing_sell_editor_menu_summa_sob_edit_7 = State()
+    choosing_sell_editor_menu_summa_sob_edit_8 = State()
+    choosing_sell_editor_menu_date_raschet_edit_1 = State()
+    choosing_sell_editor_menu_date_raschet_edit_2 = State()
+    choosing_sell_editor_menu_date_raschet_edit_3 = State()
+    choosing_sell_editor_menu_date_raschet_edit_4 = State()
+    choosing_sell_editor_menu_date_raschet_edit_5 = State()
+    choosing_sell_editor_menu_date_raschet_edit_6 = State()
+    choosing_sell_editor_menu_date_raschet_edit_7 = State()
+    choosing_sell_editor_menu_date_raschet_edit_8 = State()
+    choosing_sell_editor_menu_type_raschet_edit_1 = State()
+    choosing_sell_editor_menu_type_raschet_edit_2 = State()
+    choosing_sell_editor_menu_type_raschet_edit_3 = State()
+    choosing_sell_editor_menu_type_raschet_edit_4 = State()
+    choosing_sell_editor_menu_type_raschet_edit_5 = State()
+    choosing_sell_editor_menu_type_raschet_edit_6 = State()
+    choosing_sell_editor_menu_type_raschet_edit_7 = State()
+    choosing_sell_editor_menu_type_raschet_edit_8 = State()
     choosing_sell_editor_first_vin_gos_number_1 = State()
     choosing_sell_editor_first_vin_gos_number_2 = State()
     choosing_sell_editor_first_vin_gos_number_3 = State()
@@ -414,7 +446,7 @@ async def main_menu_button2(message: Message, state: FSMContext):
     await state.update_data(chosen_vin_number=message.text.upper())
     vin_number = message.text.upper()
     print(vin_number + " choosing_sell_comission_data_car_marka")
-    summas =  await utils.connectors.db_sql_vin_comission_owner_select(vin_number, message)
+    summas = await utils.connectors.db_sql_vin_comission_owner_select(vin_number, message)
     if summas != "UNKNOWN":
         await message.answer(text="Укажите марку", reply_markup=keyboard_to_delete)
         await state.set_state(SetReport.choosing_sell_comission_data_car_model)
@@ -1454,6 +1486,8 @@ async def constructor_choosing_wire12(message: Message, state: FSMContext):
         text="Все ок",
         callback_data="edit_menu_finish"
     ))
+    await state.update_data(date_raschet=None)
+    await state.update_data(type_raschet=None)
     data = await state.get_data()
     text = f'''Предварительный отчет:\nТИП ОТЧЕТА: {data['chosen_type']}\nКОМИССИЯ ИЛИ НАША: {data['type_credit_our']}\nКРЕДИТ ИЛИ НАЛИЧНЫЕ: {data['type_deal']}\nЦЕНА ДРОМ: {data['drom_cost']}\nМЕНЕДЖЕРСКАЯ СКИДКА: {data['dealer_discount']}\nСУММА СОБСТВЕННИКУ: {data['summa_sob']}\nС КЕМ ПРОДАЛ: {data['whosell']}\nКТО ОФОРМИЛ КРЕДИТ: {data['whosellcredit']}\nVIN: {data['chosen_vin_number']}\nГос номер: {data['chosen_vin_gos_number']}\nМарка: {data['chosen_vin_marka']}\nМодель: {data['chosen_vin_model']}\nГод: {data['chosen_vin_year']}\nКомментарий: {data['chosen_comment']}\n\nИнициатор: {message.chat.first_name + " " + message.chat.last_name}
             '''
@@ -1468,9 +1502,7 @@ async def constructor_choosing_awa_our_credit44(callback: types.CallbackQuery, s
     current_state = await state.get_state()
     print(f"PRINTER_LOGGER {callback.message.chat.username} на стейте {current_state}")
     await callback.message.answer("Подождите, идет выгрузка отчета")
-    await state.update_data(date_raschet=None)
     await state.update_data(howmuchtorg=None)
-    await state.update_data(type_raschet=None)
     data = await state.get_data()
     await utils.connectors.db_sql_sell_insert(callback, data)
     await callback.message.answer(
@@ -1484,10 +1516,14 @@ async def constructor_editor_start(callback: types.CallbackQuery, state: FSMCont
     current_state = await state.get_state()
     print(f"PRINTER_LOGGER {callback.message.chat.username} на стейте {current_state}")
     dict_editor = {'editor_start':
-                       {'text': ["C кем продал", "Кто оформил кредит", "Цена дром", "Гос номер", "Марка", "Модель",
+                       {'text': ["C кем продал", "Кто оформил кредит", "Цена дром", "Менеджерская скидка",
+                                 "Сумма собственнику",
+                                 "Дата расчета", "Вид расчета", "Гос номер", "Марка", "Модель",
                                  "Год", "VIN",
                                  "Комментарий", "Все ок"],
                         'data': ["edit_menu_who_sell", "edit_menu_who_credit", "edit_menu_drom_cost",
+                                 "edit_menu_dealer_discount", "edit_menu_summa_sob", "edit_menu_date_raschet",
+                                 "edit_menu_type_raschet",
                                  "edit_menu_gosnumber", "edit_menu_marka",
                                  "edit_menu_model", "edit_menu_year", "edit_menu_vin", "edit_menu_comment",
                                  "edit_menu_finish"]}}
@@ -1558,6 +1594,136 @@ async def editor_drom_cost_edit(message: Message, state: FSMContext):
             text=texts.MESSAGE_ONLY_DIGITS,
         )
         await state.set_state(SetReport.choosing_sell_editor_menu_drom_cost_edit_1)
+
+
+@router.callback_query(SetReport.choosing_sell_selector_1, F.data == "edit_menu_dealer_discount")
+async def editor_dealer_discount_get(callback: types.CallbackQuery, state: FSMContext):
+    current_state = await state.get_state()
+    print(f"PRINTER_LOGGER {callback.message.chat.username} на стейте {current_state}")
+    await utils.editor_sell.editor_first_dealer_discount_get(callback, state)
+    await state.set_state(SetReport.choosing_sell_editor_menu_dealer_discount_edit_1)
+
+
+@router.message(SetReport.choosing_sell_editor_menu_dealer_discount_edit_1)
+async def editor_dealer_discount_set(message: Message, state: FSMContext):
+    current_state = await state.get_state()
+    print(f"PRINTER_LOGGER {message.chat.username} на стейте {current_state}")
+    just = message.text.upper()
+    if just.isdigit():
+        await state.update_data(dealer_discount=int(just))
+        builder = InlineKeyboardBuilder()
+        builder.add(types.InlineKeyboardButton(
+            text="ОК",
+            callback_data=texts.BT_CONSTRUCTOR_2_ATP)
+        )
+        data = await state.get_data()
+        await message.answer(text="Замена на " + str(data['dealer_discount']), reply_markup=builder.as_markup())
+        await state.set_state(SetReport.choosing_sell_editor_start_1)
+    else:
+        await message.answer(
+            text=texts.MESSAGE_ONLY_DIGITS,
+        )
+        await state.set_state(SetReport.choosing_sell_editor_menu_dealer_discount_edit_1)
+
+
+@router.callback_query(SetReport.choosing_sell_selector_1, F.data == "edit_menu_summa_sob")
+async def editor_drom_cost(callback: types.CallbackQuery, state: FSMContext):
+    current_state = await state.get_state()
+    print(f"PRINTER_LOGGER {callback.message.chat.username} на стейте {current_state}")
+    await utils.editor_sell.editor_first_summa_sob_get(callback, state)
+    await state.set_state(SetReport.choosing_sell_editor_menu_summa_sob_edit_1)
+
+
+@router.message(SetReport.choosing_sell_editor_menu_summa_sob_edit_1)
+async def editor_drom_cost_edit(message: Message, state: FSMContext):
+    current_state = await state.get_state()
+    print(f"PRINTER_LOGGER {message.chat.username} на стейте {current_state}")
+    just = message.text.upper()
+    if just.isdigit():
+        await state.update_data(summa_sob=int(just))
+        builder = InlineKeyboardBuilder()
+        builder.add(types.InlineKeyboardButton(
+            text="ОК",
+            callback_data=texts.BT_CONSTRUCTOR_2_ATP)
+        )
+        data = await state.get_data()
+        await message.answer(text="Замена на " + str(data['summa_sob']), reply_markup=builder.as_markup())
+        await state.set_state(SetReport.choosing_sell_editor_start_1)
+    else:
+        await message.answer(
+            text=texts.MESSAGE_ONLY_DIGITS,
+        )
+        await state.set_state(SetReport.choosing_sell_editor_menu_summa_sob_edit_1)
+
+
+@router.callback_query(SetReport.choosing_sell_selector_1, F.data == "edit_menu_date_raschet")
+async def editor_drom_cost(callback: types.CallbackQuery, state: FSMContext):
+    current_state = await state.get_state()
+    print(f"PRINTER_LOGGER {callback.message.chat.username} на стейте {current_state}")
+    await utils.editor_sell.editor_first_date_raschet_get(callback, state)
+    await state.set_state(SetReport.choosing_sell_editor_menu_date_raschet_edit_1)
+
+
+@router.message(SetReport.choosing_sell_editor_menu_date_raschet_edit_1)
+async def editor_drom_cost_edit(message: Message, state: FSMContext):
+    current_state = await state.get_state()
+    print(f"PRINTER_LOGGER {message.chat.username} на стейте {current_state}")
+    date_raschet = message.text.lower()
+    new_date = await utils.connectors.date_normalizer(date_raschet)
+    if new_date:
+        await state.update_data(date_raschet=new_date)
+        builder = InlineKeyboardBuilder()
+        builder.add(types.InlineKeyboardButton(
+            text="ОК",
+            callback_data=texts.BT_CONSTRUCTOR_2_ATP)
+        )
+        data = await state.get_data()
+        await message.answer(text="Замена на " + str(data['date_raschet']), reply_markup=builder.as_markup())
+        await state.set_state(SetReport.choosing_sell_editor_start_1)
+    else:
+        await message.answer(
+            text="ДАТА НЕКОРРЕКТНА, ПОПРОБУЙТЕ ЕЩЕ РАЗ")
+        await message.answer(
+            text=texts.MESSAGE_DATE_RASCHET,
+        )
+        await state.set_state(SetReport.choosing_sell_editor_menu_date_raschet_edit_1)
+
+
+@router.callback_query(SetReport.choosing_sell_selector_1, F.data == "edit_menu_type_raschet")
+async def editor_drom_cost(callback: types.CallbackQuery, state: FSMContext):
+    current_state = await state.get_state()
+    print(f"PRINTER_LOGGER {callback.message.chat.username} на стейте {current_state}")
+    data = await state.get_data()
+    await callback.message.answer(
+        text="ВИД РАСЧЕТА " + "\"" + str(data['type_raschet']) + "\"")
+    builder = InlineKeyboardBuilder()
+    builder.add(types.InlineKeyboardButton(
+        text="НАЛ",
+        callback_data="НАЛ")
+    )
+    builder.add(types.InlineKeyboardButton(
+        text="БЕЗНАЛ",
+        callback_data="БЕЗНАЛ")
+    )
+    await callback.message.answer(
+        text="На какой вид расчета хотите изменить?", reply_markup=builder.as_markup(),
+    )
+    await state.set_state(SetReport.choosing_sell_editor_menu_type_raschet_edit_1)
+
+
+@router.callback_query(SetReport.choosing_sell_editor_menu_type_raschet_edit_1)
+async def editor_drom_cost_edit(callback: types.CallbackQuery, state: FSMContext):
+    current_state = await state.get_state()
+    print(f"PRINTER_LOGGER {callback.message.chat.username} на стейте {current_state}")
+    await state.update_data(type_raschet=callback.data)
+    builder = InlineKeyboardBuilder()
+    builder.add(types.InlineKeyboardButton(
+        text="ОК",
+        callback_data=texts.BT_CONSTRUCTOR_2_ATP)
+    )
+    data = await state.get_data()
+    await callback.message.answer(text="Замена на " + str(data['type_raschet']), reply_markup=builder.as_markup())
+    await state.set_state(SetReport.choosing_sell_editor_start_1)
 
 
 @router.callback_query(SetReport.choosing_sell_selector_1, F.data == "edit_menu_gosnumber")
@@ -1846,6 +2012,8 @@ async def constructor_choosing_wire12(message: Message, state: FSMContext):
         text="Все ок",
         callback_data="edit_menu_finish"
     ))
+    # await state.update_data(date_raschet=None)
+    # await state.update_data(type_raschet=None)
     data = await state.get_data()
     text = f'''Предварительный отчет:\nТИП ОТЧЕТА: {data['chosen_type']}\nКОМИССИЯ ИЛИ НАША: {data['type_credit_our']}\nКРЕДИТ ИЛИ НАЛИЧНЫЕ: {data['type_deal']}\nЦЕНА ДРОМ: {data['drom_cost']}\nМЕНЕДЖЕРСКАЯ СКИДКА: {data['dealer_discount']}\nСУММА СОБСТВЕННИКУ: {data['summa_sob']}\nС КЕМ ПРОДАЛ: {data['whosell']}\nКТО ОФОРМИЛ КРЕДИТ: {data['whosellcredit']}\nДАТА РАСЧЕТА: {data['date_raschet']}\nВИД РАСЧЕТА: {data['type_raschet']}\n\nVIN: {data['chosen_vin_number']}\nГос номер: {data['chosen_vin_gos_number']}\nМарка: {data['chosen_vin_marka']}\nМодель: {data['chosen_vin_model']}\nГод: {data['chosen_vin_year']}\nКомментарий: {data['chosen_comment']}\n\nИнициатор: {message.chat.first_name + " " + message.chat.last_name}
             '''
@@ -1874,15 +2042,19 @@ async def constructor_editor_start(callback: types.CallbackQuery, state: FSMCont
     current_state = await state.get_state()
     print(f"PRINTER_LOGGER {callback.message.chat.username} на стейте {current_state}")
     dict_editor = {'editor_start':
-                       {'text': ["C кем продал", "Кто оформил кредит", "Цена дром", "Гос номер", "Марка", "Модель",
+                       {'text': ["C кем продал", "Кто оформил кредит", "Цена дром", "Менеджерская скидка",
+                                 "Сумма собственнику",
+                                 "Дата расчета", "Вид расчета", "Гос номер", "Марка", "Модель",
                                  "Год", "VIN",
                                  "Комментарий", "Все ок"],
                         'data': ["edit_menu_who_sell", "edit_menu_who_credit", "edit_menu_drom_cost",
+                                 "edit_menu_dealer_discount", "edit_menu_summa_sob", "edit_menu_date_raschet",
+                                 "edit_menu_type_raschet",
                                  "edit_menu_gosnumber", "edit_menu_marka",
                                  "edit_menu_model", "edit_menu_year", "edit_menu_vin", "edit_menu_comment",
                                  "edit_menu_finish"]}}
 
-    await utils.editor_sell.editor_start_1_6(callback, state, dict_editor)
+    await utils.editor_sell.editor_start_1_6_credit(callback, state, dict_editor)
     await state.set_state(SetReport.choosing_sell_selector_2)
 
 
@@ -1978,6 +2150,136 @@ async def editor_drom_cost_edit(message: Message, state: FSMContext):
             text=texts.MESSAGE_ONLY_DIGITS,
         )
         await state.set_state(SetReport.choosing_sell_editor_menu_drom_cost_edit_2)
+
+
+@router.callback_query(SetReport.choosing_sell_selector_2, F.data == "edit_menu_dealer_discount")
+async def editor_dealer_discount_get(callback: types.CallbackQuery, state: FSMContext):
+    current_state = await state.get_state()
+    print(f"PRINTER_LOGGER {callback.message.chat.username} на стейте {current_state}")
+    await utils.editor_sell.editor_first_dealer_discount_get(callback, state)
+    await state.set_state(SetReport.choosing_sell_editor_menu_dealer_discount_edit_2)
+
+
+@router.message(SetReport.choosing_sell_editor_menu_dealer_discount_edit_2)
+async def editor_dealer_discount_set(message: Message, state: FSMContext):
+    current_state = await state.get_state()
+    print(f"PRINTER_LOGGER {message.chat.username} на стейте {current_state}")
+    just = message.text.upper()
+    if just.isdigit():
+        await state.update_data(dealer_discount=int(just))
+        builder = InlineKeyboardBuilder()
+        builder.add(types.InlineKeyboardButton(
+            text="ОК",
+            callback_data=texts.BT_CONSTRUCTOR_2_ATP)
+        )
+        data = await state.get_data()
+        await message.answer(text="Замена на " + str(data['dealer_discount']), reply_markup=builder.as_markup())
+        await state.set_state(SetReport.choosing_sell_editor_start_2)
+    else:
+        await message.answer(
+            text=texts.MESSAGE_ONLY_DIGITS,
+        )
+        await state.set_state(SetReport.choosing_sell_editor_menu_dealer_discount_edit_2)
+
+
+@router.callback_query(SetReport.choosing_sell_selector_2, F.data == "edit_menu_summa_sob")
+async def editor_drom_cost(callback: types.CallbackQuery, state: FSMContext):
+    current_state = await state.get_state()
+    print(f"PRINTER_LOGGER {callback.message.chat.username} на стейте {current_state}")
+    await utils.editor_sell.editor_first_summa_sob_get(callback, state)
+    await state.set_state(SetReport.choosing_sell_editor_menu_summa_sob_edit_2)
+
+
+@router.message(SetReport.choosing_sell_editor_menu_summa_sob_edit_2)
+async def editor_drom_cost_edit(message: Message, state: FSMContext):
+    current_state = await state.get_state()
+    print(f"PRINTER_LOGGER {message.chat.username} на стейте {current_state}")
+    just = message.text.upper()
+    if just.isdigit():
+        await state.update_data(summa_sob=int(just))
+        builder = InlineKeyboardBuilder()
+        builder.add(types.InlineKeyboardButton(
+            text="ОК",
+            callback_data=texts.BT_CONSTRUCTOR_2_ATP)
+        )
+        data = await state.get_data()
+        await message.answer(text="Замена на " + str(data['summa_sob']), reply_markup=builder.as_markup())
+        await state.set_state(SetReport.choosing_sell_editor_start_2)
+    else:
+        await message.answer(
+            text=texts.MESSAGE_ONLY_DIGITS,
+        )
+        await state.set_state(SetReport.choosing_sell_editor_menu_summa_sob_edit_2)
+
+
+@router.callback_query(SetReport.choosing_sell_selector_2, F.data == "edit_menu_date_raschet")
+async def editor_drom_cost(callback: types.CallbackQuery, state: FSMContext):
+    current_state = await state.get_state()
+    print(f"PRINTER_LOGGER {callback.message.chat.username} на стейте {current_state}")
+    await utils.editor_sell.editor_first_date_raschet_get(callback, state)
+    await state.set_state(SetReport.choosing_sell_editor_menu_date_raschet_edit_2)
+
+
+@router.message(SetReport.choosing_sell_editor_menu_date_raschet_edit_2)
+async def editor_drom_cost_edit(message: Message, state: FSMContext):
+    current_state = await state.get_state()
+    print(f"PRINTER_LOGGER {message.chat.username} на стейте {current_state}")
+    date_raschet = message.text.lower()
+    new_date = await utils.connectors.date_normalizer(date_raschet)
+    if new_date:
+        await state.update_data(date_raschet=new_date)
+        builder = InlineKeyboardBuilder()
+        builder.add(types.InlineKeyboardButton(
+            text="ОК",
+            callback_data=texts.BT_CONSTRUCTOR_2_ATP)
+        )
+        data = await state.get_data()
+        await message.answer(text="Замена на " + str(data['date_raschet']), reply_markup=builder.as_markup())
+        await state.set_state(SetReport.choosing_sell_editor_start_2)
+    else:
+        await message.answer(
+            text="ДАТА НЕКОРРЕКТНА, ПОПРОБУЙТЕ ЕЩЕ РАЗ")
+        await message.answer(
+            text=texts.MESSAGE_DATE_RASCHET,
+        )
+        await state.set_state(SetReport.choosing_sell_editor_menu_date_raschet_edit_2)
+
+
+@router.callback_query(SetReport.choosing_sell_selector_2, F.data == "edit_menu_type_raschet")
+async def editor_drom_cost(callback: types.CallbackQuery, state: FSMContext):
+    current_state = await state.get_state()
+    print(f"PRINTER_LOGGER {callback.message.chat.username} на стейте {current_state}")
+    data = await state.get_data()
+    await callback.message.answer(
+        text="ВИД РАСЧЕТА " + "\"" + str(data['type_raschet']) + "\"")
+    builder = InlineKeyboardBuilder()
+    builder.add(types.InlineKeyboardButton(
+        text="НАЛ",
+        callback_data="НАЛ")
+    )
+    builder.add(types.InlineKeyboardButton(
+        text="БЕЗНАЛ",
+        callback_data="БЕЗНАЛ")
+    )
+    await callback.message.answer(
+        text="На какой вид расчета хотите изменить?", reply_markup=builder.as_markup(),
+    )
+    await state.set_state(SetReport.choosing_sell_editor_menu_type_raschet_edit_2)
+
+
+@router.callback_query(SetReport.choosing_sell_editor_menu_type_raschet_edit_2)
+async def editor_drom_cost_edit(callback: types.CallbackQuery, state: FSMContext):
+    current_state = await state.get_state()
+    print(f"PRINTER_LOGGER {callback.message.chat.username} на стейте {current_state}")
+    await state.update_data(type_raschet=callback.data)
+    builder = InlineKeyboardBuilder()
+    builder.add(types.InlineKeyboardButton(
+        text="ОК",
+        callback_data=texts.BT_CONSTRUCTOR_2_ATP)
+    )
+    data = await state.get_data()
+    await callback.message.answer(text="Замена на " + str(data['type_raschet']), reply_markup=builder.as_markup())
+    await state.set_state(SetReport.choosing_sell_editor_start_2)
 
 
 @router.callback_query(SetReport.choosing_sell_selector_2, F.data == "edit_menu_gosnumber")
@@ -2153,6 +2455,8 @@ async def constructor_choosing_wire12(message: Message, state: FSMContext):
         text="Все ок",
         callback_data="edit_menu_finish"
     ))
+    # await state.update_data(date_raschet=None)
+    # await state.update_data(type_raschet=None)
     data = await state.get_data()
     text = f'''Предварительный отчет:\nТИП ОТЧЕТА: {data['chosen_type']}\nКОМИССИЯ ИЛИ НАША: {data['type_credit_our']}\nКРЕДИТ ИЛИ НАЛИЧНЫЕ: {data['type_deal']}\nЦЕНА ДРОМ: {data['drom_cost']}\nМЕНЕДЖЕРСКАЯ СКИДКА: {data['dealer_discount']}\nСУММА СОБСТВЕННИКУ: {data['summa_sob']}\nС КЕМ ПРОДАЛ: {data['whosell']}\nКТО ОФОРМИЛ КРЕДИТ: {data['whosellcredit']}\nДАТА РАСЧЕТА: {data['date_raschet']}\nВИД РАСЧЕТА: {data['type_raschet']}\n\nVIN: {data['chosen_vin_number']}\nГос номер: {data['chosen_vin_gos_number']}\nМарка: {data['chosen_vin_marka']}\nМодель: {data['chosen_vin_model']}\nГод: {data['chosen_vin_year']}\nКомментарий: {data['chosen_comment']}\n\nИнициатор: {message.chat.first_name + " " + message.chat.last_name}
             '''
@@ -2181,15 +2485,19 @@ async def constructor_editor_start(callback: types.CallbackQuery, state: FSMCont
     current_state = await state.get_state()
     print(f"PRINTER_LOGGER {callback.message.chat.username} на стейте {current_state}")
     dict_editor = {'editor_start':
-                       {'text': ["C кем продал", "Кто оформил кредит", "Цена дром", "Гос номер", "Марка", "Модель",
+                       {'text': ["C кем продал", "Кто оформил кредит", "Цена дром", "Менеджерская скидка",
+                                 "Сумма собственнику",
+                                 "Дата расчета", "Вид расчета", "Гос номер", "Марка", "Модель",
                                  "Год", "VIN",
                                  "Комментарий", "Все ок"],
                         'data': ["edit_menu_who_sell", "edit_menu_who_credit", "edit_menu_drom_cost",
+                                 "edit_menu_dealer_discount", "edit_menu_summa_sob", "edit_menu_date_raschet",
+                                 "edit_menu_type_raschet",
                                  "edit_menu_gosnumber", "edit_menu_marka",
                                  "edit_menu_model", "edit_menu_year", "edit_menu_vin", "edit_menu_comment",
                                  "edit_menu_finish"]}}
 
-    await utils.editor_sell.editor_start_1_6(callback, state, dict_editor)
+    await utils.editor_sell.editor_start_1_6_credit(callback, state, dict_editor)
     await state.set_state(SetReport.choosing_sell_selector_3)
 
 
@@ -2312,6 +2620,136 @@ async def editor_drom_cost_edit(message: Message, state: FSMContext):
             text=texts.MESSAGE_ONLY_DIGITS,
         )
         await state.set_state(SetReport.choosing_sell_editor_menu_drom_cost_edit_3)
+
+
+@router.callback_query(SetReport.choosing_sell_selector_3, F.data == "edit_menu_dealer_discount")
+async def editor_dealer_discount_get(callback: types.CallbackQuery, state: FSMContext):
+    current_state = await state.get_state()
+    print(f"PRINTER_LOGGER {callback.message.chat.username} на стейте {current_state}")
+    await utils.editor_sell.editor_first_dealer_discount_get(callback, state)
+    await state.set_state(SetReport.choosing_sell_editor_menu_dealer_discount_edit_3)
+
+
+@router.message(SetReport.choosing_sell_editor_menu_dealer_discount_edit_3)
+async def editor_dealer_discount_set(message: Message, state: FSMContext):
+    current_state = await state.get_state()
+    print(f"PRINTER_LOGGER {message.chat.username} на стейте {current_state}")
+    just = message.text.upper()
+    if just.isdigit():
+        await state.update_data(dealer_discount=int(just))
+        builder = InlineKeyboardBuilder()
+        builder.add(types.InlineKeyboardButton(
+            text="ОК",
+            callback_data=texts.BT_CONSTRUCTOR_2_ATP)
+        )
+        data = await state.get_data()
+        await message.answer(text="Замена на " + str(data['dealer_discount']), reply_markup=builder.as_markup())
+        await state.set_state(SetReport.choosing_sell_editor_start_3)
+    else:
+        await message.answer(
+            text=texts.MESSAGE_ONLY_DIGITS,
+        )
+        await state.set_state(SetReport.choosing_sell_editor_menu_dealer_discount_edit_3)
+
+
+@router.callback_query(SetReport.choosing_sell_selector_3, F.data == "edit_menu_summa_sob")
+async def editor_drom_cost(callback: types.CallbackQuery, state: FSMContext):
+    current_state = await state.get_state()
+    print(f"PRINTER_LOGGER {callback.message.chat.username} на стейте {current_state}")
+    await utils.editor_sell.editor_first_summa_sob_get(callback, state)
+    await state.set_state(SetReport.choosing_sell_editor_menu_summa_sob_edit_3)
+
+
+@router.message(SetReport.choosing_sell_editor_menu_summa_sob_edit_3)
+async def editor_drom_cost_edit(message: Message, state: FSMContext):
+    current_state = await state.get_state()
+    print(f"PRINTER_LOGGER {message.chat.username} на стейте {current_state}")
+    just = message.text.upper()
+    if just.isdigit():
+        await state.update_data(summa_sob=int(just))
+        builder = InlineKeyboardBuilder()
+        builder.add(types.InlineKeyboardButton(
+            text="ОК",
+            callback_data=texts.BT_CONSTRUCTOR_2_ATP)
+        )
+        data = await state.get_data()
+        await message.answer(text="Замена на " + str(data['summa_sob']), reply_markup=builder.as_markup())
+        await state.set_state(SetReport.choosing_sell_editor_start_3)
+    else:
+        await message.answer(
+            text=texts.MESSAGE_ONLY_DIGITS,
+        )
+        await state.set_state(SetReport.choosing_sell_editor_menu_summa_sob_edit_3)
+
+
+@router.callback_query(SetReport.choosing_sell_selector_3, F.data == "edit_menu_date_raschet")
+async def editor_drom_cost(callback: types.CallbackQuery, state: FSMContext):
+    current_state = await state.get_state()
+    print(f"PRINTER_LOGGER {callback.message.chat.username} на стейте {current_state}")
+    await utils.editor_sell.editor_first_date_raschet_get(callback, state)
+    await state.set_state(SetReport.choosing_sell_editor_menu_date_raschet_edit_3)
+
+
+@router.message(SetReport.choosing_sell_editor_menu_date_raschet_edit_3)
+async def editor_drom_cost_edit(message: Message, state: FSMContext):
+    current_state = await state.get_state()
+    print(f"PRINTER_LOGGER {message.chat.username} на стейте {current_state}")
+    date_raschet = message.text.lower()
+    new_date = await utils.connectors.date_normalizer(date_raschet)
+    if new_date:
+        await state.update_data(date_raschet=new_date)
+        builder = InlineKeyboardBuilder()
+        builder.add(types.InlineKeyboardButton(
+            text="ОК",
+            callback_data=texts.BT_CONSTRUCTOR_2_ATP)
+        )
+        data = await state.get_data()
+        await message.answer(text="Замена на " + str(data['date_raschet']), reply_markup=builder.as_markup())
+        await state.set_state(SetReport.choosing_sell_editor_start_3)
+    else:
+        await message.answer(
+            text="ДАТА НЕКОРРЕКТНА, ПОПРОБУЙТЕ ЕЩЕ РАЗ")
+        await message.answer(
+            text=texts.MESSAGE_DATE_RASCHET,
+        )
+        await state.set_state(SetReport.choosing_sell_editor_menu_date_raschet_edit_3)
+
+
+@router.callback_query(SetReport.choosing_sell_selector_3, F.data == "edit_menu_type_raschet")
+async def editor_drom_cost(callback: types.CallbackQuery, state: FSMContext):
+    current_state = await state.get_state()
+    print(f"PRINTER_LOGGER {callback.message.chat.username} на стейте {current_state}")
+    data = await state.get_data()
+    await callback.message.answer(
+        text="ВИД РАСЧЕТА " + "\"" + str(data['type_raschet']) + "\"")
+    builder = InlineKeyboardBuilder()
+    builder.add(types.InlineKeyboardButton(
+        text="НАЛ",
+        callback_data="НАЛ")
+    )
+    builder.add(types.InlineKeyboardButton(
+        text="БЕЗНАЛ",
+        callback_data="БЕЗНАЛ")
+    )
+    await callback.message.answer(
+        text="На какой вид расчета хотите изменить?", reply_markup=builder.as_markup(),
+    )
+    await state.set_state(SetReport.choosing_sell_editor_menu_type_raschet_edit_3)
+
+
+@router.callback_query(SetReport.choosing_sell_editor_menu_type_raschet_edit_3)
+async def editor_drom_cost_edit(callback: types.CallbackQuery, state: FSMContext):
+    current_state = await state.get_state()
+    print(f"PRINTER_LOGGER {callback.message.chat.username} на стейте {current_state}")
+    await state.update_data(type_raschet=callback.data)
+    builder = InlineKeyboardBuilder()
+    builder.add(types.InlineKeyboardButton(
+        text="ОК",
+        callback_data=texts.BT_CONSTRUCTOR_2_ATP)
+    )
+    data = await state.get_data()
+    await callback.message.answer(text="Замена на " + str(data['type_raschet']), reply_markup=builder.as_markup())
+    await state.set_state(SetReport.choosing_sell_editor_start_3)
 
 
 @router.callback_query(SetReport.choosing_sell_selector_3, F.data == "edit_menu_gosnumber")
@@ -2813,6 +3251,8 @@ async def constructor_choosing_wire12(message: Message, state: FSMContext):
         text="Все ок",
         callback_data="edit_menu_finish"
     ))
+    await state.update_data(date_raschet=None)
+    await state.update_data(type_raschet=None)
     data = await state.get_data()
     text = f'''Предварительный отчет:\nТИП ОТЧЕТА: {data['chosen_type']}\nКОМИССИЯ ИЛИ НАША: {data['type_credit_our']}\nКРЕДИТ ИЛИ НАЛИЧНЫЕ: {data['type_deal']}\nЦЕНА ДРОМ: {data['drom_cost']}\nМЕНЕДЖЕРСКАЯ СКИДКА: {data['dealer_discount']}\nСУММА СОБСТВЕННИКУ: {data['summa_sob']}\nС КЕМ ПРОДАЛ: {data['whosell']}\nКТО ПИСАЛ ДКП: {data['whosellcredit']}\n\nVIN: {data['chosen_vin_number']}\nГос номер: {data['chosen_vin_gos_number']}\nМарка: {data['chosen_vin_marka']}\nМодель: {data['chosen_vin_model']}\nГод: {data['chosen_vin_year']}\nКомментарий: {data['chosen_comment']}\n\nИнициатор: {message.chat.first_name + " " + message.chat.last_name}
             '''
@@ -2828,8 +3268,8 @@ async def constructor_choosing_awa_our_credit44(callback: types.CallbackQuery, s
     print(f"PRINTER_LOGGER {callback.message.chat.username} на стейте {current_state}")
     await callback.message.answer("Подождите, идет выгрузка отчета")
     await state.update_data(howmuchtorg=None)
-    await state.update_data(date_raschet=None)
-    await state.update_data(type_raschet=None)
+    # await state.update_data(date_raschet=None)
+    # await state.update_data(type_raschet=None)
     data = await state.get_data()
     await utils.connectors.db_sql_sell_insert(callback, data)
     await callback.message.answer(
@@ -2843,10 +3283,14 @@ async def constructor_editor_start(callback: types.CallbackQuery, state: FSMCont
     current_state = await state.get_state()
     print(f"PRINTER_LOGGER {callback.message.chat.username} на стейте {current_state}")
     dict_editor = {'editor_start':
-                       {'text': ["C кем продал", "Кто писал дкп", "Цена дром", "Гос номер", "Марка", "Модель",
+                       {'text': ["C кем продал", "Кто писал дкп", "Цена дром", "Менеджерская скидка",
+                                 "Сумма собственнику",
+                                 "Дата расчета", "Вид расчета", "Гос номер", "Марка", "Модель",
                                  "Год", "VIN",
                                  "Комментарий", "Все ок"],
                         'data': ["edit_menu_who_sell", "edit_menu_who_credit", "edit_menu_drom_cost",
+                                 "edit_menu_dealer_discount", "edit_menu_summa_sob", "edit_menu_date_raschet",
+                                 "edit_menu_type_raschet",
                                  "edit_menu_gosnumber", "edit_menu_marka",
                                  "edit_menu_model", "edit_menu_year", "edit_menu_vin", "edit_menu_comment",
                                  "edit_menu_finish"]}}
@@ -2973,6 +3417,136 @@ async def editor_drom_cost_edit(message: Message, state: FSMContext):
             text=texts.MESSAGE_ONLY_DIGITS,
         )
         await state.set_state(SetReport.choosing_sell_editor_menu_drom_cost_edit_4)
+
+
+@router.callback_query(SetReport.choosing_sell_selector_4, F.data == "edit_menu_dealer_discount")
+async def editor_dealer_discount_get(callback: types.CallbackQuery, state: FSMContext):
+    current_state = await state.get_state()
+    print(f"PRINTER_LOGGER {callback.message.chat.username} на стейте {current_state}")
+    await utils.editor_sell.editor_first_dealer_discount_get(callback, state)
+    await state.set_state(SetReport.choosing_sell_editor_menu_dealer_discount_edit_4)
+
+
+@router.message(SetReport.choosing_sell_editor_menu_dealer_discount_edit_4)
+async def editor_dealer_discount_set(message: Message, state: FSMContext):
+    current_state = await state.get_state()
+    print(f"PRINTER_LOGGER {message.chat.username} на стейте {current_state}")
+    just = message.text.upper()
+    if just.isdigit():
+        await state.update_data(dealer_discount=int(just))
+        builder = InlineKeyboardBuilder()
+        builder.add(types.InlineKeyboardButton(
+            text="ОК",
+            callback_data=texts.BT_CONSTRUCTOR_2_ATP)
+        )
+        data = await state.get_data()
+        await message.answer(text="Замена на " + str(data['dealer_discount']), reply_markup=builder.as_markup())
+        await state.set_state(SetReport.choosing_sell_editor_start_4)
+    else:
+        await message.answer(
+            text=texts.MESSAGE_ONLY_DIGITS,
+        )
+        await state.set_state(SetReport.choosing_sell_editor_menu_dealer_discount_edit_4)
+
+
+@router.callback_query(SetReport.choosing_sell_selector_4, F.data == "edit_menu_summa_sob")
+async def editor_drom_cost(callback: types.CallbackQuery, state: FSMContext):
+    current_state = await state.get_state()
+    print(f"PRINTER_LOGGER {callback.message.chat.username} на стейте {current_state}")
+    await utils.editor_sell.editor_first_summa_sob_get(callback, state)
+    await state.set_state(SetReport.choosing_sell_editor_menu_summa_sob_edit_4)
+
+
+@router.message(SetReport.choosing_sell_editor_menu_summa_sob_edit_4)
+async def editor_drom_cost_edit(message: Message, state: FSMContext):
+    current_state = await state.get_state()
+    print(f"PRINTER_LOGGER {message.chat.username} на стейте {current_state}")
+    just = message.text.upper()
+    if just.isdigit():
+        await state.update_data(summa_sob=int(just))
+        builder = InlineKeyboardBuilder()
+        builder.add(types.InlineKeyboardButton(
+            text="ОК",
+            callback_data=texts.BT_CONSTRUCTOR_2_ATP)
+        )
+        data = await state.get_data()
+        await message.answer(text="Замена на " + str(data['summa_sob']), reply_markup=builder.as_markup())
+        await state.set_state(SetReport.choosing_sell_editor_start_4)
+    else:
+        await message.answer(
+            text=texts.MESSAGE_ONLY_DIGITS,
+        )
+        await state.set_state(SetReport.choosing_sell_editor_menu_summa_sob_edit_4)
+
+
+@router.callback_query(SetReport.choosing_sell_selector_4, F.data == "edit_menu_date_raschet")
+async def editor_drom_cost(callback: types.CallbackQuery, state: FSMContext):
+    current_state = await state.get_state()
+    print(f"PRINTER_LOGGER {callback.message.chat.username} на стейте {current_state}")
+    await utils.editor_sell.editor_first_date_raschet_get(callback, state)
+    await state.set_state(SetReport.choosing_sell_editor_menu_date_raschet_edit_4)
+
+
+@router.message(SetReport.choosing_sell_editor_menu_date_raschet_edit_4)
+async def editor_drom_cost_edit(message: Message, state: FSMContext):
+    current_state = await state.get_state()
+    print(f"PRINTER_LOGGER {message.chat.username} на стейте {current_state}")
+    date_raschet = message.text.lower()
+    new_date = await utils.connectors.date_normalizer(date_raschet)
+    if new_date:
+        await state.update_data(date_raschet=new_date)
+        builder = InlineKeyboardBuilder()
+        builder.add(types.InlineKeyboardButton(
+            text="ОК",
+            callback_data=texts.BT_CONSTRUCTOR_2_ATP)
+        )
+        data = await state.get_data()
+        await message.answer(text="Замена на " + str(data['date_raschet']), reply_markup=builder.as_markup())
+        await state.set_state(SetReport.choosing_sell_editor_start_4)
+    else:
+        await message.answer(
+            text="ДАТА НЕКОРРЕКТНА, ПОПРОБУЙТЕ ЕЩЕ РАЗ")
+        await message.answer(
+            text=texts.MESSAGE_DATE_RASCHET,
+        )
+        await state.set_state(SetReport.choosing_sell_editor_menu_date_raschet_edit_4)
+
+
+@router.callback_query(SetReport.choosing_sell_selector_4, F.data == "edit_menu_type_raschet")
+async def editor_drom_cost(callback: types.CallbackQuery, state: FSMContext):
+    current_state = await state.get_state()
+    print(f"PRINTER_LOGGER {callback.message.chat.username} на стейте {current_state}")
+    data = await state.get_data()
+    await callback.message.answer(
+        text="ВИД РАСЧЕТА " + "\"" + str(data['type_raschet']) + "\"")
+    builder = InlineKeyboardBuilder()
+    builder.add(types.InlineKeyboardButton(
+        text="НАЛ",
+        callback_data="НАЛ")
+    )
+    builder.add(types.InlineKeyboardButton(
+        text="БЕЗНАЛ",
+        callback_data="БЕЗНАЛ")
+    )
+    await callback.message.answer(
+        text="На какой вид расчета хотите изменить?", reply_markup=builder.as_markup(),
+    )
+    await state.set_state(SetReport.choosing_sell_editor_menu_type_raschet_edit_4)
+
+
+@router.callback_query(SetReport.choosing_sell_editor_menu_type_raschet_edit_4)
+async def editor_drom_cost_edit(callback: types.CallbackQuery, state: FSMContext):
+    current_state = await state.get_state()
+    print(f"PRINTER_LOGGER {callback.message.chat.username} на стейте {current_state}")
+    await state.update_data(type_raschet=callback.data)
+    builder = InlineKeyboardBuilder()
+    builder.add(types.InlineKeyboardButton(
+        text="ОК",
+        callback_data=texts.BT_CONSTRUCTOR_2_ATP)
+    )
+    data = await state.get_data()
+    await callback.message.answer(text="Замена на " + str(data['type_raschet']), reply_markup=builder.as_markup())
+    await state.set_state(SetReport.choosing_sell_editor_start_4)
 
 
 @router.callback_query(SetReport.choosing_sell_selector_4, F.data == "edit_menu_gosnumber")
@@ -3287,6 +3861,8 @@ async def constructor_choosing_wire12(message: Message, state: FSMContext):
         text="Все ок",
         callback_data="edit_menu_finish"
     ))
+    # await state.update_data(date_raschet=None)
+    # await state.update_data(type_raschet=None)
     data = await state.get_data()
     text = f'''Предварительный отчет:\nТИП ОТЧЕТА: {data['chosen_type']}\nКОМИССИЯ ИЛИ НАША: {data['type_credit_our']}\nКРЕДИТ ИЛИ НАЛИЧНЫЕ: {data['type_deal']}\nЦЕНА ДРОМ: {data['drom_cost']}\nМЕНЕДЖЕРСКАЯ СКИДКА: {data['dealer_discount']}\nСУММА СОБСТВЕННИКУ: {data['summa_sob']}\nС КЕМ ПРОДАЛ: {data['whosell']}\nКТО ОФОРМИЛ КРЕДИТ: {data['whosellcredit']}\nДАТА РАСЧЕТА: {data['date_raschet']}\nВИД РАСЧЕТА: {data['type_raschet']}\n\nVIN: {data['chosen_vin_number']}\nГос номер: {data['chosen_vin_gos_number']}\nМарка: {data['chosen_vin_marka']}\nМодель: {data['chosen_vin_model']}\nГод: {data['chosen_vin_year']}\nКомментарий: {data['chosen_comment']}\n\nИнициатор: {message.chat.first_name + " " + message.chat.last_name}
             '''
@@ -3315,15 +3891,19 @@ async def constructor_editor_start(callback: types.CallbackQuery, state: FSMCont
     current_state = await state.get_state()
     print(f"PRINTER_LOGGER {callback.message.chat.username} на стейте {current_state}")
     dict_editor = {'editor_start':
-                       {'text': ["C кем продал", "Кто оформил кредит", "Цена дром", "Гос номер", "Марка", "Модель",
+                       {'text': ["C кем продал", "Кто оформил кредит", "Цена дром", "Менеджерская скидка",
+                                 "Сумма собственнику",
+                                 "Дата расчета", "Вид расчета", "Гос номер", "Марка", "Модель",
                                  "Год", "VIN",
                                  "Комментарий", "Все ок"],
                         'data': ["edit_menu_who_sell", "edit_menu_who_credit", "edit_menu_drom_cost",
+                                 "edit_menu_dealer_discount", "edit_menu_summa_sob", "edit_menu_date_raschet",
+                                 "edit_menu_type_raschet",
                                  "edit_menu_gosnumber", "edit_menu_marka",
                                  "edit_menu_model", "edit_menu_year", "edit_menu_vin", "edit_menu_comment",
                                  "edit_menu_finish"]}}
 
-    await utils.editor_sell.editor_start_1_6(callback, state, dict_editor)
+    await utils.editor_sell.editor_start_1_6_credit(callback, state, dict_editor)
     await state.set_state(SetReport.choosing_sell_selector_5)
 
 
@@ -3445,6 +4025,136 @@ async def editor_drom_cost_edit(message: Message, state: FSMContext):
             text=texts.MESSAGE_ONLY_DIGITS,
         )
         await state.set_state(SetReport.choosing_sell_editor_menu_drom_cost_edit_5)
+
+
+@router.callback_query(SetReport.choosing_sell_selector_5, F.data == "edit_menu_dealer_discount")
+async def editor_dealer_discount_get(callback: types.CallbackQuery, state: FSMContext):
+    current_state = await state.get_state()
+    print(f"PRINTER_LOGGER {callback.message.chat.username} на стейте {current_state}")
+    await utils.editor_sell.editor_first_dealer_discount_get(callback, state)
+    await state.set_state(SetReport.choosing_sell_editor_menu_dealer_discount_edit_5)
+
+
+@router.message(SetReport.choosing_sell_editor_menu_dealer_discount_edit_5)
+async def editor_dealer_discount_set(message: Message, state: FSMContext):
+    current_state = await state.get_state()
+    print(f"PRINTER_LOGGER {message.chat.username} на стейте {current_state}")
+    just = message.text.upper()
+    if just.isdigit():
+        await state.update_data(dealer_discount=int(just))
+        builder = InlineKeyboardBuilder()
+        builder.add(types.InlineKeyboardButton(
+            text="ОК",
+            callback_data=texts.BT_CONSTRUCTOR_2_ATP)
+        )
+        data = await state.get_data()
+        await message.answer(text="Замена на " + str(data['dealer_discount']), reply_markup=builder.as_markup())
+        await state.set_state(SetReport.choosing_sell_editor_start_5)
+    else:
+        await message.answer(
+            text=texts.MESSAGE_ONLY_DIGITS,
+        )
+        await state.set_state(SetReport.choosing_sell_editor_menu_dealer_discount_edit_5)
+
+
+@router.callback_query(SetReport.choosing_sell_selector_5, F.data == "edit_menu_summa_sob")
+async def editor_drom_cost(callback: types.CallbackQuery, state: FSMContext):
+    current_state = await state.get_state()
+    print(f"PRINTER_LOGGER {callback.message.chat.username} на стейте {current_state}")
+    await utils.editor_sell.editor_first_summa_sob_get(callback, state)
+    await state.set_state(SetReport.choosing_sell_editor_menu_summa_sob_edit_5)
+
+
+@router.message(SetReport.choosing_sell_editor_menu_summa_sob_edit_5)
+async def editor_drom_cost_edit(message: Message, state: FSMContext):
+    current_state = await state.get_state()
+    print(f"PRINTER_LOGGER {message.chat.username} на стейте {current_state}")
+    just = message.text.upper()
+    if just.isdigit():
+        await state.update_data(summa_sob=int(just))
+        builder = InlineKeyboardBuilder()
+        builder.add(types.InlineKeyboardButton(
+            text="ОК",
+            callback_data=texts.BT_CONSTRUCTOR_2_ATP)
+        )
+        data = await state.get_data()
+        await message.answer(text="Замена на " + str(data['summa_sob']), reply_markup=builder.as_markup())
+        await state.set_state(SetReport.choosing_sell_editor_start_5)
+    else:
+        await message.answer(
+            text=texts.MESSAGE_ONLY_DIGITS,
+        )
+        await state.set_state(SetReport.choosing_sell_editor_menu_summa_sob_edit_5)
+
+
+@router.callback_query(SetReport.choosing_sell_selector_5, F.data == "edit_menu_date_raschet")
+async def editor_drom_cost(callback: types.CallbackQuery, state: FSMContext):
+    current_state = await state.get_state()
+    print(f"PRINTER_LOGGER {callback.message.chat.username} на стейте {current_state}")
+    await utils.editor_sell.editor_first_date_raschet_get(callback, state)
+    await state.set_state(SetReport.choosing_sell_editor_menu_date_raschet_edit_5)
+
+
+@router.message(SetReport.choosing_sell_editor_menu_date_raschet_edit_5)
+async def editor_drom_cost_edit(message: Message, state: FSMContext):
+    current_state = await state.get_state()
+    print(f"PRINTER_LOGGER {message.chat.username} на стейте {current_state}")
+    date_raschet = message.text.lower()
+    new_date = await utils.connectors.date_normalizer(date_raschet)
+    if new_date:
+        await state.update_data(date_raschet=new_date)
+        builder = InlineKeyboardBuilder()
+        builder.add(types.InlineKeyboardButton(
+            text="ОК",
+            callback_data=texts.BT_CONSTRUCTOR_2_ATP)
+        )
+        data = await state.get_data()
+        await message.answer(text="Замена на " + str(data['date_raschet']), reply_markup=builder.as_markup())
+        await state.set_state(SetReport.choosing_sell_editor_start_5)
+    else:
+        await message.answer(
+            text="ДАТА НЕКОРРЕКТНА, ПОПРОБУЙТЕ ЕЩЕ РАЗ")
+        await message.answer(
+            text=texts.MESSAGE_DATE_RASCHET,
+        )
+        await state.set_state(SetReport.choosing_sell_editor_menu_date_raschet_edit_5)
+
+
+@router.callback_query(SetReport.choosing_sell_selector_5, F.data == "edit_menu_type_raschet")
+async def editor_drom_cost(callback: types.CallbackQuery, state: FSMContext):
+    current_state = await state.get_state()
+    print(f"PRINTER_LOGGER {callback.message.chat.username} на стейте {current_state}")
+    data = await state.get_data()
+    await callback.message.answer(
+        text="ВИД РАСЧЕТА " + "\"" + str(data['type_raschet']) + "\"")
+    builder = InlineKeyboardBuilder()
+    builder.add(types.InlineKeyboardButton(
+        text="НАЛ",
+        callback_data="НАЛ")
+    )
+    builder.add(types.InlineKeyboardButton(
+        text="БЕЗНАЛ",
+        callback_data="БЕЗНАЛ")
+    )
+    await callback.message.answer(
+        text="На какой вид расчета хотите изменить?", reply_markup=builder.as_markup(),
+    )
+    await state.set_state(SetReport.choosing_sell_editor_menu_type_raschet_edit_5)
+
+
+@router.callback_query(SetReport.choosing_sell_editor_menu_type_raschet_edit_5)
+async def editor_drom_cost_edit(callback: types.CallbackQuery, state: FSMContext):
+    current_state = await state.get_state()
+    print(f"PRINTER_LOGGER {callback.message.chat.username} на стейте {current_state}")
+    await state.update_data(type_raschet=callback.data)
+    builder = InlineKeyboardBuilder()
+    builder.add(types.InlineKeyboardButton(
+        text="ОК",
+        callback_data=texts.BT_CONSTRUCTOR_2_ATP)
+    )
+    data = await state.get_data()
+    await callback.message.answer(text="Замена на " + str(data['type_raschet']), reply_markup=builder.as_markup())
+    await state.set_state(SetReport.choosing_sell_editor_start_5)
 
 
 @router.callback_query(SetReport.choosing_sell_selector_5, F.data == "edit_menu_gosnumber")
@@ -3620,6 +4330,8 @@ async def constructor_choosing_wire12(message: Message, state: FSMContext):
         text="Все ок",
         callback_data="edit_menu_finish"
     ))
+    # await state.update_data(date_raschet=None)
+    # await state.update_data(type_raschet=None)
     data = await state.get_data()
     text = f'''Предварительный отчет:\nТИП ОТЧЕТА: {data['chosen_type']}\nКОМИССИЯ ИЛИ НАША: {data['type_credit_our']}\nКРЕДИТ ИЛИ НАЛИЧНЫЕ: {data['type_deal']}\nЦЕНА ДРОМ: {data['drom_cost']}\nМЕНЕДЖЕРСКАЯ СКИДКА: {data['dealer_discount']}\nСУММА СОБСТВЕННИКУ: {data['summa_sob']}\nС КЕМ ПРОДАЛ: {data['whosell']}\nКТО ОФОРМИЛ КРЕДИТ: {data['whosellcredit']}\nДАТА РАСЧЕТА: {data['date_raschet']}\nВИД РАСЧЕТА: {data['type_raschet']}\n\nVIN: {data['chosen_vin_number']}\nГос номер: {data['chosen_vin_gos_number']}\nМарка: {data['chosen_vin_marka']}\nМодель: {data['chosen_vin_model']}\nГод: {data['chosen_vin_year']}\nКомментарий: {data['chosen_comment']}\n\nИнициатор: {message.chat.first_name + " " + message.chat.last_name}
             '''
@@ -3648,15 +4360,19 @@ async def constructor_editor_start(callback: types.CallbackQuery, state: FSMCont
     current_state = await state.get_state()
     print(f"PRINTER_LOGGER {callback.message.chat.username} на стейте {current_state}")
     dict_editor = {'editor_start':
-                       {'text': ["C кем продал", "Кто оформил кредит", "Цена дром", "Гос номер", "Марка", "Модель",
+                       {'text': ["C кем продал", "Кто оформил кредит", "Цена дром", "Менеджерская скидка",
+                                 "Сумма собственнику",
+                                 "Дата расчета", "Вид расчета", "Гос номер", "Марка", "Модель",
                                  "Год", "VIN",
                                  "Комментарий", "Все ок"],
                         'data': ["edit_menu_who_sell", "edit_menu_who_credit", "edit_menu_drom_cost",
+                                 "edit_menu_dealer_discount", "edit_menu_summa_sob", "edit_menu_date_raschet",
+                                 "edit_menu_type_raschet",
                                  "edit_menu_gosnumber", "edit_menu_marka",
                                  "edit_menu_model", "edit_menu_year", "edit_menu_vin", "edit_menu_comment",
                                  "edit_menu_finish"]}}
 
-    await utils.editor_sell.editor_start_1_6(callback, state, dict_editor)
+    await utils.editor_sell.editor_start_1_6_credit(callback, state, dict_editor)
     await state.set_state(SetReport.choosing_sell_selector_6)
 
 
@@ -3777,6 +4493,136 @@ async def editor_drom_cost_edit(message: Message, state: FSMContext):
             text=texts.MESSAGE_ONLY_DIGITS,
         )
         await state.set_state(SetReport.choosing_sell_editor_menu_drom_cost_edit_6)
+
+
+@router.callback_query(SetReport.choosing_sell_selector_6, F.data == "edit_menu_dealer_discount")
+async def editor_dealer_discount_get(callback: types.CallbackQuery, state: FSMContext):
+    current_state = await state.get_state()
+    print(f"PRINTER_LOGGER {callback.message.chat.username} на стейте {current_state}")
+    await utils.editor_sell.editor_first_dealer_discount_get(callback, state)
+    await state.set_state(SetReport.choosing_sell_editor_menu_dealer_discount_edit_6)
+
+
+@router.message(SetReport.choosing_sell_editor_menu_dealer_discount_edit_6)
+async def editor_dealer_discount_set(message: Message, state: FSMContext):
+    current_state = await state.get_state()
+    print(f"PRINTER_LOGGER {message.chat.username} на стейте {current_state}")
+    just = message.text.upper()
+    if just.isdigit():
+        await state.update_data(dealer_discount=int(just))
+        builder = InlineKeyboardBuilder()
+        builder.add(types.InlineKeyboardButton(
+            text="ОК",
+            callback_data=texts.BT_CONSTRUCTOR_2_ATP)
+        )
+        data = await state.get_data()
+        await message.answer(text="Замена на " + str(data['dealer_discount']), reply_markup=builder.as_markup())
+        await state.set_state(SetReport.choosing_sell_editor_start_6)
+    else:
+        await message.answer(
+            text=texts.MESSAGE_ONLY_DIGITS,
+        )
+        await state.set_state(SetReport.choosing_sell_editor_menu_dealer_discount_edit_6)
+
+
+@router.callback_query(SetReport.choosing_sell_selector_6, F.data == "edit_menu_summa_sob")
+async def editor_drom_cost(callback: types.CallbackQuery, state: FSMContext):
+    current_state = await state.get_state()
+    print(f"PRINTER_LOGGER {callback.message.chat.username} на стейте {current_state}")
+    await utils.editor_sell.editor_first_summa_sob_get(callback, state)
+    await state.set_state(SetReport.choosing_sell_editor_menu_summa_sob_edit_6)
+
+
+@router.message(SetReport.choosing_sell_editor_menu_summa_sob_edit_6)
+async def editor_drom_cost_edit(message: Message, state: FSMContext):
+    current_state = await state.get_state()
+    print(f"PRINTER_LOGGER {message.chat.username} на стейте {current_state}")
+    just = message.text.upper()
+    if just.isdigit():
+        await state.update_data(summa_sob=int(just))
+        builder = InlineKeyboardBuilder()
+        builder.add(types.InlineKeyboardButton(
+            text="ОК",
+            callback_data=texts.BT_CONSTRUCTOR_2_ATP)
+        )
+        data = await state.get_data()
+        await message.answer(text="Замена на " + str(data['summa_sob']), reply_markup=builder.as_markup())
+        await state.set_state(SetReport.choosing_sell_editor_start_6)
+    else:
+        await message.answer(
+            text=texts.MESSAGE_ONLY_DIGITS,
+        )
+        await state.set_state(SetReport.choosing_sell_editor_menu_summa_sob_edit_6)
+
+
+@router.callback_query(SetReport.choosing_sell_selector_6, F.data == "edit_menu_date_raschet")
+async def editor_drom_cost(callback: types.CallbackQuery, state: FSMContext):
+    current_state = await state.get_state()
+    print(f"PRINTER_LOGGER {callback.message.chat.username} на стейте {current_state}")
+    await utils.editor_sell.editor_first_date_raschet_get(callback, state)
+    await state.set_state(SetReport.choosing_sell_editor_menu_date_raschet_edit_6)
+
+
+@router.message(SetReport.choosing_sell_editor_menu_date_raschet_edit_6)
+async def editor_drom_cost_edit(message: Message, state: FSMContext):
+    current_state = await state.get_state()
+    print(f"PRINTER_LOGGER {message.chat.username} на стейте {current_state}")
+    date_raschet = message.text.lower()
+    new_date = await utils.connectors.date_normalizer(date_raschet)
+    if new_date:
+        await state.update_data(date_raschet=new_date)
+        builder = InlineKeyboardBuilder()
+        builder.add(types.InlineKeyboardButton(
+            text="ОК",
+            callback_data=texts.BT_CONSTRUCTOR_2_ATP)
+        )
+        data = await state.get_data()
+        await message.answer(text="Замена на " + str(data['date_raschet']), reply_markup=builder.as_markup())
+        await state.set_state(SetReport.choosing_sell_editor_start_6)
+    else:
+        await message.answer(
+            text="ДАТА НЕКОРРЕКТНА, ПОПРОБУЙТЕ ЕЩЕ РАЗ")
+        await message.answer(
+            text=texts.MESSAGE_DATE_RASCHET,
+        )
+        await state.set_state(SetReport.choosing_sell_editor_menu_date_raschet_edit_6)
+
+
+@router.callback_query(SetReport.choosing_sell_selector_6, F.data == "edit_menu_type_raschet")
+async def editor_drom_cost(callback: types.CallbackQuery, state: FSMContext):
+    current_state = await state.get_state()
+    print(f"PRINTER_LOGGER {callback.message.chat.username} на стейте {current_state}")
+    data = await state.get_data()
+    await callback.message.answer(
+        text="ВИД РАСЧЕТА " + "\"" + str(data['type_raschet']) + "\"")
+    builder = InlineKeyboardBuilder()
+    builder.add(types.InlineKeyboardButton(
+        text="НАЛ",
+        callback_data="НАЛ")
+    )
+    builder.add(types.InlineKeyboardButton(
+        text="БЕЗНАЛ",
+        callback_data="БЕЗНАЛ")
+    )
+    await callback.message.answer(
+        text="На какой вид расчета хотите изменить?", reply_markup=builder.as_markup(),
+    )
+    await state.set_state(SetReport.choosing_sell_editor_menu_type_raschet_edit_6)
+
+
+@router.callback_query(SetReport.choosing_sell_editor_menu_type_raschet_edit_6)
+async def editor_drom_cost_edit(callback: types.CallbackQuery, state: FSMContext):
+    current_state = await state.get_state()
+    print(f"PRINTER_LOGGER {callback.message.chat.username} на стейте {current_state}")
+    await state.update_data(type_raschet=callback.data)
+    builder = InlineKeyboardBuilder()
+    builder.add(types.InlineKeyboardButton(
+        text="ОК",
+        callback_data=texts.BT_CONSTRUCTOR_2_ATP)
+    )
+    data = await state.get_data()
+    await callback.message.answer(text="Замена на " + str(data['type_raschet']), reply_markup=builder.as_markup())
+    await state.set_state(SetReport.choosing_sell_editor_start_6)
 
 
 @router.callback_query(SetReport.choosing_sell_selector_6, F.data == "edit_menu_gosnumber")
@@ -4276,6 +5122,8 @@ async def constructor_choosing_wire12(message: Message, state: FSMContext):
         text="Все ок",
         callback_data="edit_menu_finish"
     ))
+    # await state.update_data(date_raschet=None)
+    # await state.update_data(type_raschet=None)
     data = await state.get_data()
     text = f'''Предварительный отчет:\nТИП ОТЧЕТА: {data['chosen_type']}\nКОМИССИЯ ИЛИ НАША: {data['type_credit_our']}\nКРЕДИТ ИЛИ НАЛИЧНЫЕ: {data['type_deal']}\nЦЕНА ДРОМ: {data['drom_cost']}\nМЕНЕДЖЕРСКАЯ СКИДКА: {data['dealer_discount']}\nС КЕМ ПРОДАЛ: {data['whosell']}\nКТО ОФОРМИЛ КРЕДИТ: {data['whosellcredit']}\nVIN: {data['chosen_vin_number']}\nГос номер: {data['chosen_vin_gos_number']}\nМарка: {data['chosen_vin_marka']}\nМодель: {data['chosen_vin_model']}\nГод: {data['chosen_vin_year']}\nКомментарий: {data['chosen_comment']}\n\nИнициатор: {message.chat.first_name + " " + message.chat.last_name}
             '''
@@ -4293,8 +5141,8 @@ async def constructor_choosing_awa_our_credit44(callback: types.CallbackQuery, s
     await state.update_data(summa_nm=None)
     await state.update_data(summa_sob=None)
     await state.update_data(howmuchtorg=None)
-    await state.update_data(date_raschet=None)
-    await state.update_data(type_raschet=None)
+    # await state.update_data(date_raschet=None)
+    # await state.update_data(type_raschet=None)
     data = await state.get_data()
     await utils.connectors.db_sql_sell_insert(callback, data)
     await callback.message.answer(
@@ -4308,10 +5156,13 @@ async def constructor_editor_start(callback: types.CallbackQuery, state: FSMCont
     current_state = await state.get_state()
     print(f"PRINTER_LOGGER {callback.message.chat.username} на стейте {current_state}")
     dict_editor = {'editor_start':
-                       {'text': ["C кем продал", "Кто оформил кредит", "Цена дром", "Гос номер", "Марка", "Модель",
+                       {'text': ["C кем продал", "Кто оформил кредит", "Цена дром", "Менеджерская скидка",
+                                 "Дата расчета", "Вид расчета", "Гос номер", "Марка", "Модель",
                                  "Год", "VIN",
                                  "Комментарий", "Все ок"],
                         'data': ["edit_menu_who_sell", "edit_menu_who_credit", "edit_menu_drom_cost",
+                                 "edit_menu_dealer_discount", "edit_menu_date_raschet",
+                                 "edit_menu_type_raschet",
                                  "edit_menu_gosnumber", "edit_menu_marka",
                                  "edit_menu_model", "edit_menu_year", "edit_menu_vin", "edit_menu_comment",
                                  "edit_menu_finish"]}}
@@ -4438,6 +5289,136 @@ async def editor_drom_cost_edit(message: Message, state: FSMContext):
             text=texts.MESSAGE_ONLY_DIGITS,
         )
         await state.set_state(SetReport.choosing_sell_editor_menu_drom_cost_edit_7)
+
+
+@router.callback_query(SetReport.choosing_sell_selector_7, F.data == "edit_menu_dealer_discount")
+async def editor_dealer_discount_get(callback: types.CallbackQuery, state: FSMContext):
+    current_state = await state.get_state()
+    print(f"PRINTER_LOGGER {callback.message.chat.username} на стейте {current_state}")
+    await utils.editor_sell.editor_first_dealer_discount_get(callback, state)
+    await state.set_state(SetReport.choosing_sell_editor_menu_dealer_discount_edit_7)
+
+
+@router.message(SetReport.choosing_sell_editor_menu_dealer_discount_edit_7)
+async def editor_dealer_discount_set(message: Message, state: FSMContext):
+    current_state = await state.get_state()
+    print(f"PRINTER_LOGGER {message.chat.username} на стейте {current_state}")
+    just = message.text.upper()
+    if just.isdigit():
+        await state.update_data(dealer_discount=int(just))
+        builder = InlineKeyboardBuilder()
+        builder.add(types.InlineKeyboardButton(
+            text="ОК",
+            callback_data=texts.BT_CONSTRUCTOR_2_ATP)
+        )
+        data = await state.get_data()
+        await message.answer(text="Замена на " + str(data['dealer_discount']), reply_markup=builder.as_markup())
+        await state.set_state(SetReport.choosing_sell_editor_start_7)
+    else:
+        await message.answer(
+            text=texts.MESSAGE_ONLY_DIGITS,
+        )
+        await state.set_state(SetReport.choosing_sell_editor_menu_dealer_discount_edit_7)
+
+
+@router.callback_query(SetReport.choosing_sell_selector_7, F.data == "edit_menu_summa_sob")
+async def editor_drom_cost(callback: types.CallbackQuery, state: FSMContext):
+    current_state = await state.get_state()
+    print(f"PRINTER_LOGGER {callback.message.chat.username} на стейте {current_state}")
+    await utils.editor_sell.editor_first_summa_sob_get(callback, state)
+    await state.set_state(SetReport.choosing_sell_editor_menu_summa_sob_edit_7)
+
+
+@router.message(SetReport.choosing_sell_editor_menu_summa_sob_edit_7)
+async def editor_drom_cost_edit(message: Message, state: FSMContext):
+    current_state = await state.get_state()
+    print(f"PRINTER_LOGGER {message.chat.username} на стейте {current_state}")
+    just = message.text.upper()
+    if just.isdigit():
+        await state.update_data(summa_sob=int(just))
+        builder = InlineKeyboardBuilder()
+        builder.add(types.InlineKeyboardButton(
+            text="ОК",
+            callback_data=texts.BT_CONSTRUCTOR_2_ATP)
+        )
+        data = await state.get_data()
+        await message.answer(text="Замена на " + str(data['summa_sob']), reply_markup=builder.as_markup())
+        await state.set_state(SetReport.choosing_sell_editor_start_7)
+    else:
+        await message.answer(
+            text=texts.MESSAGE_ONLY_DIGITS,
+        )
+        await state.set_state(SetReport.choosing_sell_editor_menu_summa_sob_edit_7)
+
+
+@router.callback_query(SetReport.choosing_sell_selector_7, F.data == "edit_menu_date_raschet")
+async def editor_drom_cost(callback: types.CallbackQuery, state: FSMContext):
+    current_state = await state.get_state()
+    print(f"PRINTER_LOGGER {callback.message.chat.username} на стейте {current_state}")
+    await utils.editor_sell.editor_first_date_raschet_get(callback, state)
+    await state.set_state(SetReport.choosing_sell_editor_menu_date_raschet_edit_7)
+
+
+@router.message(SetReport.choosing_sell_editor_menu_date_raschet_edit_7)
+async def editor_drom_cost_edit(message: Message, state: FSMContext):
+    current_state = await state.get_state()
+    print(f"PRINTER_LOGGER {message.chat.username} на стейте {current_state}")
+    date_raschet = message.text.lower()
+    new_date = await utils.connectors.date_normalizer(date_raschet)
+    if new_date:
+        await state.update_data(date_raschet=new_date)
+        builder = InlineKeyboardBuilder()
+        builder.add(types.InlineKeyboardButton(
+            text="ОК",
+            callback_data=texts.BT_CONSTRUCTOR_2_ATP)
+        )
+        data = await state.get_data()
+        await message.answer(text="Замена на " + str(data['date_raschet']), reply_markup=builder.as_markup())
+        await state.set_state(SetReport.choosing_sell_editor_start_5)
+    else:
+        await message.answer(
+            text="ДАТА НЕКОРРЕКТНА, ПОПРОБУЙТЕ ЕЩЕ РАЗ")
+        await message.answer(
+            text=texts.MESSAGE_DATE_RASCHET,
+        )
+        await state.set_state(SetReport.choosing_sell_editor_menu_date_raschet_edit_7)
+
+
+@router.callback_query(SetReport.choosing_sell_selector_7, F.data == "edit_menu_type_raschet")
+async def editor_drom_cost(callback: types.CallbackQuery, state: FSMContext):
+    current_state = await state.get_state()
+    print(f"PRINTER_LOGGER {callback.message.chat.username} на стейте {current_state}")
+    data = await state.get_data()
+    await callback.message.answer(
+        text="ВИД РАСЧЕТА " + "\"" + str(data['type_raschet']) + "\"")
+    builder = InlineKeyboardBuilder()
+    builder.add(types.InlineKeyboardButton(
+        text="НАЛ",
+        callback_data="НАЛ")
+    )
+    builder.add(types.InlineKeyboardButton(
+        text="БЕЗНАЛ",
+        callback_data="БЕЗНАЛ")
+    )
+    await callback.message.answer(
+        text="На какой вид расчета хотите изменить?", reply_markup=builder.as_markup(),
+    )
+    await state.set_state(SetReport.choosing_sell_editor_menu_type_raschet_edit_7)
+
+
+@router.callback_query(SetReport.choosing_sell_editor_menu_type_raschet_edit_7)
+async def editor_drom_cost_edit(callback: types.CallbackQuery, state: FSMContext):
+    current_state = await state.get_state()
+    print(f"PRINTER_LOGGER {callback.message.chat.username} на стейте {current_state}")
+    await state.update_data(type_raschet=callback.data)
+    builder = InlineKeyboardBuilder()
+    builder.add(types.InlineKeyboardButton(
+        text="ОК",
+        callback_data=texts.BT_CONSTRUCTOR_2_ATP)
+    )
+    data = await state.get_data()
+    await callback.message.answer(text="Замена на " + str(data['type_raschet']), reply_markup=builder.as_markup())
+    await state.set_state(SetReport.choosing_sell_editor_start_7)
 
 
 @router.callback_query(SetReport.choosing_sell_selector_7, F.data == "edit_menu_gosnumber")
@@ -4947,6 +5928,8 @@ async def constructor_choosing_wire12(message: Message, state: FSMContext):
         text="Все ок",
         callback_data="edit_menu_finish"
     ))
+    await state.update_data(date_raschet=None)
+    await state.update_data(type_raschet=None)
     data = await state.get_data()
     text = f'''Предварительный отчет:\nТИП ОТЧЕТА: {data['chosen_type']}\nКОМИССИЯ ИЛИ НАША: {data['type_credit_our']}\nКРЕДИТ ИЛИ НАЛИЧНЫЕ: {data['type_deal']}\nЦЕНА ДРОМ: {data['drom_cost']}\nМЕНЕДЖЕРСКАЯ СКИДКА: {data['dealer_discount']}\nС КЕМ ПРОДАЛ: {data['whosell']}\nКТО ПИСАЛ ДКП: {data['whosellcredit']}\nVIN: {data['chosen_vin_number']}\nГос номер: {data['chosen_vin_gos_number']}\nМарка: {data['chosen_vin_marka']}\nМодель: {data['chosen_vin_model']}\nГод: {data['chosen_vin_year']}\nКомментарий: {data['chosen_comment']}\n\nИнициатор: {message.chat.first_name + " " + message.chat.last_name}
             '''
@@ -4979,10 +5962,14 @@ async def constructor_editor_start(callback: types.CallbackQuery, state: FSMCont
     current_state = await state.get_state()
     print(f"PRINTER_LOGGER {callback.message.chat.username} на стейте {current_state}")
     dict_editor = {'editor_start':
-                       {'text': ["C кем продал", "Кто писал ДКП", "Цена дром", "Гос номер", "Марка", "Модель",
+                       {'text': ["C кем продал", "Кто писал дкп", "Цена дром", "Менеджерская скидка",
+                                 "Сумма собственнику",
+                                 "Дата расчета", "Вид расчета", "Гос номер", "Марка", "Модель",
                                  "Год", "VIN",
                                  "Комментарий", "Все ок"],
                         'data': ["edit_menu_who_sell", "edit_menu_who_credit", "edit_menu_drom_cost",
+                                 "edit_menu_dealer_discount", "edit_menu_summa_sob", "edit_menu_date_raschet",
+                                 "edit_menu_type_raschet",
                                  "edit_menu_gosnumber", "edit_menu_marka",
                                  "edit_menu_model", "edit_menu_year", "edit_menu_vin", "edit_menu_comment",
                                  "edit_menu_finish"]}}
@@ -5109,6 +6096,136 @@ async def editor_drom_cost_edit(message: Message, state: FSMContext):
             text=texts.MESSAGE_ONLY_DIGITS,
         )
         await state.set_state(SetReport.choosing_sell_editor_menu_drom_cost_edit_8)
+
+
+@router.callback_query(SetReport.choosing_sell_selector_8, F.data == "edit_menu_dealer_discount")
+async def editor_dealer_discount_get(callback: types.CallbackQuery, state: FSMContext):
+    current_state = await state.get_state()
+    print(f"PRINTER_LOGGER {callback.message.chat.username} на стейте {current_state}")
+    await utils.editor_sell.editor_first_dealer_discount_get(callback, state)
+    await state.set_state(SetReport.choosing_sell_editor_menu_dealer_discount_edit_8)
+
+
+@router.message(SetReport.choosing_sell_editor_menu_dealer_discount_edit_8)
+async def editor_dealer_discount_set(message: Message, state: FSMContext):
+    current_state = await state.get_state()
+    print(f"PRINTER_LOGGER {message.chat.username} на стейте {current_state}")
+    just = message.text.upper()
+    if just.isdigit():
+        await state.update_data(dealer_discount=int(just))
+        builder = InlineKeyboardBuilder()
+        builder.add(types.InlineKeyboardButton(
+            text="ОК",
+            callback_data=texts.BT_CONSTRUCTOR_2_ATP)
+        )
+        data = await state.get_data()
+        await message.answer(text="Замена на " + str(data['dealer_discount']), reply_markup=builder.as_markup())
+        await state.set_state(SetReport.choosing_sell_editor_start_8)
+    else:
+        await message.answer(
+            text=texts.MESSAGE_ONLY_DIGITS,
+        )
+        await state.set_state(SetReport.choosing_sell_editor_menu_dealer_discount_edit_8)
+
+
+@router.callback_query(SetReport.choosing_sell_selector_8, F.data == "edit_menu_summa_sob")
+async def editor_drom_cost(callback: types.CallbackQuery, state: FSMContext):
+    current_state = await state.get_state()
+    print(f"PRINTER_LOGGER {callback.message.chat.username} на стейте {current_state}")
+    await utils.editor_sell.editor_first_summa_sob_get(callback, state)
+    await state.set_state(SetReport.choosing_sell_editor_menu_summa_sob_edit_8)
+
+
+@router.message(SetReport.choosing_sell_editor_menu_summa_sob_edit_8)
+async def editor_drom_cost_edit(message: Message, state: FSMContext):
+    current_state = await state.get_state()
+    print(f"PRINTER_LOGGER {message.chat.username} на стейте {current_state}")
+    just = message.text.upper()
+    if just.isdigit():
+        await state.update_data(summa_sob=int(just))
+        builder = InlineKeyboardBuilder()
+        builder.add(types.InlineKeyboardButton(
+            text="ОК",
+            callback_data=texts.BT_CONSTRUCTOR_2_ATP)
+        )
+        data = await state.get_data()
+        await message.answer(text="Замена на " + str(data['summa_sob']), reply_markup=builder.as_markup())
+        await state.set_state(SetReport.choosing_sell_editor_start_8)
+    else:
+        await message.answer(
+            text=texts.MESSAGE_ONLY_DIGITS,
+        )
+        await state.set_state(SetReport.choosing_sell_editor_menu_summa_sob_edit_8)
+
+
+@router.callback_query(SetReport.choosing_sell_selector_8, F.data == "edit_menu_date_raschet")
+async def editor_drom_cost(callback: types.CallbackQuery, state: FSMContext):
+    current_state = await state.get_state()
+    print(f"PRINTER_LOGGER {callback.message.chat.username} на стейте {current_state}")
+    await utils.editor_sell.editor_first_date_raschet_get(callback, state)
+    await state.set_state(SetReport.choosing_sell_editor_menu_date_raschet_edit_8)
+
+
+@router.message(SetReport.choosing_sell_editor_menu_date_raschet_edit_8)
+async def editor_drom_cost_edit(message: Message, state: FSMContext):
+    current_state = await state.get_state()
+    print(f"PRINTER_LOGGER {message.chat.username} на стейте {current_state}")
+    date_raschet = message.text.lower()
+    new_date = await utils.connectors.date_normalizer(date_raschet)
+    if new_date:
+        await state.update_data(date_raschet=new_date)
+        builder = InlineKeyboardBuilder()
+        builder.add(types.InlineKeyboardButton(
+            text="ОК",
+            callback_data=texts.BT_CONSTRUCTOR_2_ATP)
+        )
+        data = await state.get_data()
+        await message.answer(text="Замена на " + str(data['date_raschet']), reply_markup=builder.as_markup())
+        await state.set_state(SetReport.choosing_sell_editor_start_8)
+    else:
+        await message.answer(
+            text="ДАТА НЕКОРРЕКТНА, ПОПРОБУЙТЕ ЕЩЕ РАЗ")
+        await message.answer(
+            text=texts.MESSAGE_DATE_RASCHET,
+        )
+        await state.set_state(SetReport.choosing_sell_editor_menu_date_raschet_edit_8)
+
+
+@router.callback_query(SetReport.choosing_sell_selector_8, F.data == "edit_menu_type_raschet")
+async def editor_drom_cost(callback: types.CallbackQuery, state: FSMContext):
+    current_state = await state.get_state()
+    print(f"PRINTER_LOGGER {callback.message.chat.username} на стейте {current_state}")
+    data = await state.get_data()
+    await callback.message.answer(
+        text="ВИД РАСЧЕТА " + "\"" + str(data['type_raschet']) + "\"")
+    builder = InlineKeyboardBuilder()
+    builder.add(types.InlineKeyboardButton(
+        text="НАЛ",
+        callback_data="НАЛ")
+    )
+    builder.add(types.InlineKeyboardButton(
+        text="БЕЗНАЛ",
+        callback_data="БЕЗНАЛ")
+    )
+    await callback.message.answer(
+        text="На какой вид расчета хотите изменить?", reply_markup=builder.as_markup(),
+    )
+    await state.set_state(SetReport.choosing_sell_editor_menu_type_raschet_edit_8)
+
+
+@router.callback_query(SetReport.choosing_sell_editor_menu_type_raschet_edit_8)
+async def editor_drom_cost_edit(callback: types.CallbackQuery, state: FSMContext):
+    current_state = await state.get_state()
+    print(f"PRINTER_LOGGER {callback.message.chat.username} на стейте {current_state}")
+    await state.update_data(type_raschet=callback.data)
+    builder = InlineKeyboardBuilder()
+    builder.add(types.InlineKeyboardButton(
+        text="ОК",
+        callback_data=texts.BT_CONSTRUCTOR_2_ATP)
+    )
+    data = await state.get_data()
+    await callback.message.answer(text="Замена на " + str(data['type_raschet']), reply_markup=builder.as_markup())
+    await state.set_state(SetReport.choosing_sell_editor_start_8)
 
 
 @router.callback_query(SetReport.choosing_sell_selector_8, F.data == "edit_menu_gosnumber")

@@ -18,5 +18,5 @@ async def setter(message: Message, state: FSMContext, chosen_data: str):
 
 async def getter(callback: types.CallbackQuery, state: FSMContext, chosen_data: str):
     data = await state.get_data()
-    msg2 = "В данный момент используется " + data[chosen_data] + ", на какое значение хотите изменить?"
+    msg2 = "В данный момент используется " + str(data[chosen_data]) + ", на какое значение хотите изменить?"
     await callback.message.answer(text=msg2)

@@ -105,35 +105,35 @@ async def constructor_choosing_electro(message: Message, state: FSMContext, bot:
     if len(doka) == 47:
         msg2 = f'''В базу внесено:
         Год: {str(doka[26]).upper()}
-        VIN: {str(doka[6]).upper()}
+        VIN: {str(doka[21]).upper()}
         Марка: {str(doka[8]).upper()}
         Модель: {str(doka[10]).upper()}
         '''
         await message.answer(text=msg2, reply_markup=builder.as_markup())
-        await state.update_data(chosen_vin_gos_number="NONE", chosen_vin_number=str(doka[6]).upper(),
+        await state.update_data(chosen_vin_gos_number="NONE", chosen_vin_number=str(doka[21]).upper(),
                                 chosen_vin_marka=str(doka[8]).upper(), chosen_vin_model=str(doka[10]).upper(),
                                 chosen_vin_year=str(doka[26]).upper())
     elif len(doka) == 46:
         msg2 = f'''В базу внесено:
         Год: {str(doka[25]).upper()}
-        VIN: {str(doka[6]).upper()}
+        VIN: {str(doka[19]).upper()}
         Марка: {str(doka[8]).upper()}
         Модель: {str(doka[10]).upper()}
         '''
         await message.answer(text=msg2, reply_markup=builder.as_markup())
-        await state.update_data(chosen_vin_gos_number="NONE", chosen_vin_number=str(doka[6]).upper(),
+        await state.update_data(chosen_vin_gos_number="NONE", chosen_vin_number=str(doka[19]).upper(),
                                 chosen_vin_marka=str(doka[8]).upper(), chosen_vin_model=str(doka[10]).upper(),
                                 chosen_vin_year=str(doka[25]).upper())
     elif len(doka) == 44:
         msg2 = f'''В базу внесено:
         Год: {str(doka[24]).upper()}
-        VIN: {str(doka[5]).upper()}
+        VIN: {str(doka[20]).upper()}
         Марка: {str(doka[7]).upper()}
         Модель: {str(doka[9]).upper()}
         '''
         await message.answer(text=msg2, reply_markup=builder.as_markup())
-        await state.update_data(chosen_vin_gos_number="NONE", chosen_vin_number=str(doka[5]).upper(),
-                                chosen_vin_marka=str(doka[7]).upper(), chosen_vin_model=str(doka[7]).upper(),
+        await state.update_data(chosen_vin_gos_number="NONE", chosen_vin_number=str(doka[20]).upper(),
+                                chosen_vin_marka=str(doka[7]).upper(), chosen_vin_model=str(doka[9]).upper(),
                                 chosen_vin_year=str(doka[24]).upper())
     else:
         for i in doka:
@@ -184,7 +184,8 @@ async def constructor_choosing_vin(message: Message, state: FSMContext, bot: Bot
             doka.append(i["text"])
         elif i["name"] == "stsfront_car_number":
             doka.append(i["text"])
-        elif i["name"] == "stsfront_vin_number":
+        # elif i["name"] == "stsfront_vin_number":
+        elif i["name"] == "stsfront_car_trailer_number":
             doka.append(i["text"])
         elif i["name"] == "stsfront_car_brand":
             doka.append(i["text"])
@@ -194,29 +195,20 @@ async def constructor_choosing_vin(message: Message, state: FSMContext, bot: Bot
             doka.append(i["text"])
 
     print(doka)
-    # data_new = f"{msg[]}"
     msg2 = f'''В базу внесено:
     Год: {str(doka[0]).upper()}
     Гос номер: {str(doka[1]).upper()}
-    VIN: {str(doka[2]).upper()}
-    Марка: {str(doka[3]).upper()}
-    Модель: {str(doka[4]).upper()}
+    VIN: {str(doka[4]).upper()}
+    Марка: {str(doka[2]).upper()}
+    Модель: {str(doka[3]).upper()}
     '''
-    await state.update_data(chosen_vin_gos_number=str(doka[1]).upper(), chosen_vin_number=str(doka[2]).upper(),
-                            chosen_vin_marka=str(doka[3]).upper(), chosen_vin_model=str(doka[4]).upper(),
-                            chosen_vin_year=str(doka[
-                                                    0]).upper())
+    await state.update_data(chosen_vin_gos_number=str(doka[1]).upper(), chosen_vin_number=str(doka[4]).upper(),
+                            chosen_vin_marka=str(doka[2]).upper(), chosen_vin_model=str(doka[3]).upper(),
+                            chosen_vin_year=str(doka[0]).upper())
     await message.answer(text=msg2, reply_markup=builder.as_markup())
 
 
 async def constructor_choosing_vin_checker(message: Message, state: FSMContext, bot: Bot):
-    # await bot.download(
-    #     message.photo[-1],
-    #     destination=f"tmp/{message.photo[-1].file_id}.jpg"
-    #
-    # )
-    # await message.answer(text="Подождите пожалуйста")
-    # convert.convert_json_vin(f"tmp/{message.photo[-1].file_id}.jpg")
     await handle_photo_vin(message, bot)
     msg = api.get_strings_vin()
     print(msg)
@@ -226,7 +218,8 @@ async def constructor_choosing_vin_checker(message: Message, state: FSMContext, 
             doka.append(i["text"])
         elif i["name"] == "stsfront_car_number":
             doka.append(i["text"])
-        elif i["name"] == "stsfront_vin_number":
+        # elif i["name"] == "stsfront_vin_number":
+        elif i["name"] == "stsfront_car_trailer_number":
             doka.append(i["text"])
         elif i["name"] == "stsfront_car_brand":
             doka.append(i["text"])
@@ -236,9 +229,8 @@ async def constructor_choosing_vin_checker(message: Message, state: FSMContext, 
             doka.append(i["text"])
 
     print(doka)
-    # data_new = f"{msg[]}"
-    await state.update_data(chosen_vin_gos_number=str(doka[1]).upper(), chosen_vin_number=str(doka[2]).upper(),
-                            chosen_vin_marka=str(doka[3]).upper(), chosen_vin_model=str(doka[4]).upper(),
+    await state.update_data(chosen_vin_gos_number=str(doka[1]).upper(), chosen_vin_number=str(doka[4]).upper(),
+                            chosen_vin_marka=str(doka[2]).upper(), chosen_vin_model=str(doka[3]).upper(),
                             chosen_vin_year=str(doka[0]).upper())
 
 
