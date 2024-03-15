@@ -244,7 +244,7 @@ async def editor_start_7_8(callback: types.CallbackQuery, state: FSMContext, dic
         text=dict_editor['editor_start']['text'][1],
         callback_data=dict_editor['editor_start']['data'][1]
     ))
-    builder.row(types.InlineKeyboardButton(
+    builder.add(types.InlineKeyboardButton(
         text=dict_editor['editor_start']['text'][2],
         callback_data=dict_editor['editor_start']['data'][2]
     ))
@@ -252,7 +252,7 @@ async def editor_start_7_8(callback: types.CallbackQuery, state: FSMContext, dic
         text=dict_editor['editor_start']['text'][3],
         callback_data=dict_editor['editor_start']['data'][3]
     ))
-    builder.row(types.InlineKeyboardButton(
+    builder.add(types.InlineKeyboardButton(
         text=dict_editor['editor_start']['text'][4],
         callback_data=dict_editor['editor_start']['data'][4]
     ))
@@ -260,7 +260,7 @@ async def editor_start_7_8(callback: types.CallbackQuery, state: FSMContext, dic
         text=dict_editor['editor_start']['text'][5],
         callback_data=dict_editor['editor_start']['data'][5]
     ))
-    builder.row(types.InlineKeyboardButton(
+    builder.add(types.InlineKeyboardButton(
         text=dict_editor['editor_start']['text'][6],
         callback_data=dict_editor['editor_start']['data'][6]
     ))
@@ -268,7 +268,7 @@ async def editor_start_7_8(callback: types.CallbackQuery, state: FSMContext, dic
         text=dict_editor['editor_start']['text'][7],
         callback_data=dict_editor['editor_start']['data'][7]
     ))
-    builder.row(types.InlineKeyboardButton(
+    builder.add(types.InlineKeyboardButton(
         text=dict_editor['editor_start']['text'][8],
         callback_data=dict_editor['editor_start']['data'][8]
     ))
@@ -276,7 +276,7 @@ async def editor_start_7_8(callback: types.CallbackQuery, state: FSMContext, dic
         text=dict_editor['editor_start']['text'][9],
         callback_data=dict_editor['editor_start']['data'][9]
     ))
-    builder.row(types.InlineKeyboardButton(
+    builder.add(types.InlineKeyboardButton(
         text=dict_editor['editor_start']['text'][10],
         callback_data=dict_editor['editor_start']['data'][10]
     ))
