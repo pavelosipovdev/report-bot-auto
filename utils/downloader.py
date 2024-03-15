@@ -25,6 +25,7 @@ async def handle_photo(message: Message, bot: Bot):
     photo_file_id = message.photo[-1].file_id
     destination = save_path / f"{photo_file_id}.jpg"
     await bot.download(message.photo[-1], destination=destination)
+    convert.convert_json_japan(f"tmp/{message.photo[-1].file_id}.jpg")
 
 
 
@@ -73,13 +74,7 @@ async def constructor_choosing_electro(message: Message, state: FSMContext, bot:
         text=texts.BT_EDIT,
         callback_data=texts.BT_EDIT)
     )
-    # await bot.download(
-    #     message.photo[-1],
-    #     destination=f"tmp/{message.photo[-1].file_id}.jpg"
-    #
-    # )
-    # await message.answer(text="Подождите пожалуйста")
-    # convert.convert_json_japan(f"tmp/{message.photo[-1].file_id}.jpg")
+
     await handle_photo(message, bot)
     msg = api.get_strings_japan()
     doka = []
@@ -129,6 +124,17 @@ async def constructor_choosing_electro(message: Message, state: FSMContext, bot:
         await state.update_data(chosen_vin_gos_number="NONE", chosen_vin_number=str(doka[6]).upper(),
                                 chosen_vin_marka=str(doka[8]).upper(), chosen_vin_model=str(doka[10]).upper(),
                                 chosen_vin_year=str(doka[25]).upper())
+    elif len(doka) == 44:
+        msg2 = f'''В базу внесено:
+        Год: {str(doka[24]).upper()}
+        VIN: {str(doka[5]).upper()}
+        Марка: {str(doka[7]).upper()}
+        Модель: {str(doka[9]).upper()}
+        '''
+        await message.answer(text=msg2, reply_markup=builder.as_markup())
+        await state.update_data(chosen_vin_gos_number="NONE", chosen_vin_number=str(doka[5]).upper(),
+                                chosen_vin_marka=str(doka[7]).upper(), chosen_vin_model=str(doka[7]).upper(),
+                                chosen_vin_year=str(doka[24]).upper())
     else:
         for i in doka:
             if i.isdigit() and len(
@@ -139,7 +145,7 @@ async def constructor_choosing_electro(message: Message, state: FSMContext, bot:
                 break
         vin_number_sts = doka[6]
         marka_sts = doka[8]
-        model_sts = doka[8]
+        model_sts = doka[10]
         if str(doka[4]).upper() == "ИДЕНТИФИКАЦИОННЫЙ":
             vin_number_sts = doka[5]
         if str(doka[7]).upper() == "МАРКА":

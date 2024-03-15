@@ -89,12 +89,14 @@ async def db_sql_start(username, firstname, lastname, bot: Bot, message=None, ca
     if conn.closed == 0:
         try:
             sql_count_tg_user_info = "select count(*) from {database_schema}.tg_info_user where teg_name_tg='{value_teg_name_tg}';"
+            print(sql_count_tg_user_info)
             cur.execute(sql_count_tg_user_info.format(value_teg_name_tg=username, database_schema=database_schema))
             count_tg_user_info = cur.fetchall()
             print(count_tg_user_info[0][0])
 
             if count_tg_user_info[0][0] == 0:
                 sql_insert_tg_info_user = 'INSERT INTO {database_schema}.tg_info_user(teg_name_tg, user_name_tg) VALUES (%s,%s)'
+                print(sql_insert_tg_info_user)
                 cur.execute(sql_insert_tg_info_user.format(database_schema=database_schema), (username, firstname + " " + lastname,))
                 set_data_from_template({"name": firstname + " " + lastname, "tag": username})
                 set_data_from_template_backup({"name": firstname + " " + lastname, "tag": username})
@@ -150,11 +152,13 @@ async def db_sql_buy_with_college(username, message):
     if conn.closed == 0:
         try:
             sql_count_tg_user_info = "select count(*) from {database_schema}.tg_info_user where user_name_tg='{value_user_name_tg}';"
+            print(sql_count_tg_user_info)
             cur.execute(sql_count_tg_user_info.format(value_user_name_tg=username, database_schema=database_schema))
             count_tg_user_info = cur.fetchall()
             print(count_tg_user_info[0][0])
             if count_tg_user_info[0][0] != 0:
                 sql_select_tg_user_info = "select user_name_tg from {database_schema}.tg_info_user where user_name_tg='{value_user_name_tg}';"
+                print(sql_select_tg_user_info)
                 cur.execute(sql_select_tg_user_info.format(value_user_name_tg=username, database_schema=database_schema))
                 select_tg_user_info = cur.fetchall()
 
@@ -201,6 +205,7 @@ async def db_sql_buy_insert(callback=types.CallbackQuery, dict_report=None):
     if conn.closed == 0:
         try:
             sql_insert_tg_info_user = 'INSERT INTO {database_schema}.purchase_report(type_purchase_report, platform,username_purchase_сolleagues,write_dkp,price,tires,vin,gos_number,brand,model,years,comment_report,username_purchase_report) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)'
+            print(sql_insert_tg_info_user)
             cur.execute(sql_insert_tg_info_user.format(database_schema=database_schema), (
                 data['chosen_type'], data['chosen_place'], data['chosen_college_fio'], data['chosen_college_fio_dkp'],
                 data['chosen_cost'], data['chosen_wire_boolean'], data['chosen_vin_number'],
@@ -250,6 +255,7 @@ async def db_sql_sell_insert(callback=types.CallbackQuery, dict_report=None):
     if conn.closed == 0:
         try:
             sql_insert_tg_info_user = 'INSERT INTO {database_schema}.sell_report(type_sell_report,type_credit_our,type_deal,drom_cost,dealer_discount,summa_sob,howmuchtorg,whosell,whosellcredit,date_raschet,type_of_calс,vin,gos_number,brand,model,years,comment_report,username_sell_report) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)'
+            print(sql_insert_tg_info_user)
             cur.execute(sql_insert_tg_info_user.format(database_schema=database_schema), (
                 data['chosen_type'], data['type_credit_our'], data['type_deal'], data['drom_cost'],
                 data['dealer_discount'], data['summa_sob'], data['howmuchtorg'], data['whosell'],
@@ -300,6 +306,7 @@ async def db_sql_comission_insert(callback=types.CallbackQuery, dict_report=None
     if conn.closed == 0:
         try:
             sql_insert_comission_report = 'INSERT INTO {database_schema}.commission_report(type_purchase_report, platform, username_commission_сolleagues, write_ag,price_owner, size_commission, vin, gos_number, brand, model, years, comment_report, username_commission_report, type_of_calс) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)'
+            print(sql_insert_comission_report)
             cur.execute(sql_insert_comission_report.format(database_schem=database_schema), (
                 data['chosen_type'], data['chosen_place'], data['chosen_college_fio'], data['chosen_college_dkps'],
                 data['howmuchsobs'], data['howmuchcomissiob'],
@@ -343,6 +350,7 @@ async def db_sql_price_owner_select(vin_dict, message=None, callback=None):
         try:
             print(vin_dict)
             sql_select_vin_commission_report = "select price_owner from {database_schema}.commission_report where vin='{value_vin_tg}';"
+            print(sql_select_vin_commission_report)
             cur.execute(sql_select_vin_commission_report.format(value_vin_tg=vin_dict, database_schema=database_schema))
             select_price_owner = cur.fetchall()
             try:
@@ -404,6 +412,7 @@ async def db_sql_vin_buy_owner_select(vin_dict, message=None, callback=None):
             sql_select_vin_all = "select vin from {database_schema}.purchase_report pr \
                                         where pr.vin='{value_vin_tg}' \
                                         ;"
+            print(sql_select_vin_all)
             cur.execute(sql_select_vin_all.format(value_vin_tg=vin_dict, database_schema=database_schema))
             select_vin_all = cur.fetchall()
             print("select_vin_all=  " + str(select_vin_all))
@@ -465,6 +474,7 @@ async def db_sql_vin_comission_owner_select(vin_dict, message=None, callback=Non
     if conn.closed == 0:
         try:
             sql_select_vin_all = "select vin from {database_schema}.commission_report cr where cr.vin='{value_vin_tg}';"
+            print(sql_select_vin_all)
             cur.execute(sql_select_vin_all.format(value_vin_tg=vin_dict, database_schema=database_schema))
             select_vin_all = cur.fetchall()
             print("select_vin_all=  " + str(select_vin_all))
@@ -527,6 +537,7 @@ async def db_sql_type_of_calc_select(vin_dict, message=None, callback=None):
             print(f'Успешное подключение к бд, статус {conn.closed}')
             print(vin_dict)
             sql_select_type_of_calс_commission_report = "select type_of_calс from {database_schema}.commission_report where vin='{value_vin_tg}';"
+            print(sql_select_type_of_calс_commission_report)
             cur.execute(sql_select_type_of_calс_commission_report.format(value_vin_tg=vin_dict, database_schema=database_schema))
             select_type_of_calс = cur.fetchall()
             try:
@@ -588,6 +599,7 @@ async def db_sql_buy_editor_select(vin_dict, message=None, callback=None):
             print(f'Успешное подключение к бд, статус {conn.closed}')
             print(vin_dict)
             sql_select_buy_editor_report = "select * from {database_schema}.purchase_report where vin='{value_vin_tg}';"
+            print(sql_select_buy_editor_report)
             cur.execute(sql_select_buy_editor_report.format(value_vin_tg=vin_dict, database_schema=database_schema))
             select_buy_editor = cur.fetchall()
             try:
@@ -651,6 +663,7 @@ async def db_sql_comission_editor_select(vin_dict, message=None, callback=None):
             print(f'Успешное подключение к бд, статус {conn.closed}')
             print(vin_dict)
             sql_select_comission_editor_report = "select * from {database_schema}.commission_report where vin='{value_vin_tg}';"
+            print(sql_select_comission_editor_report)
             cur.execute(sql_select_comission_editor_report.format(value_vin_tg=vin_dict, database_schema=database_schema))
             select_comission_editor = cur.fetchall()
             try:
