@@ -436,7 +436,7 @@ async def constructor_choosing_cost(callback: types.CallbackQuery, state: FSMCon
 @router.message(SetReport.choosing_dkp004)
 async def constructor_choosing_cost222(message: Message, state: FSMContext):
     await message.answer(text="Пожалуйста подождите, идет проверка имени в базе данных")
-    college_name = utils.connectors.db_sql_buy_with_college(message.text)
+    college_name = await utils.connectors.db_sql_buy_with_college(message.text)
     await state.update_data(chosen_college_dkps=college_name)
     if str(college_name).startswith('<'):
         await message.answer("Менеджера нет в базе, укажите корректные данные в режиме редактирования")

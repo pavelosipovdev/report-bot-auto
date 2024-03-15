@@ -73,7 +73,7 @@ async def main_menu_bt_constructor_editor(callback: types.CallbackQuery, state: 
 @router.message(SetReport.choosing_editor_2)
 async def main_menu_bt_constructor_editor(message: types.Message, state: FSMContext):
     await message.answer(text="Пожалуйста подождите")
-    buy_data = utils.connectors.db_sql_buy_editor_select(message.text.upper(), message)
+    buy_data = await utils.connectors.db_sql_buy_editor_select(message.text.upper(), message)
     await state.update_data(dict_buy_data=buy_data)
     rezina = 'Есть' if buy_data[5] else 'Нет'
     try:
@@ -98,7 +98,7 @@ async def main_menu_bt_constructor_editor(message: types.Message, state: FSMCont
 @router.message(SetReport.choosing_editor_6)
 async def main_menu_bt_constructor_editor(message: types.Message, state: FSMContext):
     await message.answer(text="Пожалуйста подождите")
-    comission_data = utils.connectors.db_sql_comission_editor_select(message.text.upper(), message)
+    comission_data = await utils.connectors.db_sql_comission_editor_select(message.text.upper(), message)
     await state.update_data(dict_comission_data=comission_data)
     try:
         text = f'''

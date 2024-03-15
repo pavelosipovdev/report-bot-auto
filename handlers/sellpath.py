@@ -1244,7 +1244,7 @@ async def sell_choosing_comissiya_creditcomission6(callback: types.CallbackQuery
     print(f"PRINTER_LOGGER {callback.message.chat.username} на стейте {current_state}")
     data = await state.get_data()
     vin_number = data['chosen_vin_number']
-    just = utils.connectors.db_sql_price_owner_select(vin_number, callback)
+    just = await utils.connectors.db_sql_price_owner_select(vin_number, callback)
     await state.update_data(summa_sob=int(re.sub("[^0-9]", "", str(just))))
     builder = InlineKeyboardBuilder()
     builder.add(types.InlineKeyboardButton(
@@ -1721,7 +1721,7 @@ async def sell_choosing_comissiya_comissiya_credit14(callback: types.CallbackQue
     data = await state.get_data()
     vin_number = data['chosen_vin_number']
     await callback.message.answer(text="Пожалуйста подождите, идет проверка в базе данных")
-    type_of_calc = utils.connectors.db_sql_type_of_calc_select(vin_number, callback)
+    type_of_calc = await utils.connectors.db_sql_type_of_calc_select(vin_number, callback)
     await state.update_data(type_raschet=str(type_of_calc))
     builder = InlineKeyboardBuilder()
     builder.add(types.InlineKeyboardButton(
@@ -1750,7 +1750,7 @@ async def sell_choosing_comissiya_creditcomission14(message: Message, state: FSM
         data = await state.get_data()
         vin_number = data['chosen_vin_number']
         await message.answer(text="Пожалуйста подождите, идет проверка в базе данных")
-        type_of_calc = utils.connectors.db_sql_type_of_calc_select(vin_number, message)
+        type_of_calc = await utils.connectors.db_sql_type_of_calc_select(vin_number, message)
         await state.update_data(type_raschet=str(type_of_calc))
         builder = InlineKeyboardBuilder()
         builder.add(types.InlineKeyboardButton(
@@ -2603,7 +2603,7 @@ async def sell_choosing_comissiya_cash_comission6(callback: types.CallbackQuery,
     print(f"PRINTER_LOGGER {callback.message.chat.username} на стейте {current_state}")
     data = await state.get_data()
     vin_number = data['chosen_vin_number']
-    just = utils.connectors.db_sql_price_owner_select(vin_number, callback)
+    just = await utils.connectors.db_sql_price_owner_select(vin_number, callback)
     await state.update_data(summa_sob=int(re.sub("[^0-9]", "", str(just))))
     builder = InlineKeyboardBuilder()
     builder.add(types.InlineKeyboardButton(
@@ -3137,7 +3137,7 @@ async def sell_choosing_comissiya_comissiya_cash14(callback: types.CallbackQuery
     data = await state.get_data()
     vin_number = data['chosen_vin_number']
     await callback.message.answer(text="Пожалуйста подождите, идет проверка в базе данных")
-    type_of_calc = utils.connectors.db_sql_type_of_calc_select(vin_number, callback)
+    type_of_calc = await utils.connectors.db_sql_type_of_calc_select(vin_number, callback)
     await state.update_data(type_raschet=str(type_of_calc))
     builder = InlineKeyboardBuilder()
     builder.add(types.InlineKeyboardButton(
@@ -3166,7 +3166,7 @@ async def sell_choosing_comissiya_creditcomission14(message: Message, state: FSM
         data = await state.get_data()
         vin_number = data['chosen_vin_number']
         await message.answer(text="Пожалуйста подождите, идет проверка в базе данных")
-        type_of_calc = utils.connectors.db_sql_type_of_calc_select(vin_number, message)
+        type_of_calc = await utils.connectors.db_sql_type_of_calc_select(vin_number, message)
         await state.update_data(type_raschet=str(type_of_calc))
         builder = InlineKeyboardBuilder()
         builder.add(types.InlineKeyboardButton(
@@ -3198,7 +3198,7 @@ async def sell_choosing_comissiya_cash_comission15(callback: types.CallbackQuery
     data = await state.get_data()
     vin_number = data['chosen_vin_number']
     await callback.message.answer(text="Пожалуйста подождите, идет проверка в базе данных")
-    type_of_calc = utils.connectors.db_sql_type_of_calc_select(vin_number, callback)
+    type_of_calc = await utils.connectors.db_sql_type_of_calc_select(vin_number, callback)
     await state.update_data(type_raschet=str(type_of_calc))
     builder = InlineKeyboardBuilder()
     builder.add(types.InlineKeyboardButton(
